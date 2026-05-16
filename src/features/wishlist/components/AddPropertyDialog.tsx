@@ -19,7 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { createWishlistProperty } from "../wishlist-service";
-import type { WishlistDraft } from "../types";
+import { LAGE_OPTIONS, type WishlistDraft } from "../types";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -46,6 +46,7 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
   const [kaltmiete, setKaltmiete] = useState("");
   const [eigenanteil, setEigenanteil] = useState("");
   const [exposeUrl, setExposeUrl] = useState("");
+  const [lage, setLage] = useState<string>("");
 
   function resetForm() {
     setName("");
@@ -55,6 +56,7 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
     setKaltmiete("");
     setEigenanteil("");
     setExposeUrl("");
+    setLage("");
     setError(null);
     setTab("manual");
   }
@@ -75,6 +77,7 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
       name: name.trim(),
       address: address.trim() || null,
       exposeUrl: exposeUrl.trim() || null,
+      lage: lage || null,
       kaufpreis: parseNum(kaufpreis),
       wohnflaeche: parseNum(wohnflaeche),
       zimmer: null,
@@ -82,7 +85,6 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
       kaltmiete: parseNum(kaltmiete),
       eigenanteil: parseNum(eigenanteil),
       nebenkostenPct: 10,
-      nichtUmlagefaehigPctOfMiete: 5,
       notes: null,
     };
     try {
@@ -186,13 +188,29 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
                 />
               </Field>
             </div>
-            <Field label={t("exposeUrl")}>
-              <Input
-                value={exposeUrl}
-                onChange={(e) => setExposeUrl(e.target.value)}
-                placeholder="https://www.immobilienscout24.de/expose/..."
-              />
-            </Field>
+            <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
+              <Field label={t("exposeUrl")}>
+                <Input
+                  value={exposeUrl}
+                  onChange={(e) => setExposeUrl(e.target.value)}
+                  placeholder="https://www.immobilienscout24.de/expose/..."
+                />
+              </Field>
+              <Field label={t("lage")}>
+                <select
+                  value={lage}
+                  onChange={(e) => setLage(e.target.value)}
+                  className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none"
+                >
+                  <option value="">—</option>
+                  {LAGE_OPTIONS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
           </div>
         )}
 

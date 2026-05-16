@@ -96,6 +96,7 @@ type WishlistRowShape = {
   name: string;
   address: string | null;
   expose_url: string | null;
+  lage: string | null;
   kaufpreis: number | null;
   wohnflaeche: number | null;
   zimmer: number | null;
@@ -103,7 +104,6 @@ type WishlistRowShape = {
   kaltmiete: number | null;
   eigenanteil: number | null;
   nebenkosten_pct: number;
-  nicht_umlagefaehig_pct_of_miete: number;
   notes: string | null;
   created_at: string;
   updated_at: string;

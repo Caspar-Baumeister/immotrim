@@ -179,6 +179,8 @@
     "backToList": "Back to list",
     "save": "Save",
     "notFound": "This property could not be found.",
+    "openExpose": "Open expose",
+    "delete": "Delete",
     "global": {
       "title": "Global assumptions",
       "interest": "Interest rate",
@@ -187,19 +189,41 @@
       "vacancyFull": "Vacancy",
       "reserves": "Reserves",
       "reservesFull": "Reserves",
+      "nonAllocable": "Non-alloc.",
+      "nonAllocableFull": "Non-allocable costs",
       "ofRent": "of rent",
       "editDefaults": "Edit defaults"
     },
     "columns": {
       "name": "Name",
       "address": "Address",
+      "lage": "Location",
       "price": "Price",
       "area": "Area",
       "pricePerSqm": "€/m²",
       "rent": "Rent",
       "grossYield": "Gross yield",
+      "netYield": "Net yield",
       "cashflow": "Cashflow",
       "ekReturn": "Equity return"
+    },
+    "colSettings": {
+      "yield": {
+        "title": "Yield calculation",
+        "brutto": "Gross",
+        "netto": "Net",
+        "nettoFormula": "(Rent − Vacancy − Reserves − NonAlloc) × 12 ÷ Price"
+      },
+      "cashflow": {
+        "title": "Cashflow calculation",
+        "subtractReserves": "Subtract reserves",
+        "subtractNonAllocable": "Subtract non-allocable costs",
+        "subtractVacancy": "Subtract vacancy"
+      },
+      "ekReturn": {
+        "title": "Equity return",
+        "includeTilgung": "Include principal repayment"
+      }
     },
     "sections": {
       "identification": "Identification",
@@ -210,10 +234,10 @@
     "fields": {
       "rooms": "Rooms",
       "yearBuilt": "Year built",
+      "lage": "Location rating",
       "equityPlaceholder": "Default: {pct}% of price",
       "nebenkostenPct": "Acquisition costs (%)",
-      "nichtUmlPct": "Non-allocable (% of rent)",
-      "globalAssumptionsHint": "Vacancy and reserves are set in the global assumptions above.",
+      "globalAssumptionsHint": "Vacancy, reserves and non-allocable costs are set in the global assumptions above.",
       "notesPlaceholder": "e.g. neighborhood notes, renovation needs, deadlines ..."
     },
     "add": {
@@ -231,6 +255,7 @@
       "rent": "Cold rent (€/month)",
       "equity": "Equity (€)",
       "exposeUrl": "Expose URL (optional)",
+      "lage": "Location",
       "save": "Save",
       "saving": "Saving ...",
       "cancel": "Cancel",

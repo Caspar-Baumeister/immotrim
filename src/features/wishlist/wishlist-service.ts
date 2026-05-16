@@ -20,6 +20,7 @@ function fromRow(row: Row): WishlistProperty {
     name: row.name,
     address: row.address,
     exposeUrl: row.expose_url,
+    lage: row.lage,
     kaufpreis: row.kaufpreis,
     wohnflaeche: row.wohnflaeche,
     zimmer: row.zimmer,
@@ -27,7 +28,6 @@ function fromRow(row: Row): WishlistProperty {
     kaltmiete: row.kaltmiete,
     eigenanteil: row.eigenanteil,
     nebenkostenPct: row.nebenkosten_pct,
-    nichtUmlagefaehigPctOfMiete: row.nicht_umlagefaehig_pct_of_miete,
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -40,6 +40,7 @@ function toInsert(userId: string, draft: WishlistDraft) {
     name: draft.name,
     address: draft.address,
     expose_url: draft.exposeUrl,
+    lage: draft.lage,
     kaufpreis: draft.kaufpreis,
     wohnflaeche: draft.wohnflaeche,
     zimmer: draft.zimmer,
@@ -47,7 +48,6 @@ function toInsert(userId: string, draft: WishlistDraft) {
     kaltmiete: draft.kaltmiete,
     eigenanteil: draft.eigenanteil,
     nebenkosten_pct: draft.nebenkostenPct,
-    nicht_umlagefaehig_pct_of_miete: draft.nichtUmlagefaehigPctOfMiete,
     notes: draft.notes,
   };
 }
@@ -57,6 +57,7 @@ function toUpdate(draft: WishlistDraft) {
     name: draft.name,
     address: draft.address,
     expose_url: draft.exposeUrl,
+    lage: draft.lage,
     kaufpreis: draft.kaufpreis,
     wohnflaeche: draft.wohnflaeche,
     zimmer: draft.zimmer,
@@ -64,7 +65,6 @@ function toUpdate(draft: WishlistDraft) {
     kaltmiete: draft.kaltmiete,
     eigenanteil: draft.eigenanteil,
     nebenkosten_pct: draft.nebenkostenPct,
-    nicht_umlagefaehig_pct_of_miete: draft.nichtUmlagefaehigPctOfMiete,
     notes: draft.notes,
     updated_at: new Date().toISOString(),
   };

@@ -179,6 +179,8 @@
     "backToList": "Zurück zur Liste",
     "save": "Speichern",
     "notFound": "Diese Immobilie konnte nicht gefunden werden.",
+    "openExpose": "Expose öffnen",
+    "delete": "Löschen",
     "global": {
       "title": "Globale Annahmen",
       "interest": "Zinssatz",
@@ -187,19 +189,41 @@
       "vacancyFull": "Leerstand",
       "reserves": "Rücklagen",
       "reservesFull": "Rücklagen",
+      "nonAllocable": "Nicht umlegb.",
+      "nonAllocableFull": "Nicht umlegbare NK",
       "ofRent": "der Miete",
       "editDefaults": "Annahmen bearbeiten"
     },
     "columns": {
       "name": "Name",
       "address": "Adresse",
+      "lage": "Lage",
       "price": "Kaufpreis",
       "area": "Wohnfläche",
       "pricePerSqm": "€/m²",
       "rent": "Kaltmiete",
       "grossYield": "Brutto-Rendite",
+      "netYield": "Netto-Rendite",
       "cashflow": "Cashflow",
       "ekReturn": "EK-Rendite"
+    },
+    "colSettings": {
+      "yield": {
+        "title": "Renditeberechnung",
+        "brutto": "Brutto",
+        "netto": "Netto",
+        "nettoFormula": "(Kaltmiete − Leerstand − Rücklagen − NK) × 12 ÷ Kaufpreis"
+      },
+      "cashflow": {
+        "title": "Cashflow-Berechnung",
+        "subtractReserves": "Rücklagen abziehen",
+        "subtractNonAllocable": "Nicht umlegbare NK abziehen",
+        "subtractVacancy": "Leerstand abziehen"
+      },
+      "ekReturn": {
+        "title": "EK-Rendite",
+        "includeTilgung": "Tilgung einrechnen"
+      }
     },
     "sections": {
       "identification": "Identifikation",
@@ -210,10 +234,10 @@
     "fields": {
       "rooms": "Zimmer",
       "yearBuilt": "Baujahr",
+      "lage": "Lage",
       "equityPlaceholder": "Standard: {pct}% des Kaufpreises",
       "nebenkostenPct": "Kaufnebenkosten (%)",
-      "nichtUmlPct": "Nicht umlagef. NK (% der Miete)",
-      "globalAssumptionsHint": "Leerstand und Rücklagen werden in den globalen Annahmen oben gesetzt.",
+      "globalAssumptionsHint": "Leerstand, Rücklagen und nicht umlegbare NK werden in den globalen Annahmen oben gesetzt.",
       "notesPlaceholder": "z.B. Lage-Notizen, Renovierungsbedarf, Termine ..."
     },
     "add": {
@@ -231,6 +255,7 @@
       "rent": "Kaltmiete (€/Monat)",
       "equity": "Eigenanteil (€)",
       "exposeUrl": "Expose-URL (optional)",
+      "lage": "Lage",
       "save": "Speichern",
       "saving": "Speichern ...",
       "cancel": "Abbrechen",

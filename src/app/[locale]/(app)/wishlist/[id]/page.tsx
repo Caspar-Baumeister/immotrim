@@ -16,7 +16,7 @@ import {
 } from "@/features/wishlist/wishlist-service";
 import { calculateWishlistRowKpis } from "@/features/wishlist/calculations";
 import { useGlobalAssumptions } from "@/features/wishlist/global-assumptions-store";
-import type { WishlistDraft, WishlistProperty } from "@/features/wishlist/types";
+import { LAGE_OPTIONS, type WishlistDraft, type WishlistProperty } from "@/features/wishlist/types";
 import { formatCurrency, formatPercent, cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
@@ -36,6 +36,7 @@ export default function WishlistDetailPage({ params }: Props) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [exposeUrl, setExposeUrl] = useState("");
+  const [lage, setLage] = useState<string>("");
   const [kaufpreis, setKaufpreis] = useState<string>("");
   const [wohnflaeche, setWohnflaeche] = useState<string>("");
   const [zimmer, setZimmer] = useState<string>("");
@@ -43,7 +44,6 @@ export default function WishlistDetailPage({ params }: Props) {
   const [kaltmiete, setKaltmiete] = useState<string>("");
   const [eigenanteil, setEigenanteil] = useState<string>("");
   const [nebenkostenPct, setNebenkostenPct] = useState<string>("10");
-  const [nichtUmlPct, setNichtUmlPct] = useState<string>("5");
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -62,6 +62,7 @@ export default function WishlistDetailPage({ params }: Props) {
     setName(p.name);
     setAddress(p.address ?? "");
     setExposeUrl(p.exposeUrl ?? "");
+    setLage(p.lage ?? "");
     setKaufpreis(p.kaufpreis?.toString() ?? "");
     setWohnflaeche(p.wohnflaeche?.toString() ?? "");
     setZimmer(p.zimmer?.toString() ?? "");
@@ -69,7 +70,6 @@ export default function WishlistDetailPage({ params }: Props) {
     setKaltmiete(p.kaltmiete?.toString() ?? "");
     setEigenanteil(p.eigenanteil?.toString() ?? "");
     setNebenkostenPct(p.nebenkostenPct.toString());
-    setNichtUmlPct(p.nichtUmlagefaehigPctOfMiete.toString());
     setNotes(p.notes ?? "");
   }
 
@@ -83,6 +83,7 @@ export default function WishlistDetailPage({ params }: Props) {
       name: name.trim(),
       address: address.trim() || null,
       exposeUrl: exposeUrl.trim() || null,
+      lage: lage || null,
       kaufpreis: parseNum(kaufpreis),
       wohnflaeche: parseNum(wohnflaeche),
       zimmer: parseNum(zimmer),
@@ -90,7 +91,6 @@ export default function WishlistDetailPage({ params }: Props) {
       kaltmiete: parseNum(kaltmiete),
       eigenanteil: parseNum(eigenanteil),
       nebenkostenPct: parseNum(nebenkostenPct) ?? 10,
-      nichtUmlagefaehigPctOfMiete: parseNum(nichtUmlPct) ?? 5,
       notes: notes.trim() || null,
     };
   }
@@ -111,7 +111,11 @@ export default function WishlistDetailPage({ params }: Props) {
       tilgung: assumptions.tilgung,
       leerstandPct: assumptions.leerstandPct,
       ruecklagenPctOfMiete: assumptions.ruecklagenPctOfMiete,
+      nichtUmlagefaehigPctOfMiete: assumptions.nichtUmlagefaehigPctOfMiete,
       defaultEigenanteilPct: assumptions.defaultEigenanteilPct,
+      yieldMode: assumptions.yieldMode,
+      cashflowSettings: assumptions.cashflowSettings,
+      ekReturnSettings: assumptions.ekReturnSettings,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -120,12 +124,17 @@ export default function WishlistDetailPage({ params }: Props) {
     kaltmiete,
     eigenanteil,
     nebenkostenPct,
-    nichtUmlPct,
     assumptions.zins,
     assumptions.tilgung,
     assumptions.leerstandPct,
     assumptions.ruecklagenPctOfMiete,
+    assumptions.nichtUmlagefaehigPctOfMiete,
     assumptions.defaultEigenanteilPct,
+    assumptions.yieldMode,
+    assumptions.cashflowSettings.subtractReserves,
+    assumptions.cashflowSettings.subtractNonAllocable,
+    assumptions.cashflowSettings.subtractVacancy,
+    assumptions.ekReturnSettings.includeTilgung,
   ]);
 
   async function handleSave() {
@@ -195,7 +204,14 @@ export default function WishlistDetailPage({ params }: Props) {
         {/* Live KPIs */}
         <div className="bg-card border border-border rounded-xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Kpi label={t("columns.pricePerSqm")} value={fmtCurrency(previewKpis.pricePerSqm)} />
-          <Kpi label={t("columns.grossYield")} value={fmtPct(previewKpis.bruttoMietrendite)} />
+          <Kpi
+            label={
+              assumptions.yieldMode === "netto"
+                ? t("columns.netYield")
+                : t("columns.grossYield")
+            }
+            value={fmtPct(previewKpis.mietrendite)}
+          />
           <Kpi
             label={t("columns.cashflow")}
             value={fmtCurrency(previewKpis.monthlyCashFlow)}
@@ -223,6 +239,20 @@ export default function WishlistDetailPage({ params }: Props) {
               onChange={(e) => setExposeUrl(e.target.value)}
               placeholder="https://www.immobilienscout24.de/expose/..."
             />
+          </FormField>
+          <FormField label={t("fields.lage")}>
+            <select
+              value={lage}
+              onChange={(e) => setLage(e.target.value)}
+              className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none w-32"
+            >
+              <option value="">—</option>
+              {LAGE_OPTIONS.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
           </FormField>
         </Section>
 
@@ -279,13 +309,6 @@ export default function WishlistDetailPage({ params }: Props) {
                 type="number"
                 value={nebenkostenPct}
                 onChange={(e) => setNebenkostenPct(e.target.value)}
-              />
-            </FormField>
-            <FormField label={t("fields.nichtUmlPct")}>
-              <Input
-                type="number"
-                value={nichtUmlPct}
-                onChange={(e) => setNichtUmlPct(e.target.value)}
               />
             </FormField>
           </div>

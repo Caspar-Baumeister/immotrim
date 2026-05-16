@@ -14,7 +14,8 @@ export function GlobalAssumptionsBar() {
     tilgung,
     leerstandPct,
     ruecklagenPctOfMiete,
-    set,
+    nichtUmlagefaehigPctOfMiete,
+    setScalar,
   } = useGlobalAssumptions();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -31,6 +32,10 @@ export function GlobalAssumptionsBar() {
           <span aria-hidden className="text-muted-foreground/40">·</span>
           <span className="tabular-nums">
             {t("reserves")} {ruecklagenPctOfMiete.toFixed(0)}%
+          </span>
+          <span aria-hidden className="text-muted-foreground/40">·</span>
+          <span className="tabular-nums">
+            {t("nonAllocable")} {nichtUmlagefaehigPctOfMiete.toFixed(0)}%
           </span>
           <button
             type="button"
@@ -52,7 +57,7 @@ export function GlobalAssumptionsBar() {
           min={0}
           max={10}
           step={0.1}
-          onChange={(v) => set("zins", v)}
+          onChange={(v) => setScalar("zins", v)}
         />
         <SliderField
           label={t("amortization")}
@@ -61,7 +66,7 @@ export function GlobalAssumptionsBar() {
           min={0}
           max={8}
           step={0.1}
-          onChange={(v) => set("tilgung", v)}
+          onChange={(v) => setScalar("tilgung", v)}
         />
       </div>
 
@@ -74,7 +79,7 @@ export function GlobalAssumptionsBar() {
             min={0}
             max={20}
             step={0.5}
-            onChange={(v) => set("leerstandPct", v)}
+            onChange={(v) => setScalar("leerstandPct", v)}
           />
           <NumberField
             label={t("reservesFull")}
@@ -83,7 +88,16 @@ export function GlobalAssumptionsBar() {
             min={0}
             max={30}
             step={0.5}
-            onChange={(v) => set("ruecklagenPctOfMiete", v)}
+            onChange={(v) => setScalar("ruecklagenPctOfMiete", v)}
+          />
+          <NumberField
+            label={t("nonAllocableFull")}
+            value={nichtUmlagefaehigPctOfMiete}
+            suffix={`% ${t("ofRent")}`}
+            min={0}
+            max={30}
+            step={0.5}
+            onChange={(v) => setScalar("nichtUmlagefaehigPctOfMiete", v)}
           />
         </div>
       )}

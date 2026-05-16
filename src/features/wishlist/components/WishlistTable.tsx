@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Trash2 } from "lucide-react";
+import { Trash2, ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,9 +14,16 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "./SortableHeader";
+import { LageBadge } from "./LageBadge";
+import {
+  YieldSettingsPopover,
+  CashflowSettingsPopover,
+  EkReturnSettingsPopover,
+} from "./ColumnSettingsPopovers";
 import { calculateWishlistRowKpis } from "../calculations";
 import { useGlobalAssumptions } from "../global-assumptions-store";
 import type { WishlistGlobalAssumptions, WishlistProperty, WishlistRowKpis } from "../types";
+import { LAGE_OPTIONS } from "../types";
 import { formatCurrency, formatPercent, cn } from "@/lib/utils";
 
 type SortDir = "asc" | "desc";
@@ -24,11 +31,12 @@ type SortDir = "asc" | "desc";
 type SortKey =
   | "name"
   | "address"
+  | "lage"
   | "kaufpreis"
   | "wohnflaeche"
   | "pricePerSqm"
   | "kaltmiete"
-  | "bruttoMietrendite"
+  | "mietrendite"
   | "monthlyCashFlow"
   | "ekRendite";
 
@@ -41,12 +49,19 @@ type Props = {
   deletingId: string | null;
 };
 
+// Lower index = better rating; used to sort the Lage column numerically
+const LAGE_ORDER: Record<string, number> = Object.fromEntries(
+  LAGE_OPTIONS.map((v, i) => [v, i])
+);
+
 function getSortValue(row: EnrichedRow, key: SortKey): number | string | null {
   switch (key) {
     case "name":
       return row.name.toLowerCase();
     case "address":
       return (row.address ?? "").toLowerCase();
+    case "lage":
+      return row.lage ? LAGE_ORDER[row.lage] ?? 999 : null;
     case "kaufpreis":
       return row.kaufpreis;
     case "wohnflaeche":
@@ -55,8 +70,8 @@ function getSortValue(row: EnrichedRow, key: SortKey): number | string | null {
       return row.kpis.pricePerSqm;
     case "kaltmiete":
       return row.kaltmiete;
-    case "bruttoMietrendite":
-      return row.kpis.bruttoMietrendite;
+    case "mietrendite":
+      return row.kpis.mietrendite;
     case "monthlyCashFlow":
       return row.kpis.monthlyCashFlow;
     case "ekRendite":
@@ -68,7 +83,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
   const router = useRouter();
   const t = useTranslations("wishlist");
   const assumptions = useGlobalAssumptions();
-  const [sortKey, setSortKey] = useState<SortKey>("bruttoMietrendite");
+  const [sortKey, setSortKey] = useState<SortKey>("mietrendite");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const g: WishlistGlobalAssumptions = {
@@ -76,13 +91,30 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
     tilgung: assumptions.tilgung,
     leerstandPct: assumptions.leerstandPct,
     ruecklagenPctOfMiete: assumptions.ruecklagenPctOfMiete,
+    nichtUmlagefaehigPctOfMiete: assumptions.nichtUmlagefaehigPctOfMiete,
     defaultEigenanteilPct: assumptions.defaultEigenanteilPct,
+    yieldMode: assumptions.yieldMode,
+    cashflowSettings: assumptions.cashflowSettings,
+    ekReturnSettings: assumptions.ekReturnSettings,
   };
 
   const enriched: EnrichedRow[] = useMemo(
     () => rows.map((r) => ({ ...r, kpis: calculateWishlistRowKpis(r, g) })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rows, g.zins, g.tilgung, g.leerstandPct, g.ruecklagenPctOfMiete, g.defaultEigenanteilPct]
+    [
+      rows,
+      g.zins,
+      g.tilgung,
+      g.leerstandPct,
+      g.ruecklagenPctOfMiete,
+      g.nichtUmlagefaehigPctOfMiete,
+      g.defaultEigenanteilPct,
+      g.yieldMode,
+      g.cashflowSettings.subtractReserves,
+      g.cashflowSettings.subtractNonAllocable,
+      g.cashflowSettings.subtractVacancy,
+      g.ekReturnSettings.includeTilgung,
+    ]
   );
 
   const sorted = useMemo(() => {
@@ -90,7 +122,6 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
     out.sort((a, b) => {
       const av = getSortValue(a, sortKey);
       const bv = getSortValue(b, sortKey);
-      // null/undefined sort to the end regardless of direction
       const aNull = av === null || av === undefined || av === "";
       const bNull = bv === null || bv === undefined || bv === "";
       if (aNull && bNull) return 0;
@@ -115,6 +146,9 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
     }
   };
 
+  const yieldLabel =
+    assumptions.yieldMode === "netto" ? t("columns.netYield") : t("columns.grossYield");
+
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <Table>
@@ -130,6 +164,13 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
             <SortableHeader
               label={t("columns.address")}
               sortKey="address"
+              activeKey={sortKey}
+              direction={sortDir}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label={t("columns.lage")}
+              sortKey="lage"
               activeKey={sortKey}
               direction={sortDir}
               onSort={handleSort}
@@ -166,31 +207,31 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
               onSort={handleSort}
               align="right"
             />
-            <SortableHeader
-              label={t("columns.grossYield")}
-              sortKey="bruttoMietrendite"
+            <HeaderWithSettings
+              label={yieldLabel}
+              sortKey="mietrendite"
               activeKey={sortKey}
               direction={sortDir}
               onSort={handleSort}
-              align="right"
+              settings={<YieldSettingsPopover />}
             />
-            <SortableHeader
+            <HeaderWithSettings
               label={t("columns.cashflow")}
               sortKey="monthlyCashFlow"
               activeKey={sortKey}
               direction={sortDir}
               onSort={handleSort}
-              align="right"
+              settings={<CashflowSettingsPopover />}
             />
-            <SortableHeader
+            <HeaderWithSettings
               label={t("columns.ekReturn")}
               sortKey="ekRendite"
               activeKey={sortKey}
               direction={sortDir}
               onSort={handleSort}
-              align="right"
+              settings={<EkReturnSettingsPopover />}
             />
-            <TableHead className="w-8" />
+            <TableHead className="w-16" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -208,6 +249,9 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
                 <TableCell className="text-muted-foreground max-w-[220px] truncate">
                   {row.address ?? "—"}
                 </TableCell>
+                <TableCell>
+                  <LageBadge value={row.lage} />
+                </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {fmtCurrency(row.kaufpreis)}
                 </TableCell>
@@ -221,7 +265,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
                   {fmtCurrency(row.kaltmiete)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
-                  {fmtPct(row.kpis.bruttoMietrendite)}
+                  {fmtPct(row.kpis.mietrendite)}
                 </TableCell>
                 <TableCell
                   className={cn(
@@ -239,23 +283,36 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
                   {fmtPct(row.kpis.ekRendite)}
                 </TableCell>
                 <TableCell
-                  className="w-8"
+                  className="w-16"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() => onDelete(row.id)}
-                    disabled={deletingId === row.id}
-                    className="text-muted-foreground hover:text-red-400"
-                    aria-label="Delete"
-                  >
-                    {deletingId === row.id ? (
-                      <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3 w-3" />
+                  <div className="flex items-center justify-end gap-0.5">
+                    {row.exposeUrl && (
+                      <a
+                        href={row.exposeUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        aria-label={t("openExpose")}
+                        className="inline-flex items-center justify-center h-6 w-6 rounded text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                     )}
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => onDelete(row.id)}
+                      disabled={deletingId === row.id}
+                      className="text-muted-foreground hover:text-red-400"
+                      aria-label={t("delete")}
+                    >
+                      {deletingId === row.id ? (
+                        <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             );
@@ -263,6 +320,45 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+function HeaderWithSettings({
+  label,
+  sortKey,
+  activeKey,
+  direction,
+  onSort,
+  settings,
+}: {
+  label: string;
+  sortKey: SortKey;
+  activeKey: SortKey;
+  direction: SortDir;
+  onSort: (key: string) => void;
+  settings: React.ReactNode;
+}) {
+  return (
+    <TableHead className="text-right">
+      <span className="inline-flex items-center justify-end gap-1">
+        <button
+          type="button"
+          onClick={() => onSort(sortKey)}
+          className={cn(
+            "inline-flex items-center gap-1 transition-colors flex-row-reverse",
+            activeKey === sortKey
+              ? "text-amber-400"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <span>{label}</span>
+          {activeKey === sortKey && (
+            <span className="text-[10px]">{direction === "asc" ? "▲" : "▼"}</span>
+          )}
+        </button>
+        {settings}
+      </span>
+    </TableHead>
   );
 }
 
