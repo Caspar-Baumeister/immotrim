@@ -1,0 +1,241 @@
+{
+  "app": {
+    "name": "Immotrim",
+    "tagline": "Real Estate Analytics"
+  },
+  "nav": {
+    "portfolio": "Portfolio",
+    "wishlist": "Wishlist",
+    "newProperty": "New Property",
+    "insights": "Insights"
+  },
+  "property": {
+    "new": "New Property",
+    "edit": "Edit Property",
+    "save": "Save Property",
+    "saving": "Saving...",
+    "name": "Property Name",
+    "namePlaceholder": "e.g. Berlin Apartment",
+    "address": "Address",
+    "addressPlaceholder": "e.g. Musterstraße 1, 10115 Berlin"
+  },
+  "sections": {
+    "allgemein": "General",
+    "ruecklagen": "Reserves",
+    "steuer": "Tax (optional)",
+    "wachstum": "Growth Assumptions"
+  },
+  "inputs": {
+    "kaufpreis": "Purchase Price",
+    "nebenkosten": "Acquisition Costs",
+    "eigenanteil": "Equity",
+    "zins": "Interest Rate (p.a.)",
+    "tilgung": "Repayment Rate (p.a.)",
+    "zinsbindung": "Fixed-Rate Period",
+    "loanStart": "Start Date",
+    "annuitaetendarlehen": "Annuity Loan",
+    "kaltmiete": "Cold Rent",
+    "nichtUmlagefaehig": "Non-allocable Costs",
+    "leerstand": "Vacancy Rate",
+    "ruecklagen": "Reserves / Month",
+    "mietentwicklung": "Rent Growth p.a.",
+    "wertentwicklung": "Appreciation p.a.",
+    "gebaeudeanteil": "Building Share",
+    "bemessungsgrundlage": "Assessment Basis",
+    "steuersatz": "Tax Rate"
+  },
+  "metrics": {
+    "monthlyCashFlow": "Monthly Cash Flow",
+    "monthlyMortgage": "Monthly Payment",
+    "bruttoMietrendite": "Gross Yield",
+    "cashOnCash": "Cash-on-Cash",
+    "ekRendite": "Equity Return",
+    "ltv": "LTV",
+    "totalInvested": "Equity",
+    "propertyValue": "Property Value",
+    "equity": "Equity",
+    "totalDebt": "Debt",
+    "darlehensbetrag": "Loan Amount",
+    "volltilgung": "Full Repayment",
+    "gesamtzinsen": "Total Interest"
+  },
+  "charts": {
+    "cashFlow": "Cash Flow",
+    "cashFlowDesc": "Annual net cash flow after mortgage, reserves & costs",
+    "amortization": "Amortization Schedule",
+    "amortizationDesc": "Principal, interest & remaining balance to full payoff",
+    "ekRendite": "Equity Return",
+    "ekRenditeDesc": "Annual ROE on equity invested",
+    "wertSchulden": "Property Value vs. Debt",
+    "wertSchuldenDesc": "Value growth and remaining debt over the term",
+    "mietrendite": "Gross Rental Yield",
+    "mietrenditeDesc": "Cold rent / purchase price with rent growth"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "empty": "No properties yet",
+    "emptyDesc": "Add your first property to start tracking your portfolio.",
+    "addFirst": "Add Property",
+    "totalValue": "Total Portfolio Value",
+    "totalInvested": "Total Equity",
+    "totalDebt": "Total Debt",
+    "monthlyCashFlow": "Monthly Cash Flow",
+    "avgCapRate": "Avg. Gross Yield",
+    "properties": "Properties"
+  },
+  "actions": {
+    "viewInsights": "View Insights",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "expand": "Expand chart"
+  },
+  "units": {
+    "years": "years",
+    "perMonth": "/mo",
+    "perYear": "/yr"
+  },
+  "cagr": "CAGR",
+  "year": "Year",
+  "all": "All",
+  "livePreview": "Live Preview",
+  "deleteConfirm": "Are you sure you want to delete this property? This action cannot be undone.",
+  "landing": {
+    "hero": {
+      "eyebrow": "Real estate analytics, simplified",
+      "title": "Know exactly what your investment property earns.",
+      "subtitle": "Cash flow, mortgage, yield, equity return — all the numbers German residential investors need, on one screen.",
+      "ctaPrimary": "Start now",
+      "ctaSecondary": "Sign in"
+    },
+    "features": {
+      "title": "Built for German rental investors",
+      "subtitle": "Every figure modelled the way you'd model it in a spreadsheet — only faster, and beautiful.",
+      "f1Title": "Live cash-flow",
+      "f1Desc": "See monthly and annual cash-flow after mortgage, reserves and non-allocable costs — updated as you type.",
+      "f2Title": "Full amortization",
+      "f2Desc": "Annuitätendarlehen modelled to full payoff. Interest, principal and remaining balance year-by-year.",
+      "f3Title": "Returns that matter",
+      "f3Desc": "Cap rate, cash-on-cash, equity return — together with property value vs. debt over the holding period."
+    },
+    "pricing": {
+      "title": "Simple pricing",
+      "subtitle": "One plan. Pay monthly, or save with yearly billing.",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "perMonth": "/month",
+      "perYear": "/year",
+      "monthlyDesc": "Billed monthly. Cancel anytime.",
+      "yearlyDesc": "Two months free vs. monthly billing.",
+      "cta": "Subscribe",
+      "includes": "Everything included:",
+      "f1": "Unlimited properties",
+      "f2": "Portfolio dashboard",
+      "f3": "Cash-flow, yield & return analytics",
+      "f4": "Wishlist for comparing candidates",
+      "f5": "Multi-language (EN/DE)"
+    },
+    "footer": "Immotrim"
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your Immotrim account.",
+    "signupTitle": "Create your account",
+    "signupSubtitle": "Start analyzing properties in minutes.",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters",
+    "submitLogin": "Sign in",
+    "submitSignup": "Create account & continue to payment",
+    "submitting": "Please wait…",
+    "noAccount": "No account?",
+    "haveAccount": "Already have an account?",
+    "signupLink": "Sign up",
+    "loginLink": "Sign in"
+  },
+  "account": {
+    "title": "Account",
+    "subscription": "Subscription",
+    "plan": "Plan",
+    "status": "Status",
+    "renewsOn": "Renews on",
+    "endsOn": "Ends on",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "noSubscription": "No active subscription.",
+    "managePortal": "Manage subscription",
+    "logout": "Sign out"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "editTitle": "Edit Wishlist Property",
+    "empty": "No wishlist properties yet",
+    "emptyDesc": "Add your first candidate property to start comparing.",
+    "addFirst": "Add your first property",
+    "propertySingular": "property",
+    "propertyPlural": "properties",
+    "backToList": "Back to list",
+    "save": "Save",
+    "notFound": "This property could not be found.",
+    "global": {
+      "title": "Global assumptions",
+      "interest": "Interest rate",
+      "amortization": "Amortization",
+      "vacancy": "Vacancy",
+      "vacancyFull": "Vacancy",
+      "reserves": "Reserves",
+      "reservesFull": "Reserves",
+      "ofRent": "of rent",
+      "editDefaults": "Edit defaults"
+    },
+    "columns": {
+      "name": "Name",
+      "address": "Address",
+      "price": "Price",
+      "area": "Area",
+      "pricePerSqm": "€/m²",
+      "rent": "Rent",
+      "grossYield": "Gross yield",
+      "cashflow": "Cashflow",
+      "ekReturn": "Equity return"
+    },
+    "sections": {
+      "identification": "Identification",
+      "basics": "Basics",
+      "financials": "Financials",
+      "notes": "Notes"
+    },
+    "fields": {
+      "rooms": "Rooms",
+      "yearBuilt": "Year built",
+      "equityPlaceholder": "Default: {pct}% of price",
+      "nebenkostenPct": "Acquisition costs (%)",
+      "nichtUmlPct": "Non-allocable (% of rent)",
+      "globalAssumptionsHint": "Vacancy and reserves are set in the global assumptions above.",
+      "notesPlaceholder": "e.g. neighborhood notes, renovation needs, deadlines ..."
+    },
+    "add": {
+      "title": "Add property",
+      "cta": "Add",
+      "manual": "Manual",
+      "expose": "Expose ID",
+      "exposeDisabled": "ImmoScout24 import coming soon — work in progress.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Berlin Friedrichshain apartment",
+      "address": "Address",
+      "addressPlaceholder": "e.g. Musterstraße 1, 10115 Berlin",
+      "price": "Purchase price (€)",
+      "area": "Living area (m²)",
+      "rent": "Cold rent (€/month)",
+      "equity": "Equity (€)",
+      "exposeUrl": "Expose URL (optional)",
+      "save": "Save",
+      "saving": "Saving ...",
+      "cancel": "Cancel",
+      "nameRequired": "Please enter a name.",
+      "saveFailed": "Save failed. Please check your Supabase configuration."
+    }
+  }
+}

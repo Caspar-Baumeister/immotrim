@@ -1,0 +1,241 @@
+{
+  "app": {
+    "name": "Immotrim",
+    "tagline": "Immobilienanalyse"
+  },
+  "nav": {
+    "portfolio": "Portfolio",
+    "wishlist": "Wunschliste",
+    "newProperty": "Neue Immobilie",
+    "insights": "Analyse"
+  },
+  "property": {
+    "new": "Neue Immobilie",
+    "edit": "Immobilie bearbeiten",
+    "save": "Immobilie speichern",
+    "saving": "Wird gespeichert...",
+    "name": "Bezeichnung",
+    "namePlaceholder": "z.B. Berliner Wohnung",
+    "address": "Adresse",
+    "addressPlaceholder": "z.B. Musterstraße 1, 10115 Berlin"
+  },
+  "sections": {
+    "allgemein": "Allgemein",
+    "ruecklagen": "Rücklagen",
+    "steuer": "Steuer (optional)",
+    "wachstum": "Wachstumsannahmen"
+  },
+  "inputs": {
+    "kaufpreis": "Kaufpreis",
+    "nebenkosten": "Nebenkosten",
+    "eigenanteil": "Eigenanteil",
+    "zins": "Zinssatz (p.a.)",
+    "tilgung": "Tilgung (p.a.)",
+    "zinsbindung": "Zinsbindung",
+    "loanStart": "Beginn",
+    "annuitaetendarlehen": "Annuitätendarlehen",
+    "kaltmiete": "Kaltmiete",
+    "nichtUmlagefaehig": "Nicht umlagefähige NK",
+    "leerstand": "Leerstand",
+    "ruecklagen": "Rücklagen / Monat",
+    "mietentwicklung": "Mietentwicklung p.a.",
+    "wertentwicklung": "Wertentwicklung p.a.",
+    "gebaeudeanteil": "Gebäudeanteil",
+    "bemessungsgrundlage": "Bemessungsgrundlage",
+    "steuersatz": "Steuersatz"
+  },
+  "metrics": {
+    "monthlyCashFlow": "Monatlicher Cashflow",
+    "monthlyMortgage": "Monatliche Rate",
+    "bruttoMietrendite": "Brutto-Mietrendite",
+    "cashOnCash": "Cash-on-Cash",
+    "ekRendite": "EK-Rendite",
+    "ltv": "LTV",
+    "totalInvested": "Eigenanteil",
+    "propertyValue": "Immobilienwert",
+    "equity": "Eigenkapital",
+    "totalDebt": "Schulden",
+    "darlehensbetrag": "Darlehensbetrag",
+    "volltilgung": "Volltilgung nach",
+    "gesamtzinsen": "Gesamtzinsen"
+  },
+  "charts": {
+    "cashFlow": "Cashflow",
+    "cashFlowDesc": "Jährl. Netto-Cashflow nach Rate, Rücklagen & NK",
+    "amortization": "Tilgungsplan",
+    "amortizationDesc": "Tilgung, Zinsen & Restschuld bis zur Volltilgung",
+    "ekRendite": "Eigenkapitalrendite",
+    "ekRenditeDesc": "Jährl. EK-Rendite auf Eigenanteil",
+    "wertSchulden": "Immobilienwert vs. Schulden",
+    "wertSchuldenDesc": "Wertentwicklung und Restschuld über die Laufzeit",
+    "mietrendite": "Brutto-Mietrendite",
+    "mietrenditeDesc": "Kaltmiete / Kaufpreis mit Mietentwicklung"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "empty": "Noch keine Immobilien",
+    "emptyDesc": "Fügen Sie Ihre erste Immobilie hinzu, um Ihr Portfolio zu verfolgen.",
+    "addFirst": "Immobilie hinzufügen",
+    "totalValue": "Gesamtportfoliowert",
+    "totalInvested": "Gesamteigenkapital",
+    "totalDebt": "Gesamtschulden",
+    "monthlyCashFlow": "Monatlicher Cashflow",
+    "avgCapRate": "Ø Brutto-Rendite",
+    "properties": "Immobilien"
+  },
+  "actions": {
+    "viewInsights": "Analyse anzeigen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "expand": "Diagramm vergrößern"
+  },
+  "units": {
+    "years": "Jahre",
+    "perMonth": "/Monat",
+    "perYear": "/Jahr"
+  },
+  "cagr": "CAGR",
+  "year": "Jahr",
+  "all": "Alle",
+  "livePreview": "Live-Vorschau",
+  "deleteConfirm": "Möchten Sie diese Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "landing": {
+    "hero": {
+      "eyebrow": "Immobilienanalyse, vereinfacht",
+      "title": "Wisse genau, was deine Renditeimmobilie verdient.",
+      "subtitle": "Cashflow, Tilgung, Mietrendite, Eigenkapitalrendite — alle Kennzahlen, die deutsche Privatinvestoren brauchen, auf einem Bildschirm.",
+      "ctaPrimary": "Jetzt starten",
+      "ctaSecondary": "Anmelden"
+    },
+    "features": {
+      "title": "Gebaut für deutsche Vermieter",
+      "subtitle": "Jede Zahl modelliert wie in deiner Excel — nur schneller und schöner.",
+      "f1Title": "Live-Cashflow",
+      "f1Desc": "Sieh monatlichen und jährlichen Cashflow nach Rate, Rücklagen und nicht-umlagefähigen Kosten — sofort beim Tippen.",
+      "f2Title": "Vollständige Tilgung",
+      "f2Desc": "Annuitätendarlehen bis zur Volltilgung berechnet. Zinsen, Tilgung und Restschuld Jahr für Jahr.",
+      "f3Title": "Renditen, die zählen",
+      "f3Desc": "Brutto-Rendite, Cash-on-Cash, Eigenkapitalrendite — plus Immobilienwert vs. Schulden über die Haltedauer."
+    },
+    "pricing": {
+      "title": "Einfache Preise",
+      "subtitle": "Ein Plan. Monatlich oder mit Jahresabo sparen.",
+      "monthly": "Monatlich",
+      "yearly": "Jährlich",
+      "perMonth": "/Monat",
+      "perYear": "/Jahr",
+      "monthlyDesc": "Monatlich abgerechnet. Jederzeit kündbar.",
+      "yearlyDesc": "Zwei Monate gratis vs. Monatsabo.",
+      "cta": "Abonnieren",
+      "includes": "Alles inklusive:",
+      "f1": "Unbegrenzt viele Immobilien",
+      "f2": "Portfolio-Dashboard",
+      "f3": "Cashflow-, Rendite- & Return-Analysen",
+      "f4": "Wunschliste zum Vergleichen",
+      "f5": "Mehrsprachig (DE/EN)"
+    },
+    "footer": "Immotrim"
+  },
+  "auth": {
+    "loginTitle": "Willkommen zurück",
+    "loginSubtitle": "Melde dich bei deinem Immotrim-Account an.",
+    "signupTitle": "Account erstellen",
+    "signupSubtitle": "Starte in wenigen Minuten mit der Analyse.",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "passwordHint": "Mindestens 8 Zeichen",
+    "submitLogin": "Anmelden",
+    "submitSignup": "Account anlegen & zur Zahlung",
+    "submitting": "Bitte warten…",
+    "noAccount": "Noch kein Account?",
+    "haveAccount": "Schon ein Account?",
+    "signupLink": "Registrieren",
+    "loginLink": "Anmelden"
+  },
+  "account": {
+    "title": "Account",
+    "subscription": "Abonnement",
+    "plan": "Plan",
+    "status": "Status",
+    "renewsOn": "Verlängert am",
+    "endsOn": "Endet am",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "noSubscription": "Kein aktives Abonnement.",
+    "managePortal": "Abonnement verwalten",
+    "logout": "Abmelden"
+  },
+  "wishlist": {
+    "title": "Wunschliste",
+    "editTitle": "Wunschimmobilie bearbeiten",
+    "empty": "Noch keine Wunsch-Immobilien",
+    "emptyDesc": "Füge deine erste Kandidat-Immobilie hinzu, um sie zu vergleichen.",
+    "addFirst": "Erste Immobilie hinzufügen",
+    "propertySingular": "Immobilie",
+    "propertyPlural": "Immobilien",
+    "backToList": "Zurück zur Liste",
+    "save": "Speichern",
+    "notFound": "Diese Immobilie konnte nicht gefunden werden.",
+    "global": {
+      "title": "Globale Annahmen",
+      "interest": "Zinssatz",
+      "amortization": "Tilgung",
+      "vacancy": "Leerstand",
+      "vacancyFull": "Leerstand",
+      "reserves": "Rücklagen",
+      "reservesFull": "Rücklagen",
+      "ofRent": "der Miete",
+      "editDefaults": "Annahmen bearbeiten"
+    },
+    "columns": {
+      "name": "Name",
+      "address": "Adresse",
+      "price": "Kaufpreis",
+      "area": "Wohnfläche",
+      "pricePerSqm": "€/m²",
+      "rent": "Kaltmiete",
+      "grossYield": "Brutto-Rendite",
+      "cashflow": "Cashflow",
+      "ekReturn": "EK-Rendite"
+    },
+    "sections": {
+      "identification": "Identifikation",
+      "basics": "Eckdaten",
+      "financials": "Finanzen",
+      "notes": "Notizen"
+    },
+    "fields": {
+      "rooms": "Zimmer",
+      "yearBuilt": "Baujahr",
+      "equityPlaceholder": "Standard: {pct}% des Kaufpreises",
+      "nebenkostenPct": "Kaufnebenkosten (%)",
+      "nichtUmlPct": "Nicht umlagef. NK (% der Miete)",
+      "globalAssumptionsHint": "Leerstand und Rücklagen werden in den globalen Annahmen oben gesetzt.",
+      "notesPlaceholder": "z.B. Lage-Notizen, Renovierungsbedarf, Termine ..."
+    },
+    "add": {
+      "title": "Immobilie hinzufügen",
+      "cta": "Hinzufügen",
+      "manual": "Manuell",
+      "expose": "Expose-Nr.",
+      "exposeDisabled": "ImmoScout24-Import folgt — derzeit in Bearbeitung.",
+      "name": "Name",
+      "namePlaceholder": "z.B. Wohnung Berlin Friedrichshain",
+      "address": "Adresse",
+      "addressPlaceholder": "z.B. Musterstraße 1, 10115 Berlin",
+      "price": "Kaufpreis (€)",
+      "area": "Wohnfläche (m²)",
+      "rent": "Kaltmiete (€/Monat)",
+      "equity": "Eigenanteil (€)",
+      "exposeUrl": "Expose-URL (optional)",
+      "save": "Speichern",
+      "saving": "Speichern ...",
+      "cancel": "Abbrechen",
+      "nameRequired": "Bitte gib einen Namen ein.",
+      "saveFailed": "Speichern fehlgeschlagen. Bitte prüfe die Supabase-Konfiguration."
+    }
+  }
+}
