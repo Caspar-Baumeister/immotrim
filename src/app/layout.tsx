@@ -15,10 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Immotrim — Real Estate Analytics",
   description: "Beautiful analytics for real estate investors",
-  icons: {
-    icon: "/logo_immotrim.png",
-    apple: "/logo_immotrim.png",
-  },
 };
 
 export default function RootLayout({

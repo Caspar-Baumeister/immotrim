@@ -6,25 +6,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useGlobalAssumptions } from "../global-assumptions-store";
 import { cn } from "@/lib/utils";
 
-function IconButton({ children, ariaLabel }: { children?: React.ReactNode; ariaLabel: string }) {
-  return (
-    <span
-      role="button"
-      aria-label={ariaLabel}
-      className="inline-flex items-center justify-center text-muted-foreground/70 hover:text-foreground transition-colors rounded p-0.5"
-    >
-      <Settings2 className="h-3 w-3" />
-      {children}
-    </span>
-  );
-}
+const TRIGGER_CLS =
+  "inline-flex items-center justify-center text-muted-foreground/70 hover:text-foreground transition-colors rounded p-0.5 outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50";
 
 export function YieldSettingsPopover() {
   const t = useTranslations("wishlist.colSettings.yield");
   const { yieldMode, setYieldMode } = useGlobalAssumptions();
   return (
     <Popover>
-      <PopoverTrigger render={<IconButton ariaLabel={t("title")} />} />
+      <PopoverTrigger
+        type="button"
+        aria-label={t("title")}
+        onClick={(e) => e.stopPropagation()}
+        className={TRIGGER_CLS}
+      >
+        <Settings2 className="h-3 w-3" />
+      </PopoverTrigger>
       <PopoverContent align="end" className="w-64">
         <div className="flex flex-col gap-3">
           <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -53,7 +50,14 @@ export function CashflowSettingsPopover() {
   const { cashflowSettings, patchCashflow } = useGlobalAssumptions();
   return (
     <Popover>
-      <PopoverTrigger render={<IconButton ariaLabel={t("title")} />} />
+      <PopoverTrigger
+        type="button"
+        aria-label={t("title")}
+        onClick={(e) => e.stopPropagation()}
+        className={TRIGGER_CLS}
+      >
+        <Settings2 className="h-3 w-3" />
+      </PopoverTrigger>
       <PopoverContent align="end" className="w-72">
         <div className="flex flex-col gap-3">
           <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -88,7 +92,14 @@ export function EkReturnSettingsPopover() {
   const { ekReturnSettings, patchEkReturn } = useGlobalAssumptions();
   return (
     <Popover>
-      <PopoverTrigger render={<IconButton ariaLabel={t("title")} />} />
+      <PopoverTrigger
+        type="button"
+        aria-label={t("title")}
+        onClick={(e) => e.stopPropagation()}
+        className={TRIGGER_CLS}
+      >
+        <Settings2 className="h-3 w-3" />
+      </PopoverTrigger>
       <PopoverContent align="end" className="w-72">
         <div className="flex flex-col gap-3">
           <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

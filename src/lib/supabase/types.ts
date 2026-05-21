@@ -9,7 +9,7 @@ export type Json =
 // ─── Domain types ─────────────────────────────────────────────────────────────
 
 export type Nebenkosten = {
-  grunderwerbsteuerPct: number; // 3.5–6.5% by Bundesland, default 3.5
+  grunderwerbsteuerPct: number; // 3.5–6.5% by Bundesland, default 6
   notarGrundbuchPct: number;    // ~1.5%
   maklerprovisionPct: number;   // ~3.57%, 0 if provisionsfrei
   sonstigePct: number;          // misc, default 0
@@ -68,7 +68,7 @@ function getCurrentMonth(): string {
 export const DEFAULT_INPUTS: PropertyInputs = {
   kaufpreis: 400_000,
   nebenkosten: {
-    grunderwerbsteuerPct: 3.5,
+    grunderwerbsteuerPct: 6,
     notarGrundbuchPct: 1.5,
     maklerprovisionPct: 3.57,
     sonstigePct: 0,
