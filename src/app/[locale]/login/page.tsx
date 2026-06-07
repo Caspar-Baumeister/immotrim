@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { LoginForm } from "./LoginForm";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,8 +12,8 @@ export default async function LoginPage({ params }: Props) {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <header className="border-b border-border bg-[#0d0d0d]">
-        <div className="mx-auto max-w-6xl px-6 h-14 flex items-center">
+      <header className="border-b border-border bg-card/80 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
           <Link href={`/${locale}`} className="flex items-center">
             <Image
               src="/logo_immotrim.png"
@@ -23,6 +24,7 @@ export default async function LoginPage({ params }: Props) {
               priority
             />
           </Link>
+          <ThemeToggle />
         </div>
       </header>
 

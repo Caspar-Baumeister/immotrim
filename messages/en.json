@@ -5,7 +5,7 @@
   },
   "nav": {
     "portfolio": "Portfolio",
-    "wishlist": "Wishlist",
+    "wishlist": "Property Analysis",
     "newProperty": "New Property",
     "insights": "Insights"
   },
@@ -104,21 +104,21 @@
   "deleteConfirm": "Are you sure you want to delete this property? This action cannot be undone.",
   "landing": {
     "hero": {
-      "eyebrow": "Real estate analytics, simplified",
-      "title": "Know exactly what your investment property earns.",
-      "subtitle": "Cash flow, mortgage, yield, equity return — all the numbers German residential investors need, on one screen.",
+      "eyebrow": "Smart property analysis for private investors",
+      "title": "Documents in. Returns understood.",
+      "subtitle": "Upload listings and property documents. We automatically detect all the relevant data and show you cash flow, rental yield, amortization and equity return at a glance.",
       "ctaPrimary": "Start now",
       "ctaSecondary": "Sign in"
     },
     "features": {
-      "title": "Built for German rental investors",
-      "subtitle": "Every figure modelled the way you'd model it in a spreadsheet — only faster, and beautiful.",
-      "f1Title": "Live cash-flow",
-      "f1Desc": "See monthly and annual cash-flow after mortgage, reserves and non-allocable costs — updated as you type.",
-      "f2Title": "Full amortization",
-      "f2Desc": "Annuitätendarlehen modelled to full payoff. Interest, principal and remaining balance year-by-year.",
-      "f3Title": "Returns that matter",
-      "f3Desc": "Cap rate, cash-on-cash, equity return — together with property value vs. debt over the holding period."
+      "title": "From PDF to finished analysis",
+      "subtitle": "No spreadsheets, no retyping. Upload your documents — Immotrim does the rest.",
+      "f1Title": "AI data extraction",
+      "f1Desc": "Upload listings, purchase papers or statements. Our AI reads out purchase price, rent, living area, running costs and more automatically — in seconds, not hours.",
+      "f2Title": "You stay in control",
+      "f2Desc": "Every detected value appears in a clear review panel. Correct individual fields with a single click before the calculation runs — full transparency, no black box.",
+      "f3Title": "Instant return analysis",
+      "f3Desc": "Cash flow, amortization, rental yield and equity return are calculated automatically — clearly presented and visualized at a glance."
     },
     "pricing": {
       "title": "Simple pricing",
@@ -131,10 +131,10 @@
       "yearlyDesc": "Two months free vs. monthly billing.",
       "cta": "Subscribe",
       "includes": "Everything included:",
-      "f1": "Unlimited properties",
-      "f2": "Portfolio dashboard",
-      "f3": "Cash-flow, yield & return analytics",
-      "f4": "Wishlist for comparing candidates",
+      "f1": "Up to 5 properties in your portfolio",
+      "f2": "Up to 50 properties in property analysis",
+      "f3": "Unlimited document analysis with Gemini 2.5 Flash",
+      "f4": "Cash-flow, yield & return analytics",
       "f5": "Multi-language (EN/DE)"
     },
     "footer": "Immotrim"
@@ -169,9 +169,9 @@
     "logout": "Sign out"
   },
   "wishlist": {
-    "title": "Wishlist",
-    "editTitle": "Edit Wishlist Property",
-    "empty": "No wishlist properties yet",
+    "title": "Property Analysis",
+    "editTitle": "Edit property",
+    "empty": "No properties yet",
     "emptyDesc": "Add your first candidate property to start comparing.",
     "addFirst": "Add your first property",
     "propertySingular": "property",
@@ -244,8 +244,7 @@
       "title": "Add property",
       "cta": "Add",
       "manual": "Manual",
-      "expose": "Expose ID",
-      "exposeDisabled": "ImmoScout24 import coming soon — work in progress.",
+      "expose": "Exposé",
       "name": "Name",
       "namePlaceholder": "e.g. Berlin Friedrichshain apartment",
       "address": "Address",
@@ -260,7 +259,58 @@
       "saving": "Saving ...",
       "cancel": "Cancel",
       "nameRequired": "Please enter a name.",
-      "saveFailed": "Save failed. Please check your Supabase configuration."
+      "saveFailed": "Save failed. Please check your Supabase configuration.",
+      "rooms": "Rooms",
+      "yearBuilt": "Year built"
+    },
+    "expose": {
+      "upload": "Upload exposé",
+      "uploadHint": "Sales exposé as PDF or image, max. 50 MB",
+      "fields": {
+        "name": "Name",
+        "address": "Address",
+        "kaufpreis": "Purchase price",
+        "wohnflaeche": "Living area",
+        "zimmer": "Rooms",
+        "baujahr": "Year built",
+        "kaltmiete": "Cold rent"
+      }
     }
+  },
+  "documents": {
+    "navButton": "Documents",
+    "upload": "Upload documents",
+    "uploadHint": "Purchase contract, rental contract, service-charge statement … — PDF or image, max. 50 MB",
+    "uploadFailed": "Upload failed.",
+    "deleteFailed": "Delete failed.",
+    "typeError": "{name}: PDF or images only (PNG/JPG/WebP).",
+    "sizeError": "{name}: too large (max. 50 MB).",
+    "download": "Download",
+    "delete": "Delete",
+    "extract": "Extract values from documents",
+    "extracting": "Reading values…",
+    "extractFailed": "Extraction failed.",
+    "sectionTitle": "Documents & extraction",
+    "sectionHint": "Upload more documents and apply extracted values — the metrics are recalculated.",
+    "review": {
+      "title": "Extracted values ({count})",
+      "subtitle": "from the uploaded documents",
+      "noValues": "No usable values found in the documents.",
+      "apply": "Apply {count}",
+      "applyAll": "Apply all"
+    },
+    "fields": {
+      "name": "Name",
+      "address": "Address",
+      "kaufpreis": "Purchase price",
+      "grunderwerbsteuerPct": "Property transfer tax",
+      "notarGrundbuchPct": "Notary & land registry",
+      "maklerprovisionPct": "Agent commission",
+      "sonstigePct": "Other closing costs",
+      "kaltmiete": "Cold rent (monthly)",
+      "nichtUmlagefaehig": "Non-allocable (monthly)",
+      "ruecklagen": "Reserves (monthly)"
+    },
+    "extractBusy": "The extraction service is busy right now. Please try again in a moment."
   }
 }

@@ -21,7 +21,7 @@ type Props = {
 export function ChartModal({ open, onClose, title, subtitle, stats, children }: Props) {
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-6xl sm:max-w-6xl w-[95vw] bg-[#111111] border-border p-0 overflow-hidden">
+      <DialogContent className="max-w-6xl sm:max-w-6xl w-[95vw] bg-popover border-border p-0 overflow-hidden">
         <div className="flex flex-col overflow-hidden" style={{ height: "85vh" }}>
           {/* Header */}
           <DialogHeader className="px-6 pt-5 pb-4 border-b border-border flex-shrink-0">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, PlusCircle, Building2, Info, Heart, User, LogOut, CreditCard } from "lucide-react";
+import { Globe, Building2, Info, LineChart, User, LogOut, CreditCard } from "lucide-react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type StatChip = {
   label: string;
@@ -62,7 +63,7 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
   const isActive = (segment: string) => pathname.includes(segment);
 
   return (
-    <header className="h-14 border-b border-border bg-[#0d0d0d] flex items-center px-5 gap-4 flex-shrink-0">
+    <header className="h-14 border-b border-border bg-card/80 backdrop-blur flex items-center px-5 gap-4 flex-shrink-0">
       {/* Logo */}
       <Link href={`/${locale}/portfolio`} className="flex items-center gap-2 flex-shrink-0">
         <Image
@@ -89,14 +90,8 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
         <NavLink
           href={`/${locale}/wishlist`}
           label={t("wishlist")}
-          icon={<Heart className="h-3.5 w-3.5" />}
+          icon={<LineChart className="h-3.5 w-3.5" />}
           active={isActive("/wishlist")}
-        />
-        <NavLink
-          href={`/${locale}/property/new`}
-          label={t("newProperty")}
-          icon={<PlusCircle className="h-3.5 w-3.5" />}
-          active={isActive("/property/new")}
         />
       </nav>
 
@@ -156,9 +151,12 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
         </div>
       )}
 
+      {/* Theme toggle */}
+      <ThemeToggle />
+
       {/* Language switcher */}
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-xs px-2 py-1.5 rounded-lg hover:bg-white/5 flex-shrink-0">
+        <DropdownMenuTrigger className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-xs px-2 py-1.5 rounded-lg hover:bg-foreground/5 flex-shrink-0">
           <Globe className="h-3.5 w-3.5" />
           <span className="uppercase font-medium">{locale}</span>
         </DropdownMenuTrigger>
@@ -183,7 +181,7 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
 
       {/* User menu */}
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-xs px-2 py-1.5 rounded-lg hover:bg-white/5 flex-shrink-0">
+        <DropdownMenuTrigger className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-xs px-2 py-1.5 rounded-lg hover:bg-foreground/5 flex-shrink-0">
           <User className="h-3.5 w-3.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -239,8 +237,8 @@ function NavLink({
       className={cn(
         "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors",
         active
-          ? "bg-white/8 text-foreground font-medium"
-          : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+          ? "bg-foreground/10 text-foreground font-medium"
+          : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
       )}
     >
       {icon}

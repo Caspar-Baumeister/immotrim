@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { PlusCircle, Heart } from "lucide-react";
+import { PlusCircle, LineChart } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { GlobalAssumptionsBar } from "@/features/wishlist/components/GlobalAssumptionsBar";
@@ -78,7 +78,7 @@ export default function WishlistPage({ params }: Props) {
         {!loading && rows.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 py-20">
             <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
-              <Heart className="h-7 w-7 text-muted-foreground" />
+              <LineChart className="h-7 w-7 text-muted-foreground" />
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-foreground">{t("empty")}</p>

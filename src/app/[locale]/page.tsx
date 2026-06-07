@@ -2,10 +2,11 @@ import Image from "next/image"; // used by top-nav logo
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { LineChart, Calculator, TrendingUp } from "lucide-react";
+import { ScanText, SlidersHorizontal, TrendingUp } from "lucide-react";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getActiveSubscription } from "@/lib/dal";
 import { PricingCards } from "@/components/marketing/PricingCards";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -23,15 +24,15 @@ export default async function LandingPage({ params }: Props) {
   const t = await getTranslations("landing");
 
   const features = [
-    { icon: LineChart, title: t("features.f1Title"), desc: t("features.f1Desc") },
-    { icon: Calculator, title: t("features.f2Title"), desc: t("features.f2Desc") },
+    { icon: ScanText, title: t("features.f1Title"), desc: t("features.f1Desc") },
+    { icon: SlidersHorizontal, title: t("features.f2Title"), desc: t("features.f2Desc") },
     { icon: TrendingUp, title: t("features.f3Title"), desc: t("features.f3Desc") },
   ];
 
   return (
     <main className="min-h-screen">
       {/* Top nav */}
-      <nav className="border-b border-border bg-[#0d0d0d]">
+      <nav className="border-b border-border bg-card/80 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
           <Link href={`/${locale}`} className="flex items-center">
             <Image
@@ -44,9 +45,10 @@ export default async function LandingPage({ params }: Props) {
             />
           </Link>
           <div className="flex items-center gap-2 text-sm">
+            <ThemeToggle />
             <Link
               href={`/${locale}/login`}
-              className="text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
+              className="text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-foreground/5 transition-colors"
             >
               {t("hero.ctaSecondary")}
             </Link>
@@ -80,7 +82,7 @@ export default async function LandingPage({ params }: Props) {
           </Link>
           <Link
             href={`/${locale}/login`}
-            className="text-muted-foreground hover:text-foreground px-5 py-2.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="text-muted-foreground hover:text-foreground px-5 py-2.5 rounded-lg hover:bg-foreground/5 transition-colors"
           >
             {t("hero.ctaSecondary")}
           </Link>
@@ -90,7 +92,7 @@ export default async function LandingPage({ params }: Props) {
       {/* Product screenshot placeholder — drop image into /public/landing/hero.png */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
         <div className="rounded-2xl border border-border bg-card overflow-hidden aspect-[16/9] flex items-center justify-center text-muted-foreground text-xs">
-          Add a screenshot at <code className="px-1 mx-1 bg-white/5 rounded">/public/landing/hero.png</code>
+          Add a screenshot at <code className="px-1 mx-1 bg-foreground/5 rounded">/public/landing/hero.png</code>
         </div>
       </section>
 

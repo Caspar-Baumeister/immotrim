@@ -23,7 +23,7 @@ type Props = {
 const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl">
       <p className="font-medium" style={{ color: payload[0].fill }}>
         {payload[0].payload.name}
       </p>
@@ -57,7 +57,7 @@ export function NOIBreakdownChart({
         margin={{ top: 4, right: 16, left: 8, bottom: 4 }}
         barSize={14}
       >
-        <CartesianGrid horizontal={false} stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid horizontal={false} stroke="var(--chart-grid)" />
         <XAxis
           type="number"
           tick={{ fontSize: 10, fill: "#6b6b6b" }}
@@ -73,7 +73,7 @@ export function NOIBreakdownChart({
           axisLine={false}
           width={80}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--chart-cursor)" }} />
         <Bar dataKey="value" radius={[0, 3, 3, 0]}>
           {data.map((entry) => (
             <Cell key={entry.name} fill={entry.color} fillOpacity={0.85} />

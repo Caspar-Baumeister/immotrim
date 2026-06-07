@@ -5,7 +5,7 @@
   },
   "nav": {
     "portfolio": "Portfolio",
-    "wishlist": "Wunschliste",
+    "wishlist": "Objektanalyse",
     "newProperty": "Neue Immobilie",
     "insights": "Analyse"
   },
@@ -104,21 +104,21 @@
   "deleteConfirm": "Möchten Sie diese Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
   "landing": {
     "hero": {
-      "eyebrow": "Immobilienanalyse, vereinfacht",
-      "title": "Wisse genau, was deine Renditeimmobilie verdient.",
-      "subtitle": "Cashflow, Tilgung, Mietrendite, Eigenkapitalrendite — alle Kennzahlen, die deutsche Privatinvestoren brauchen, auf einem Bildschirm.",
+      "eyebrow": "Smarte Immobilienanalyse für private Investoren",
+      "title": "Dokumente rein. Rendite verstehen.",
+      "subtitle": "Lade Exposés und Immobilienunterlagen hoch. Wir erkennen automatisch alle relevanten Daten und zeigen dir Cashflow, Mietrendite, Tilgung und Eigenkapitalrendite auf einen Blick.",
       "ctaPrimary": "Jetzt starten",
       "ctaSecondary": "Anmelden"
     },
     "features": {
-      "title": "Gebaut für deutsche Vermieter",
-      "subtitle": "Jede Zahl modelliert wie in deiner Excel — nur schneller und schöner.",
-      "f1Title": "Live-Cashflow",
-      "f1Desc": "Sieh monatlichen und jährlichen Cashflow nach Rate, Rücklagen und nicht-umlagefähigen Kosten — sofort beim Tippen.",
-      "f2Title": "Vollständige Tilgung",
-      "f2Desc": "Annuitätendarlehen bis zur Volltilgung berechnet. Zinsen, Tilgung und Restschuld Jahr für Jahr.",
-      "f3Title": "Renditen, die zählen",
-      "f3Desc": "Brutto-Rendite, Cash-on-Cash, Eigenkapitalrendite — plus Immobilienwert vs. Schulden über die Haltedauer."
+      "title": "Von der PDF zur fertigen Analyse",
+      "subtitle": "Keine Excel, kein Abtippen. Lade deine Unterlagen hoch — den Rest erledigt Immotrim.",
+      "f1Title": "KI-Datenextraktion",
+      "f1Desc": "Lade Exposés, Kaufunterlagen oder Abrechnungen hoch. Unsere KI liest Kaufpreis, Miete, Wohnfläche, Nebenkosten und mehr automatisch aus — in Sekunden statt Stunden.",
+      "f2Title": "Du behältst die Kontrolle",
+      "f2Desc": "Alle erkannten Werte erscheinen übersichtlich zur Prüfung. Korrigiere einzelne Felder mit einem Klick, bevor die Berechnung startet — volle Transparenz, keine Blackbox.",
+      "f3Title": "Sofortige Renditeanalyse",
+      "f3Desc": "Cashflow, Tilgung, Mietrendite und Eigenkapitalrendite werden automatisch berechnet — verständlich aufbereitet und auf einen Blick visualisiert."
     },
     "pricing": {
       "title": "Einfache Preise",
@@ -131,10 +131,10 @@
       "yearlyDesc": "Zwei Monate gratis vs. Monatsabo.",
       "cta": "Abonnieren",
       "includes": "Alles inklusive:",
-      "f1": "Unbegrenzt viele Immobilien",
-      "f2": "Portfolio-Dashboard",
-      "f3": "Cashflow-, Rendite- & Return-Analysen",
-      "f4": "Wunschliste zum Vergleichen",
+      "f1": "Bis zu 5 Immobilien in deinem Portfolio",
+      "f2": "Bis zu 50 Immobilien in der Objektanalyse",
+      "f3": "Unbegrenzte Dokumentenanalyse mit Gemini 2.5 Flash",
+      "f4": "Cashflow-, Rendite- & Return-Analysen",
       "f5": "Mehrsprachig (DE/EN)"
     },
     "footer": "Immotrim"
@@ -169,9 +169,9 @@
     "logout": "Abmelden"
   },
   "wishlist": {
-    "title": "Wunschliste",
-    "editTitle": "Wunschimmobilie bearbeiten",
-    "empty": "Noch keine Wunsch-Immobilien",
+    "title": "Objektanalyse",
+    "editTitle": "Objekt bearbeiten",
+    "empty": "Noch keine Objekte",
     "emptyDesc": "Füge deine erste Kandidat-Immobilie hinzu, um sie zu vergleichen.",
     "addFirst": "Erste Immobilie hinzufügen",
     "propertySingular": "Immobilie",
@@ -244,8 +244,7 @@
       "title": "Immobilie hinzufügen",
       "cta": "Hinzufügen",
       "manual": "Manuell",
-      "expose": "Expose-Nr.",
-      "exposeDisabled": "ImmoScout24-Import folgt — derzeit in Bearbeitung.",
+      "expose": "Exposé",
       "name": "Name",
       "namePlaceholder": "z.B. Wohnung Berlin Friedrichshain",
       "address": "Adresse",
@@ -260,7 +259,58 @@
       "saving": "Speichern ...",
       "cancel": "Abbrechen",
       "nameRequired": "Bitte gib einen Namen ein.",
-      "saveFailed": "Speichern fehlgeschlagen. Bitte prüfe die Supabase-Konfiguration."
+      "saveFailed": "Speichern fehlgeschlagen. Bitte prüfe die Supabase-Konfiguration.",
+      "rooms": "Zimmer",
+      "yearBuilt": "Baujahr"
+    },
+    "expose": {
+      "upload": "Exposé hochladen",
+      "uploadHint": "Verkaufs-Exposé als PDF oder Bild, max. 50 MB",
+      "fields": {
+        "name": "Bezeichnung",
+        "address": "Adresse",
+        "kaufpreis": "Kaufpreis",
+        "wohnflaeche": "Wohnfläche",
+        "zimmer": "Zimmer",
+        "baujahr": "Baujahr",
+        "kaltmiete": "Kaltmiete"
+      }
     }
+  },
+  "documents": {
+    "navButton": "Dokumente",
+    "upload": "Dokumente hochladen",
+    "uploadHint": "Kaufvertrag, Mietvertrag, Wohngeldabrechnung … — PDF oder Bild, max. 50 MB",
+    "uploadFailed": "Upload fehlgeschlagen.",
+    "deleteFailed": "Löschen fehlgeschlagen.",
+    "typeError": "{name}: nur PDF oder Bilder (PNG/JPG/WebP).",
+    "sizeError": "{name}: zu groß (max. 50 MB).",
+    "download": "Herunterladen",
+    "delete": "Löschen",
+    "extract": "Werte aus Dokumenten auslesen",
+    "extracting": "Werte werden ausgelesen…",
+    "extractFailed": "Extraktion fehlgeschlagen.",
+    "sectionTitle": "Dokumente & Auslesen",
+    "sectionHint": "Lade weitere Dokumente hoch und übernimm extrahierte Werte — die Kennzahlen werden neu berechnet.",
+    "review": {
+      "title": "Extrahierte Werte ({count})",
+      "subtitle": "aus den hochgeladenen Dokumenten",
+      "noValues": "Keine verwertbaren Werte in den Dokumenten gefunden.",
+      "apply": "{count} übernehmen",
+      "applyAll": "Alle übernehmen"
+    },
+    "fields": {
+      "name": "Bezeichnung",
+      "address": "Adresse",
+      "kaufpreis": "Kaufpreis",
+      "grunderwerbsteuerPct": "Grunderwerbsteuer",
+      "notarGrundbuchPct": "Notar & Grundbuch",
+      "maklerprovisionPct": "Maklerprovision",
+      "sonstigePct": "Sonstige Nebenkosten",
+      "kaltmiete": "Kaltmiete (mtl.)",
+      "nichtUmlagefaehig": "Nicht umlagefähig (mtl.)",
+      "ruecklagen": "Rücklagen (mtl.)"
+    },
+    "extractBusy": "Der Auslese-Dienst ist gerade ausgelastet. Bitte versuche es gleich noch einmal."
   }
 }

@@ -34,7 +34,7 @@ const CustomTooltipYearly = ({
   if (!active || !payload?.length) return null;
   const entry = payload[0]?.payload as EKRenditeYear;
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">Jahr {label}</p>
       <p className="text-amber-400">
         Cashflow: {formatCurrency(entry.cashFlow, "de-DE")}
@@ -49,7 +49,7 @@ const CustomTooltipYearly = ({
           Wertzuwachs: {formatCurrency(entry.wertzuwachs, "de-DE")}
         </p>
       )}
-      <p className="text-white font-semibold border-t border-white/10 pt-0.5 mt-0.5">
+      <p className="text-foreground font-semibold border-t border-border pt-0.5 mt-0.5">
         EK-Rendite:{" "}
         {entry.ekRendite != null ? formatPercent(entry.ekRendite) : "—"}
       </p>
@@ -70,7 +70,7 @@ const CustomTooltipMonthly = ({
   const entry = payload[0]?.payload as EKRenditeMonth;
   const monthName = MONTH_NAMES[(entry.month ?? 1) - 1];
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">{monthName} {entry.calendarYear}</p>
       <p className="text-amber-400">
         Cashflow: {formatCurrency(entry.cashFlow, "de-DE")}
@@ -85,7 +85,7 @@ const CustomTooltipMonthly = ({
           Wertzuwachs: {formatCurrency(entry.wertzuwachs, "de-DE")}
         </p>
       )}
-      <p className="text-white font-semibold border-t border-white/10 pt-0.5 mt-0.5">
+      <p className="text-foreground font-semibold border-t border-border pt-0.5 mt-0.5">
         EK-Rendite (p.a.):{" "}
         {entry.ekRendite != null ? formatPercent(entry.ekRendite) : "—"}
       </p>
@@ -115,7 +115,7 @@ export function EKRenditeChart({
           data={monthlyData}
           margin={{ top: 4, right: 48, left: 0, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
           <XAxis
             dataKey="monthIndex"
             ticks={yearStartTicks}
@@ -158,12 +158,12 @@ export function EKRenditeChart({
                 includeWertzuwachs={includeWertzuwachs}
               />
             }
-            cursor={{ stroke: "rgba(255,255,255,0.08)" }}
+            cursor={{ stroke: "var(--chart-cursor)" }}
           />
           <ReferenceLine
             yAxisId="left"
             y={0}
-            stroke="rgba(255,255,255,0.15)"
+            stroke="var(--chart-reference)"
             strokeWidth={1}
           />
           <Line
@@ -198,7 +198,7 @@ export function EKRenditeChart({
         data={data}
         margin={{ top: 4, right: 48, left: 0, bottom: 0 }}
       >
-        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
           dataKey="year"
           tick={{ fontSize: 10, fill: "#6b6b6b" }}
@@ -238,12 +238,12 @@ export function EKRenditeChart({
               includeWertzuwachs={includeWertzuwachs}
             />
           }
-          cursor={{ stroke: "rgba(255,255,255,0.08)" }}
+          cursor={{ stroke: "var(--chart-cursor)" }}
         />
         <ReferenceLine
           yAxisId="left"
           y={0}
-          stroke="rgba(255,255,255,0.15)"
+          stroke="var(--chart-reference)"
           strokeWidth={1}
         />
         <Line

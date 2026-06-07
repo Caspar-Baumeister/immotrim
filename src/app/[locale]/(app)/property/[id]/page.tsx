@@ -16,12 +16,15 @@ import { calculateCapRate } from "@/features/cap-rate/calculations";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import { calculateAppreciation } from "@/features/appreciation/calculations";
 import { calculateReturns } from "@/features/returns/calculations";
-import { getProperty } from "@/lib/property-service";
+import { getProperty, updateProperty } from "@/lib/property-service";
 import { type Property } from "@/lib/supabase";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { DocumentUpload } from "@/features/property-input/components/DocumentUpload";
+import type { AppliedPatch } from "@/features/property-input/extraction-types";
+import { FileText } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
@@ -39,6 +42,9 @@ export default function PropertyInsightsPage({ params }: Props) {
   // EK-Rendite chart toggles (chart-specific)
   const [ekTilgung, setEkTilgung] = useState(false);
   const [ekWertzuwachs, setEkWertzuwachs] = useState(false);
+
+  // Documents drawer (add docs later → re-extract → recalculate)
+  const [showDocs, setShowDocs] = useState(false);
 
   useEffect(() => {
     getProperty(id).then((p) => {
@@ -71,6 +77,21 @@ export default function PropertyInsightsPage({ params }: Props) {
   }
 
   const inputs = property.inputs;
+
+  // Apply reviewed extraction values to the saved property and persist.
+  // Charts/metrics recompute automatically once `property` state updates.
+  const applyPatch = async (patch: AppliedPatch) => {
+    const newName = patch.name ?? property.name;
+    const newAddress = patch.address ?? property.address ?? "";
+    const newInputs = { ...property.inputs, ...(patch.inputs ?? {}) };
+    await updateProperty(id, newName, newAddress, newInputs);
+    setProperty({
+      ...property,
+      name: newName,
+      address: newAddress || null,
+      inputs: newInputs,
+    });
+  };
 
   // Base calculations (no overrides) for facts panel
   const cashFlow0 = calculateCashFlow(inputs);
@@ -141,7 +162,16 @@ export default function PropertyInsightsPage({ params }: Props) {
 
       <div className="flex-1 p-6 flex flex-col gap-5 overflow-auto">
         {/* Top action row */}
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDocs((v) => !v)}
+            className="gap-1.5 text-xs border-border hover:bg-muted/50"
+          >
+            <FileText className="h-3 w-3" />
+            {t("documents.navButton")}
+          </Button>
           <Link href={`/${locale}/property/${id}/edit`}>
             <Button
               variant="outline"
@@ -153,6 +183,25 @@ export default function PropertyInsightsPage({ params }: Props) {
             </Button>
           </Link>
         </div>
+
+        {/* Documents drawer — upload, extract, review diff, recalculate in place */}
+        {showDocs && (
+          <div className="bg-card border border-border rounded-xl p-4">
+            <div className="mb-2">
+              <span className="text-sm font-semibold text-foreground">
+                {t("documents.sectionTitle")}
+              </span>
+              <p className="text-[11px] text-muted-foreground">
+                {t("documents.sectionHint")}
+              </p>
+            </div>
+            <DocumentUpload
+              target={{ propertyId: id }}
+              current={{ name: property.name, address: property.address ?? "", inputs }}
+              onApply={applyPatch}
+            />
+          </div>
+        )}
 
         {/* ── Dense facts panel ─────────────────────────────────────────── */}
         <div className="bg-card border border-border rounded-xl overflow-hidden">

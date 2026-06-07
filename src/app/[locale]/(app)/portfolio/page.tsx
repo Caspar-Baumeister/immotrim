@@ -176,7 +176,7 @@ function PropertyCard({
   const cfPositive = cashFlow.monthlyCashFlow >= 0;
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden hover:border-white/15 transition-colors">
+    <div className="bg-card border border-border rounded-xl overflow-hidden hover:border-foreground/15 transition-colors">
       {/* Card header */}
       <div className="px-5 py-4 border-b border-border">
         <div className="flex items-start justify-between gap-2">

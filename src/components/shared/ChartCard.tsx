@@ -57,7 +57,7 @@ export function ChartCard({
           <button
             onClick={() => setOpen(true)}
             title={expandLabel}
-            className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-white/5"
+            className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-foreground/5"
           >
             <Maximize2 className="h-3.5 w-3.5" />
           </button>

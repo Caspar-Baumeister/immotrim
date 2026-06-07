@@ -104,7 +104,7 @@ function PlanCard({
           className={`w-full rounded-lg text-sm font-semibold px-4 py-2.5 transition-colors ${
             highlight
               ? "bg-amber-500 hover:bg-amber-400 text-black"
-              : "bg-white/8 hover:bg-white/15 text-foreground"
+              : "bg-foreground/10 hover:bg-foreground/15 text-foreground"
           }`}
         >
           {ctaLabel}

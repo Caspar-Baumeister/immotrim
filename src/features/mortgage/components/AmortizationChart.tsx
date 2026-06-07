@@ -34,7 +34,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
   const balance =
     payload.find((p: any) => p.dataKey === "balance")?.value ?? 0;
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">{label}</p>
       <p className="text-emerald-400">
         Tilgung: {formatCurrency(principal, "de-DE")}
@@ -42,7 +42,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
       <p className="text-indigo-400">
         Zinsen: {formatCurrency(interest, "de-DE")}
       </p>
-      <p className="text-white/40 border-t border-white/10 pt-0.5 mt-0.5 tabular-nums">
+      <p className="text-muted-foreground border-t border-border pt-0.5 mt-0.5 tabular-nums">
         Restschuld: {formatCurrency(balance, "de-DE")}
       </p>
     </div>
@@ -60,7 +60,7 @@ const CustomTooltipMonthly = ({ active, payload, monthlyData }: any) => {
     payload.find((p: any) => p.dataKey === "balance")?.value ?? 0;
   const monthName = MONTH_NAMES[(entry.month ?? 1) - 1];
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">{monthName} {entry.calendarYear}</p>
       <p className="text-emerald-400">
         Tilgung: {formatCurrency(principal, "de-DE")}
@@ -68,7 +68,7 @@ const CustomTooltipMonthly = ({ active, payload, monthlyData }: any) => {
       <p className="text-indigo-400">
         Zinsen: {formatCurrency(interest, "de-DE")}
       </p>
-      <p className="text-white/40 border-t border-white/10 pt-0.5 mt-0.5 tabular-nums">
+      <p className="text-muted-foreground border-t border-border pt-0.5 mt-0.5 tabular-nums">
         Restschuld: {formatCurrency(balance, "de-DE")}
       </p>
     </div>
@@ -86,7 +86,7 @@ const CustomLegend = () => (
       <span className="text-[10px] text-muted-foreground">Zinsen</span>
     </div>
     <div className="flex items-center gap-1.5">
-      <div className="w-3.5 h-0.5 bg-white/35" />
+      <div className="w-3.5 h-0.5 bg-foreground/40" />
       <span className="text-[10px] text-muted-foreground">Restschuld</span>
     </div>
   </div>
@@ -109,7 +109,7 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
           barSize={Math.max(1, Math.min(8, 280 / Math.max(monthlyData.length, 1)))}
           barCategoryGap="10%"
         >
-          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
           <XAxis
             dataKey="monthIndex"
             ticks={yearStartTicks}
@@ -141,7 +141,7 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
           />
           <Tooltip
             content={<CustomTooltipMonthly monthlyData={monthlyData} />}
-            cursor={{ fill: "rgba(255,255,255,0.03)" }}
+            cursor={{ fill: "var(--chart-cursor)" }}
           />
           {zinsbindungMonthIndex !== undefined && (
             <ReferenceLine
@@ -181,10 +181,10 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
             type="monotone"
             dataKey="balance"
             name="Restschuld"
-            stroke="rgba(255,255,255,0.35)"
+            stroke="var(--foreground)"
             strokeWidth={1.5}
             dot={false}
-            activeDot={{ r: 3, fill: "rgba(255,255,255,0.6)" }}
+            activeDot={{ r: 3, fill: "var(--foreground)" }}
           />
           <Legend content={<CustomLegend />} />
         </ComposedChart>
@@ -207,7 +207,7 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
         barSize={Math.max(4, Math.min(14, 280 / Math.max(data.length, 1)))}
         barCategoryGap="25%"
       >
-        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
           dataKey="calendarYear"
           tick={{ fontSize: 10, fill: "#6b6b6b" }}
@@ -234,7 +234,7 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
         />
         <Tooltip
           content={<CustomTooltipYearly />}
-          cursor={{ fill: "rgba(255,255,255,0.03)" }}
+          cursor={{ fill: "var(--chart-cursor)" }}
         />
         {zinsbindungYear !== undefined && (
           <ReferenceLine
@@ -274,10 +274,10 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
           type="monotone"
           dataKey="balance"
           name="Restschuld"
-          stroke="rgba(255,255,255,0.35)"
+          stroke="var(--foreground)"
           strokeWidth={1.5}
           dot={false}
-          activeDot={{ r: 3, fill: "rgba(255,255,255,0.6)" }}
+          activeDot={{ r: 3, fill: "var(--foreground)" }}
         />
         <Legend content={<CustomLegend />} />
       </ComposedChart>

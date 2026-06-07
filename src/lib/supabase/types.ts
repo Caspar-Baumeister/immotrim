@@ -60,6 +60,18 @@ export type Property = {
   updated_at: string;
 };
 
+export type PropertyDocument = {
+  id: string;
+  user_id: string;
+  property_id: string | null;
+  draft_id: string | null;
+  file_name: string;
+  file_path: string;
+  mime_type: string | null;
+  size_bytes: number | null;
+  created_at: string;
+};
+
 function getCurrentMonth(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -107,6 +119,18 @@ type WishlistRowShape = {
   notes: string | null;
   created_at: string;
   updated_at: string;
+};
+
+type DocumentRowShape = {
+  id: string;
+  user_id: string;
+  property_id: string | null;
+  draft_id: string | null;
+  file_name: string;
+  file_path: string;
+  mime_type: string | null;
+  size_bytes: number | null;
+  created_at: string;
 };
 
 type SubscriptionRowShape = {
@@ -163,6 +187,15 @@ export type Database = {
         Update: Partial<Omit<WishlistRowShape, "id" | "user_id" | "created_at">> & {
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      documents: {
+        Row: DocumentRowShape;
+        Insert: Omit<DocumentRowShape, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<DocumentRowShape, "id" | "user_id" | "created_at">>;
         Relationships: [];
       };
       subscriptions: {

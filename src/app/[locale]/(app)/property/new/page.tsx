@@ -4,12 +4,16 @@ import { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 import { TopBar } from "@/components/layout/TopBar";
 import { PropertyForm } from "@/features/property-input/components/PropertyForm";
 import { LivePreview } from "@/features/property-input/components/LivePreview";
+import { DocumentUpload } from "@/features/property-input/components/DocumentUpload";
+import type { AppliedPatch } from "@/features/property-input/extraction-types";
 import { Button } from "@/components/ui/button";
 import { usePropertyFormStore } from "@/lib/store";
 import { createProperty } from "@/lib/property-service";
+import { linkDraftDocuments } from "@/lib/document-service";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -17,9 +21,17 @@ export default function NewPropertyPage({ params }: Props) {
   const { locale } = use(params);
   const t = useTranslations();
   const router = useRouter();
-  const { name, address, inputs, reset } = usePropertyFormStore();
+  const { name, address, inputs, setName, setAddress, setAllInputs, reset } =
+    usePropertyFormStore();
+  const [draftId] = useState(() => uuidv4());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const applyPatch = (patch: AppliedPatch) => {
+    if (patch.name !== undefined) setName(patch.name);
+    if (patch.address !== undefined) setAddress(patch.address);
+    if (patch.inputs) setAllInputs({ ...inputs, ...patch.inputs });
+  };
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -30,6 +42,7 @@ export default function NewPropertyPage({ params }: Props) {
     setError(null);
     try {
       const id = await createProperty(name, address, inputs);
+      await linkDraftDocuments(draftId, id);
       reset();
       router.push(`/${locale}/property/${id}`);
     } catch (e) {
@@ -45,6 +58,14 @@ export default function NewPropertyPage({ params }: Props) {
       <div className="flex-1 flex">
         {/* Form column */}
         <div className="flex-1 overflow-y-auto p-6 max-w-2xl">
+          <div className="mb-6">
+            <DocumentUpload
+              target={{ draftId }}
+              current={{ name, address, inputs }}
+              onApply={applyPatch}
+            />
+          </div>
+
           <PropertyForm />
 
           {error && (

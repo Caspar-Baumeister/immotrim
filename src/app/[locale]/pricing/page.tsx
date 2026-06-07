@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { PricingCards } from "@/components/marketing/PricingCards";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,7 +12,7 @@ export default async function PricingPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
-      <nav className="border-b border-border bg-[#0d0d0d]">
+      <nav className="border-b border-border bg-card/80 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
           <Link href={`/${locale}`} className="flex items-center">
             <Image
@@ -23,6 +24,7 @@ export default async function PricingPage({ params }: Props) {
               priority
             />
           </Link>
+          <ThemeToggle />
         </div>
       </nav>
 

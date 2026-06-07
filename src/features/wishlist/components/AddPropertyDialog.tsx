@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2, Link2, Pencil } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import { Loader2, FileText, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +14,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { createWishlistProperty } from "../wishlist-service";
 import { LAGE_OPTIONS, type WishlistDraft } from "../types";
+import type { WishlistPatch } from "../extraction-types";
+import { ExposeUpload } from "./ExposeUpload";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -37,12 +35,16 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
   const [tab, setTab] = useState<Tab>("manual");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Groups exposé uploads made before the wishlist row exists (see document-service).
+  const [draftId, setDraftId] = useState(() => uuidv4());
 
   // Manual form fields
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [kaufpreis, setKaufpreis] = useState("");
   const [wohnflaeche, setWohnflaeche] = useState("");
+  const [zimmer, setZimmer] = useState("");
+  const [baujahr, setBaujahr] = useState("");
   const [kaltmiete, setKaltmiete] = useState("");
   const [eigenanteil, setEigenanteil] = useState("");
   const [exposeUrl, setExposeUrl] = useState("");
@@ -53,18 +55,34 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
     setAddress("");
     setKaufpreis("");
     setWohnflaeche("");
+    setZimmer("");
+    setBaujahr("");
     setKaltmiete("");
     setEigenanteil("");
     setExposeUrl("");
     setLage("");
     setError(null);
     setTab("manual");
+    setDraftId(uuidv4());
   }
 
   const parseNum = (s: string): number | null => {
     const v = parseFloat(s.replace(",", "."));
     return isNaN(v) ? null : v;
   };
+
+  // Apply values read from an uploaded exposé into the manual form, then bring
+  // the user to the manual tab so they can review and edit before saving.
+  function applyExtraction(p: WishlistPatch) {
+    if (p.name !== undefined) setName(p.name);
+    if (p.address !== undefined) setAddress(p.address);
+    if (p.kaufpreis !== undefined) setKaufpreis(String(p.kaufpreis));
+    if (p.wohnflaeche !== undefined) setWohnflaeche(String(p.wohnflaeche));
+    if (p.zimmer !== undefined) setZimmer(String(p.zimmer));
+    if (p.baujahr !== undefined) setBaujahr(String(p.baujahr));
+    if (p.kaltmiete !== undefined) setKaltmiete(String(p.kaltmiete));
+    setTab("manual");
+  }
 
   async function handleSave() {
     if (!name.trim()) {
@@ -80,8 +98,8 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
       lage: lage || null,
       kaufpreis: parseNum(kaufpreis),
       wohnflaeche: parseNum(wohnflaeche),
-      zimmer: null,
-      baujahr: null,
+      zimmer: parseNum(zimmer),
+      baujahr: parseNum(baujahr),
       kaltmiete: parseNum(kaltmiete),
       eigenanteil: parseNum(eigenanteil),
       nebenkostenPct: 10,
@@ -119,20 +137,27 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
             <Pencil className="h-3.5 w-3.5" />
             {t("manual")}
           </TabButton>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <TabButton active={false} disabled>
-                  <Link2 className="h-3.5 w-3.5" />
-                  {t("expose")}
-                </TabButton>
-              }
-            />
-            <TooltipContent side="bottom" className="max-w-[220px] text-center">
-              {t("exposeDisabled")}
-            </TooltipContent>
-          </Tooltip>
+          <TabButton active={tab === "expose"} onClick={() => setTab("expose")}>
+            <FileText className="h-3.5 w-3.5" />
+            {t("expose")}
+          </TabButton>
         </div>
+
+        {tab === "expose" && (
+          <ExposeUpload
+            draftId={draftId}
+            current={{
+              name,
+              address,
+              kaufpreis: parseNum(kaufpreis),
+              wohnflaeche: parseNum(wohnflaeche),
+              zimmer: parseNum(zimmer),
+              baujahr: parseNum(baujahr),
+              kaltmiete: parseNum(kaltmiete),
+            }}
+            onApply={applyExtraction}
+          />
+        )}
 
         {tab === "manual" && (
           <div className="flex flex-col gap-3">
@@ -167,6 +192,24 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
                   value={wohnflaeche}
                   onChange={(e) => setWohnflaeche(e.target.value)}
                   placeholder="78"
+                />
+              </Field>
+              <Field label={t("rooms")}>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  value={zimmer}
+                  onChange={(e) => setZimmer(e.target.value)}
+                  placeholder="3"
+                />
+              </Field>
+              <Field label={t("yearBuilt")}>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  value={baujahr}
+                  onChange={(e) => setBaujahr(e.target.value)}
+                  placeholder="1998"
                 />
               </Field>
               <Field label={t("rent")}>
@@ -226,7 +269,7 @@ export function AddPropertyDialog({ open, onOpenChange, locale, onCreated }: Pro
           </Button>
           <Button
             onClick={handleSave}
-            disabled={saving || tab !== "manual"}
+            disabled={saving}
             className="bg-amber-500 hover:bg-amber-400 text-black font-semibold"
           >
             {saving ? (

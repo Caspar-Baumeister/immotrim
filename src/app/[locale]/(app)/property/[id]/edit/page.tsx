@@ -7,6 +7,8 @@ import { Loader2 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { PropertyForm } from "@/features/property-input/components/PropertyForm";
 import { LivePreview } from "@/features/property-input/components/LivePreview";
+import { DocumentUpload } from "@/features/property-input/components/DocumentUpload";
+import type { AppliedPatch } from "@/features/property-input/extraction-types";
 import { Button } from "@/components/ui/button";
 import { usePropertyFormStore } from "@/lib/store";
 import { getProperty, updateProperty } from "@/lib/property-service";
@@ -42,6 +44,12 @@ export default function EditPropertyPage({ params }: Props) {
     );
   }
 
+  const applyPatch = (patch: AppliedPatch) => {
+    if (patch.name !== undefined) setName(patch.name);
+    if (patch.address !== undefined) setAddress(patch.address);
+    if (patch.inputs) setAllInputs({ ...inputs, ...patch.inputs });
+  };
+
   const handleSave = async () => {
     if (!name.trim()) {
       setError("Please enter a property name.");
@@ -64,6 +72,14 @@ export default function EditPropertyPage({ params }: Props) {
 
       <div className="flex-1 flex">
         <div className="flex-1 overflow-y-auto p-6 max-w-2xl">
+          <div className="mb-6">
+            <DocumentUpload
+              target={{ propertyId: id }}
+              current={{ name, address, inputs }}
+              onApply={applyPatch}
+            />
+          </div>
+
           <PropertyForm />
 
           {error && (

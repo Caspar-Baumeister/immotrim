@@ -27,7 +27,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   const entry = payload[0]?.payload as CashFlowYear;
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">Jahr {label}</p>
       <p className="text-emerald-400">
         Miete netto: {formatCurrency(entry.netRent, "de-DE")}
@@ -42,7 +42,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
         Nebenkosten: −{formatCurrency(entry.nichtUmlagefaehig, "de-DE")}
       </p>
       <p
-        className={`font-semibold border-t border-white/10 pt-0.5 mt-0.5 ${
+        className={`font-semibold border-t border-border pt-0.5 mt-0.5 ${
           entry.cashFlow >= 0 ? "text-amber-400" : "text-red-400"
         }`}
       >
@@ -57,7 +57,7 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
   const entry = payload[0]?.payload as CashFlowMonth;
   const monthName = MONTH_NAMES[(entry.month ?? 1) - 1];
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">{monthName} {entry.calendarYear}</p>
       <p className="text-emerald-400">
         Miete netto: {formatCurrency(entry.netRent, "de-DE")}
@@ -72,7 +72,7 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
         Nebenkosten: −{formatCurrency(entry.nichtUmlagefaehig, "de-DE")}
       </p>
       <p
-        className={`font-semibold border-t border-white/10 pt-0.5 mt-0.5 ${
+        className={`font-semibold border-t border-border pt-0.5 mt-0.5 ${
           entry.cashFlow >= 0 ? "text-amber-400" : "text-red-400"
         }`}
       >
@@ -98,7 +98,7 @@ export function CashFlowChart({ data, monthlyData, height = 220, monthly = false
         >
           <CartesianGrid
             vertical={false}
-            stroke="rgba(255,255,255,0.04)"
+            stroke="var(--chart-grid)"
             strokeDasharray="0"
           />
           <XAxis
@@ -120,8 +120,8 @@ export function CashFlowChart({ data, monthlyData, height = 220, monthly = false
             tickFormatter={(v) => formatCurrency(v, "de-DE", true)}
             width={56}
           />
-          <Tooltip content={<CustomTooltipMonthly />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-          <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
+          <Tooltip content={<CustomTooltipMonthly />} cursor={{ fill: "var(--chart-cursor)" }} />
+          <ReferenceLine y={0} stroke="var(--chart-reference)" strokeWidth={1} />
           <Bar dataKey="cashFlow" radius={[1, 1, 0, 0]}>
             {monthlyData.map((entry) => (
               <Cell
@@ -146,7 +146,7 @@ export function CashFlowChart({ data, monthlyData, height = 220, monthly = false
       >
         <CartesianGrid
           vertical={false}
-          stroke="rgba(255,255,255,0.04)"
+          stroke="var(--chart-grid)"
           strokeDasharray="0"
         />
         <XAxis
@@ -163,8 +163,8 @@ export function CashFlowChart({ data, monthlyData, height = 220, monthly = false
           tickFormatter={(v) => formatCurrency(v, "de-DE", true)}
           width={56}
         />
-        <Tooltip content={<CustomTooltipYearly />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-        <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
+        <Tooltip content={<CustomTooltipYearly />} cursor={{ fill: "var(--chart-cursor)" }} />
+        <ReferenceLine y={0} stroke="var(--chart-reference)" strokeWidth={1} />
         <Bar dataKey="cashFlow" radius={[3, 3, 0, 0]}>
           {data.map((entry) => (
             <Cell

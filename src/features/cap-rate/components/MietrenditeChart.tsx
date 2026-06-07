@@ -27,7 +27,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   const value = payload[0]?.value as number;
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl">
       <p className="text-muted-foreground mb-1">Jahr {label}</p>
       <p className="text-orange-400 font-semibold">
         Brutto-Mietrendite: {formatPercent(value)}
@@ -42,7 +42,7 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
   const value = payload[0]?.value as number;
   const monthName = MONTH_NAMES[(entry.month ?? 1) - 1];
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl">
       <p className="text-muted-foreground mb-1">{monthName} {entry.calendarYear}</p>
       <p className="text-orange-400 font-semibold">
         Brutto-Mietrendite: {formatPercent(value)}
@@ -63,7 +63,7 @@ export function MietrenditeChart({ data, monthlyData, baselineY1, height = 220, 
           data={monthlyData}
           margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
           <XAxis
             dataKey="monthIndex"
             ticks={yearStartTicks}
@@ -86,7 +86,7 @@ export function MietrenditeChart({ data, monthlyData, baselineY1, height = 220, 
           />
           <Tooltip
             content={<CustomTooltipMonthly />}
-            cursor={{ stroke: "rgba(255,255,255,0.08)" }}
+            cursor={{ stroke: "var(--chart-cursor)" }}
           />
           {baselineY1 !== undefined && (
             <ReferenceLine
@@ -122,7 +122,7 @@ export function MietrenditeChart({ data, monthlyData, baselineY1, height = 220, 
         data={data}
         margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
       >
-        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
           dataKey="year"
           tick={{ fontSize: 10, fill: "#6b6b6b" }}
@@ -140,7 +140,7 @@ export function MietrenditeChart({ data, monthlyData, baselineY1, height = 220, 
         />
         <Tooltip
           content={<CustomTooltipYearly />}
-          cursor={{ stroke: "rgba(255,255,255,0.08)" }}
+          cursor={{ stroke: "var(--chart-cursor)" }}
         />
         {baselineY1 !== undefined && (
           <ReferenceLine

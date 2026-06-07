@@ -27,7 +27,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   const entry = payload[0]?.payload as AppreciationYear;
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">{label}</p>
       <p className="text-blue-400">
         Wert: {formatCurrency(entry.immobilienwert, "de-DE", true)}
@@ -35,7 +35,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
       <p className="text-red-400">
         Restschuld: {formatCurrency(entry.restschuld, "de-DE", true)}
       </p>
-      <p className="text-emerald-400 font-semibold border-t border-white/10 pt-0.5 mt-0.5">
+      <p className="text-emerald-400 font-semibold border-t border-border pt-0.5 mt-0.5">
         Eigenkapital: {formatCurrency(entry.eigenkapital, "de-DE", true)}
       </p>
     </div>
@@ -47,7 +47,7 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
   const entry = payload[0]?.payload as AppreciationMonth;
   const monthName = MONTH_NAMES[(entry.month ?? 1) - 1];
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">{monthName} {entry.calendarYear}</p>
       <p className="text-blue-400">
         Wert: {formatCurrency(entry.immobilienwert, "de-DE", true)}
@@ -55,7 +55,7 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
       <p className="text-red-400">
         Restschuld: {formatCurrency(entry.restschuld, "de-DE", true)}
       </p>
-      <p className="text-emerald-400 font-semibold border-t border-white/10 pt-0.5 mt-0.5">
+      <p className="text-emerald-400 font-semibold border-t border-border pt-0.5 mt-0.5">
         Eigenkapital: {formatCurrency(entry.eigenkapital, "de-DE", true)}
       </p>
     </div>
@@ -91,7 +91,7 @@ export function WertSchuldenChart({ data, monthlyData, height = 220, monthly = f
           data={monthlyData}
           margin={{ top: 4, right: 4, left: 0, bottom: 18 }}
         >
-          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
           <XAxis
             dataKey="monthIndex"
             ticks={yearStartTicks}
@@ -113,7 +113,7 @@ export function WertSchuldenChart({ data, monthlyData, height = 220, monthly = f
           />
           <Tooltip
             content={<CustomTooltipMonthly />}
-            cursor={{ stroke: "rgba(255,255,255,0.08)" }}
+            cursor={{ stroke: "var(--chart-cursor)" }}
           />
           <Area
             type="monotone"
@@ -156,7 +156,7 @@ export function WertSchuldenChart({ data, monthlyData, height = 220, monthly = f
         data={chartData}
         margin={{ top: 4, right: 4, left: 0, bottom: 18 }}
       >
-        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
           dataKey="calendarYear"
           tick={{ fontSize: 10, fill: "#6b6b6b" }}
@@ -173,7 +173,7 @@ export function WertSchuldenChart({ data, monthlyData, height = 220, monthly = f
         />
         <Tooltip
           content={<CustomTooltipYearly />}
-          cursor={{ stroke: "rgba(255,255,255,0.08)" }}
+          cursor={{ stroke: "var(--chart-cursor)" }}
         />
         {/* Shaded eigenkapital area between the two lines */}
         <Area
