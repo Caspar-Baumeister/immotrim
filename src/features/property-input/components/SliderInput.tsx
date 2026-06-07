@@ -1,8 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Info } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -15,6 +21,8 @@ type Props = {
   unit?: string;
   unitPosition?: "prefix" | "suffix";
   formatDisplay?: (v: number) => string;
+  /** Optional explanation shown via an (i) tooltip next to the label. */
+  info?: string;
   className?: string;
 };
 
@@ -28,6 +36,7 @@ export function SliderInput({
   unit,
   unitPosition = "suffix",
   formatDisplay,
+  info,
   className,
 }: Props) {
   // Local string state allows free typing without immediate clamping
@@ -53,7 +62,26 @@ export function SliderInput({
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-center justify-between">
-        <label className="text-sm text-muted-foreground">{label}</label>
+        <div className="flex items-center gap-1.5">
+          <label className="text-sm text-muted-foreground">{label}</label>
+          {info && (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    className="text-muted-foreground/60 hover:text-muted-foreground"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                }
+              />
+              <TooltipContent side="top" className="max-w-[260px] text-left leading-snug">
+                {info}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
         <div className="flex items-center gap-1">
           {unit && unitPosition === "prefix" && (
             <span className="text-xs text-muted-foreground">{unit}</span>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { SignupForm } from "./SignupForm";
+import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = {
@@ -50,6 +51,8 @@ export default async function SignupPage({ params, searchParams }: Props) {
           </p>
         </div>
       </div>
+
+      <SiteFooter locale={locale} />
     </main>
   );
 }

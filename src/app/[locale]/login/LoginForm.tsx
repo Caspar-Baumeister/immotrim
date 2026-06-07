@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { loginAction, type AuthFormState } from "../auth/actions";
@@ -40,6 +41,14 @@ export function LoginForm({ locale }: { locale: string }) {
         {state?.fieldErrors?.password?.map((e) => (
           <p key={e} className="text-xs text-destructive">{e}</p>
         ))}
+        <div className="text-right">
+          <Link
+            href={`/${locale}/forgot-password`}
+            className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
+          >
+            {t("forgotPassword")}
+          </Link>
+        </div>
       </div>
 
       {state?.error && (

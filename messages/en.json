@@ -17,7 +17,9 @@
     "name": "Property Name",
     "namePlaceholder": "e.g. Berlin Apartment",
     "address": "Address",
-    "addressPlaceholder": "e.g. Musterstraße 1, 10115 Berlin"
+    "addressPlaceholder": "e.g. Musterstraße 1, 10115 Berlin",
+    "notFound": "Property not found.",
+    "backToPortfolio": "Back to portfolio"
   },
   "sections": {
     "allgemein": "General",
@@ -153,7 +155,20 @@
     "noAccount": "No account?",
     "haveAccount": "Already have an account?",
     "signupLink": "Sign up",
-    "loginLink": "Sign in"
+    "loginLink": "Sign in",
+    "checkEmailTitle": "Check your inbox",
+    "checkEmailDesc": "We've sent you a confirmation link. Click it to activate your account and continue to payment.",
+    "forgotPassword": "Forgot password?",
+    "forgotTitle": "Reset your password",
+    "forgotSubtitle": "Enter your email and we'll send you a reset link.",
+    "submitForgot": "Send reset link",
+    "resetSentTitle": "Check your inbox",
+    "resetSentDesc": "If an account exists for that email, you'll receive a link to reset your password.",
+    "backToLogin": "Back to sign in",
+    "resetTitle": "Set a new password",
+    "resetSubtitle": "Choose a new password for your account.",
+    "newPassword": "New password",
+    "submitReset": "Update password"
   },
   "account": {
     "title": "Account",
@@ -312,5 +327,11 @@
       "ruecklagen": "Reserves (monthly)"
     },
     "extractBusy": "The extraction service is busy right now. Please try again in a moment."
+  },
+  "legal": {
+    "draftNotice": "Draft — placeholder text. This must be completed and reviewed by a lawyer before launch.",
+    "impressum": { "title": "Imprint" },
+    "datenschutz": { "title": "Privacy Policy" },
+    "agb": { "title": "Terms of Service" }
   }
 }

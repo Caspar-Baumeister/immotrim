@@ -17,7 +17,9 @@
     "name": "Bezeichnung",
     "namePlaceholder": "z.B. Berliner Wohnung",
     "address": "Adresse",
-    "addressPlaceholder": "z.B. Musterstraße 1, 10115 Berlin"
+    "addressPlaceholder": "z.B. Musterstraße 1, 10115 Berlin",
+    "notFound": "Immobilie nicht gefunden.",
+    "backToPortfolio": "Zurück zum Portfolio"
   },
   "sections": {
     "allgemein": "Allgemein",
@@ -153,7 +155,20 @@
     "noAccount": "Noch kein Account?",
     "haveAccount": "Schon ein Account?",
     "signupLink": "Registrieren",
-    "loginLink": "Anmelden"
+    "loginLink": "Anmelden",
+    "checkEmailTitle": "Bitte E-Mails prüfen",
+    "checkEmailDesc": "Wir haben dir einen Bestätigungslink geschickt. Klicke ihn an, um dein Konto zu aktivieren und zur Zahlung fortzufahren.",
+    "forgotPassword": "Passwort vergessen?",
+    "forgotTitle": "Passwort zurücksetzen",
+    "forgotSubtitle": "Gib deine E-Mail ein und wir senden dir einen Link zum Zurücksetzen.",
+    "submitForgot": "Link senden",
+    "resetSentTitle": "Bitte E-Mails prüfen",
+    "resetSentDesc": "Falls ein Konto mit dieser E-Mail existiert, erhältst du einen Link zum Zurücksetzen deines Passworts.",
+    "backToLogin": "Zurück zur Anmeldung",
+    "resetTitle": "Neues Passwort festlegen",
+    "resetSubtitle": "Wähle ein neues Passwort für dein Konto.",
+    "newPassword": "Neues Passwort",
+    "submitReset": "Passwort aktualisieren"
   },
   "account": {
     "title": "Account",
@@ -312,5 +327,11 @@
       "ruecklagen": "Rücklagen (mtl.)"
     },
     "extractBusy": "Der Auslese-Dienst ist gerade ausgelastet. Bitte versuche es gleich noch einmal."
+  },
+  "legal": {
+    "draftNotice": "Entwurf — Platzhaltertext. Diese Angaben müssen vor dem Start vervollständigt und rechtlich geprüft werden.",
+    "impressum": { "title": "Impressum" },
+    "datenschutz": { "title": "Datenschutzerklärung" },
+    "agb": { "title": "AGB" }
   }
 }

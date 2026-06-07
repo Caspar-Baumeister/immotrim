@@ -152,6 +152,7 @@ export function PropertyForm() {
       setInput("tax", {
         gebaeudeanteilPct: 70,
         bemessungsgrundlage: inputs.kaufpreis,
+        afaPct: 2,
         steuersatz: 42,
       } as TaxInputs);
     } else {
@@ -464,15 +465,6 @@ export function PropertyForm() {
         {inputs.tax && (
           <div className="flex flex-col gap-4 pt-2 border-t border-border/60">
             <SliderInput
-              label="Gebäudeanteil"
-              value={inputs.tax.gebaeudeanteilPct}
-              onChange={(v) => setTaxField("gebaeudeanteilPct", v)}
-              min={0}
-              max={100}
-              step={1}
-              unit="%"
-            />
-            <SliderInput
               label="Bemessungsgrundlage"
               value={inputs.tax.bemessungsgrundlage}
               onChange={(v) => setTaxField("bemessungsgrundlage", v)}
@@ -481,15 +473,37 @@ export function PropertyForm() {
               step={5000}
               unit="€"
               unitPosition="prefix"
+              info="Anschaffungskosten, von denen die AfA berechnet wird – i.d.R. der Kaufpreis, ggf. zzgl. abschreibungsfähiger Nebenkosten (Notar, Grunderwerbsteuer). Der Grundstücksanteil wird über den Gebäudeanteil herausgerechnet."
             />
             <SliderInput
-              label="Steuersatz"
+              label="Gebäudeanteil"
+              value={inputs.tax.gebaeudeanteilPct}
+              onChange={(v) => setTaxField("gebaeudeanteilPct", v)}
+              min={0}
+              max={100}
+              step={1}
+              unit="%"
+              info="Anteil des Gebäudes an der Bemessungsgrundlage. Nur das Gebäude ist abschreibbar, der Grund und Boden nicht. Typisch 70–80 % – abhängig von Bodenrichtwert und Lage."
+            />
+            <SliderInput
+              label="AfA-Satz"
+              value={inputs.tax.afaPct}
+              onChange={(v) => setTaxField("afaPct", v)}
+              min={0}
+              max={5}
+              step={0.5}
+              unit="%"
+              info="Jährlicher Abschreibungssatz auf den Gebäudewert. 2 % für Bestandsgebäude (Baujahr ab 1925), 2,5 % vor 1925, 3 % für Neubauten mit Fertigstellung ab 2023."
+            />
+            <SliderInput
+              label="Grenzsteuersatz"
               value={inputs.tax.steuersatz}
               onChange={(v) => setTaxField("steuersatz", v)}
               min={0}
               max={55}
               step={1}
               unit="%"
+              info="Persönlicher Spitzensteuersatz auf das zusätzliche Einkommen. In Deutschland meist 42 % (ggf. + Soli/Kirchensteuer), abhängig vom zu versteuernden Einkommen. Mit diesem Satz wird die Steuerersparnis bzw. -belastung berechnet."
             />
           </div>
         )}

@@ -2,8 +2,13 @@
 
 import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Edit2 } from "lucide-react";
+import { Edit2, Info } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { ChartCard } from "@/components/shared/ChartCard";
 import { ChartSlider } from "@/components/shared/ChartSlider";
 import { CashFlowChart } from "@/features/cash-flow/components/CashFlowChart";
@@ -16,6 +21,7 @@ import { calculateCapRate } from "@/features/cap-rate/calculations";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import { calculateAppreciation } from "@/features/appreciation/calculations";
 import { calculateReturns } from "@/features/returns/calculations";
+import { calculateTax } from "@/features/tax/calculations";
 import { getProperty, updateProperty } from "@/lib/property-service";
 import { type Property } from "@/lib/supabase";
 import { formatCurrency, formatPercent } from "@/lib/utils";
@@ -68,9 +74,9 @@ export default function PropertyInsightsPage({ params }: Props) {
   if (!property) {
     return (
       <div className="flex-1 flex items-center justify-center flex-col gap-3 h-screen">
-        <p className="text-muted-foreground">Immobilie nicht gefunden.</p>
+        <p className="text-muted-foreground">{t("property.notFound")}</p>
         <Link href={`/${locale}/portfolio`}>
-          <Button variant="outline" size="sm">Zurück zum Portfolio</Button>
+          <Button variant="outline" size="sm">{t("property.backToPortfolio")}</Button>
         </Link>
       </div>
     );
@@ -98,6 +104,7 @@ export default function PropertyInsightsPage({ params }: Props) {
   const capRate0 = calculateCapRate(inputs);
   const mortgage = calculateMortgage(inputs);
   const appreciation0 = calculateAppreciation(inputs);
+  const tax = calculateTax(inputs);
 
   // Chart calculations with global scenario overrides
   const cashFlowData = calculateCashFlow(inputs, {
@@ -205,7 +212,12 @@ export default function PropertyInsightsPage({ params }: Props) {
 
         {/* ── Dense facts panel ─────────────────────────────────────────── */}
         <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="grid grid-cols-3 divide-x divide-border">
+          <div
+            className={cn(
+              "grid divide-x divide-border",
+              tax ? "grid-cols-2 xl:grid-cols-4" : "grid-cols-3"
+            )}
+          >
             <FactColumn
               title="Kauf & Finanzierung"
               facts={[
@@ -345,6 +357,68 @@ export default function PropertyInsightsPage({ params }: Props) {
                 },
               ]}
             />
+            {/* ── 4th column: tax (only when activated) ──────────────────── */}
+            {tax && (
+              <FactColumn
+                title="Steuer (Jahr 1)"
+                facts={[
+                  {
+                    label: "Grenzsteuersatz",
+                    value: formatPercent(tax.grenzsteuersatz, 0),
+                    tooltip:
+                      "Persönlicher Spitzensteuersatz auf das zusätzliche Einkommen (in Deutschland meist 42 %). Damit werden Steuerersparnis bzw. -belastung berechnet.",
+                  },
+                  {
+                    label: "AfA-Satz",
+                    value: formatPercent(tax.afaSatz, 1),
+                    tooltip:
+                      "Jährlicher Abschreibungssatz auf den Gebäudewert. 2 % Bestand (ab Baujahr 1925), 2,5 % vor 1925, 3 % Neubau ab 2023.",
+                  },
+                  {
+                    label: "Jährliche AfA",
+                    value: formatCurrency(tax.jaehrlicheAfa, "de-DE", true),
+                    negative: true,
+                    tooltip: `Abschreibung pro Jahr = Bemessungsgrundlage × Gebäudeanteil × AfA-Satz = ${formatCurrency(tax.afaBemessungsgrundlage, "de-DE", true)} × ${formatPercent(tax.afaSatz, 1)}. Mindert das steuerliche Ergebnis, ist aber kein realer Geldabfluss.`,
+                  },
+                  {
+                    label: "Steuerliches Ergebnis",
+                    value: formatCurrency(tax.steuerlichesErgebnis, "de-DE", true),
+                    highlight: true,
+                    positive: tax.steuerlichesErgebnis >= 0,
+                    tooltip: `Netto-Kaltmiete − AfA − Schuldzinsen (Jahr 1) − nicht umlagefähige Kosten = ${formatCurrency(tax.nettoMieteY1, "de-DE", true)} − ${formatCurrency(tax.jaehrlicheAfa, "de-DE", true)} − ${formatCurrency(tax.schuldzinsenY1, "de-DE", true)} − ${formatCurrency(tax.nichtUmlagefaehigY1, "de-DE", true)}. Tilgung ist nicht absetzbar; Rücklagen erst bei tatsächlicher Verwendung. Ein negatives Ergebnis (Verlust) senkt die Steuerlast.`,
+                  },
+                  {
+                    label:
+                      tax.steuerEffekt >= 0
+                        ? "Steuerersparnis"
+                        : "Steuerbelastung",
+                    value: formatCurrency(tax.steuerEffekt, "de-DE", true),
+                    highlight: true,
+                    positive: tax.steuerEffekt >= 0,
+                    tooltip:
+                      "Steuerliches Ergebnis × Grenzsteuersatz. Bei einem Verlust ergibt sich eine Steuerersparnis (mindert die Steuer auf übriges Einkommen), bei einem Gewinn eine zusätzliche Steuerbelastung.",
+                  },
+                  {
+                    label: "Cashflow n. Steuern",
+                    value: formatCurrency(
+                      tax.cashflowNachSteuern,
+                      "de-DE",
+                      true
+                    ),
+                    highlight: true,
+                    positive: tax.cashflowNachSteuern >= 0,
+                    tooltip: `Cashflow vor Steuern + Steuereffekt = ${formatCurrency(tax.cashflowVorSteuern, "de-DE", true)} ${tax.steuerEffekt >= 0 ? "+" : "−"} ${formatCurrency(Math.abs(tax.steuerEffekt), "de-DE", true)} pro Jahr.`,
+                  },
+                  {
+                    label: "Cash-on-Cash n. St.",
+                    value: formatPercent(tax.cashOnCashNachSteuern),
+                    highlight: true,
+                    positive: tax.cashOnCashNachSteuern >= 0,
+                    tooltip: `Cashflow nach Steuern ÷ Eigenanteil. Vor Steuern: ${formatPercent(tax.cashOnCashVorSteuern)}.`,
+                  },
+                ]}
+              />
+            )}
           </div>
         </div>
 
@@ -628,6 +702,7 @@ type Fact = {
   positive?: boolean;
   negative?: boolean;
   muted?: boolean;
+  tooltip?: string;
 };
 
 function FactColumn({ title, facts }: { title: string; facts: Fact[] }) {
@@ -642,9 +717,31 @@ function FactColumn({ title, facts }: { title: string; facts: Fact[] }) {
         {facts.map((fact, i) => (
           <div
             key={i}
-            className="flex items-center justify-between px-4 py-2"
+            className="flex items-center justify-between px-4 py-2 gap-2"
           >
-            <span className="text-xs text-muted-foreground">{fact.label}</span>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0">
+              <span className="truncate">{fact.label}</span>
+              {fact.tooltip && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <button
+                        type="button"
+                        className="text-muted-foreground/50 hover:text-muted-foreground flex-shrink-0"
+                      >
+                        <Info className="h-3 w-3" />
+                      </button>
+                    }
+                  />
+                  <TooltipContent
+                    side="top"
+                    className="max-w-[280px] text-left leading-snug"
+                  >
+                    {fact.tooltip}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </span>
             <span
               className={cn(
                 "text-xs font-semibold tabular-nums",

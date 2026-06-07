@@ -6,6 +6,7 @@ import { ScanText, SlidersHorizontal, TrendingUp } from "lucide-react";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getActiveSubscription } from "@/lib/dal";
 import { PricingCards } from "@/components/marketing/PricingCards";
+import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -89,10 +90,17 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Product screenshot placeholder — drop image into /public/landing/hero.png */}
+      {/* Product screenshot. To show a real image, drop a 16:9 file at
+          /public/landing/hero.png and swap this block for a <Image fill .../>. */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
-        <div className="rounded-2xl border border-border bg-card overflow-hidden aspect-[16/9] flex items-center justify-center text-muted-foreground text-xs">
-          Add a screenshot at <code className="px-1 mx-1 bg-foreground/5 rounded">/public/landing/hero.png</code>
+        <div className="rounded-2xl border border-border bg-gradient-to-br from-card to-amber-500/5 overflow-hidden aspect-[16/9] flex items-center justify-center">
+          <Image
+            src="/logo_immotrim.png"
+            alt="Immotrim"
+            width={200}
+            height={56}
+            className="h-12 w-auto object-contain opacity-30"
+          />
         </div>
       </section>
 
@@ -124,11 +132,7 @@ export default async function LandingPage({ params }: Props) {
         <PricingCards locale={locale} />
       </section>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {t("footer")}
-        </div>
-      </footer>
+      <SiteFooter locale={locale} />
     </main>
   );
 }

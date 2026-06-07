@@ -2,17 +2,17 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { signupAction, type AuthFormState } from "../auth/actions";
+import { requestPasswordResetAction, type AuthFormState } from "../auth/actions";
 
-export function SignupForm({ locale, plan }: { locale: string; plan: "monthly" | "yearly" }) {
+export function ForgotPasswordForm({ locale }: { locale: string }) {
   const t = useTranslations("auth");
-  const [state, formAction, pending] = useActionState<AuthFormState, FormData>(signupAction, undefined);
+  const [state, formAction, pending] = useActionState<AuthFormState, FormData>(requestPasswordResetAction, undefined);
 
   if (state?.success) {
     return (
       <div className="rounded-lg border border-border bg-card p-6 text-center space-y-2">
-        <p className="text-sm font-medium">{t("checkEmailTitle")}</p>
-        <p className="text-sm text-muted-foreground">{t("checkEmailDesc")}</p>
+        <p className="text-sm font-medium">{t("resetSentTitle")}</p>
+        <p className="text-sm text-muted-foreground">{t("resetSentDesc")}</p>
       </div>
     );
   }
@@ -20,7 +20,6 @@ export function SignupForm({ locale, plan }: { locale: string; plan: "monthly" |
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="locale" value={locale} />
-      <input type="hidden" name="plan" value={plan} />
 
       <div className="space-y-1.5">
         <label htmlFor="email" className="block text-sm font-medium">{t("email")}</label>
@@ -37,23 +36,6 @@ export function SignupForm({ locale, plan }: { locale: string; plan: "monthly" |
         ))}
       </div>
 
-      <div className="space-y-1.5">
-        <label htmlFor="password" className="block text-sm font-medium">{t("password")}</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          minLength={8}
-          required
-          className="w-full rounded-lg bg-card border border-border px-3 py-2 text-sm outline-none focus:border-amber-500/60"
-        />
-        <p className="text-xs text-muted-foreground">{t("passwordHint")}</p>
-        {state?.fieldErrors?.password?.map((e) => (
-          <p key={e} className="text-xs text-destructive">{e}</p>
-        ))}
-      </div>
-
       {state?.error && (
         <p className="text-sm text-destructive">{state.error}</p>
       )}
@@ -63,7 +45,7 @@ export function SignupForm({ locale, plan }: { locale: string; plan: "monthly" |
         disabled={pending}
         className="w-full rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-black text-sm font-semibold px-4 py-2.5 transition-colors"
       >
-        {pending ? t("submitting") : t("submitSignup")}
+        {pending ? t("submitting") : t("submitForgot")}
       </button>
     </form>
   );

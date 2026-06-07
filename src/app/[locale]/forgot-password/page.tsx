@@ -1,13 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { LoginForm } from "./LoginForm";
-import { SiteFooter } from "@/components/marketing/SiteFooter";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default async function LoginPage({ params }: Props) {
+export default async function ForgotPasswordPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations("auth");
 
@@ -32,22 +31,19 @@ export default async function LoginPage({ params }: Props) {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-semibold">{t("loginTitle")}</h1>
-            <p className="text-sm text-muted-foreground">{t("loginSubtitle")}</p>
+            <h1 className="text-2xl font-semibold">{t("forgotTitle")}</h1>
+            <p className="text-sm text-muted-foreground">{t("forgotSubtitle")}</p>
           </div>
 
-          <LoginForm locale={locale} />
+          <ForgotPasswordForm locale={locale} />
 
           <p className="text-sm text-center text-muted-foreground">
-            {t("noAccount")}{" "}
-            <Link href={`/${locale}/signup`} className="text-amber-400 hover:text-amber-300 underline underline-offset-4">
-              {t("signupLink")}
+            <Link href={`/${locale}/login`} className="text-amber-400 hover:text-amber-300 underline underline-offset-4">
+              {t("backToLogin")}
             </Link>
           </p>
         </div>
       </div>
-
-      <SiteFooter locale={locale} />
     </main>
   );
 }

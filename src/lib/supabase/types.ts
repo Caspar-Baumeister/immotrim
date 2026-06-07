@@ -16,9 +16,10 @@ export type Nebenkosten = {
 };
 
 export type TaxInputs = {
-  gebaeudeanteilPct: number;    // building share % of purchase price
-  bemessungsgrundlage: number;  // assessment basis (usually = kaufpreis)
-  steuersatz: number;           // personal income tax rate %
+  gebaeudeanteilPct: number;    // building share % of purchase price (only building is depreciable)
+  bemessungsgrundlage: number;  // assessment basis for AfA (usually = kaufpreis, can include Nebenkosten)
+  afaPct: number;               // annual depreciation rate % (2% standard, 3% new builds ≥2023, 2.5% pre-1925)
+  steuersatz: number;           // personal marginal income tax rate % (Grenzsteuersatz)
 };
 
 export type PropertyInputs = {
