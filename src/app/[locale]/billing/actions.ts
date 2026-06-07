@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getStripe, priceIdForPlan, type Plan } from "@/lib/stripe";
+import { getBaseUrl } from "@/lib/url";
 
 const planSchema = z.enum(["monthly", "yearly"]);
 const localeSchema = z.enum(["en", "de"]).default("en");
@@ -45,7 +46,7 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   }
 
   const customerId = await getOrCreateStripeCustomer(user.id, user.email ?? "");
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const baseUrl = getBaseUrl();
 
   const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
@@ -78,7 +79,7 @@ export async function startPortalAction(formData: FormData): Promise<void> {
 
   if (!sub?.stripe_customer_id) redirect(`/${locale}/pricing`);
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const baseUrl = getBaseUrl();
   const session = await getStripe().billingPortal.sessions.create({
     customer: sub.stripe_customer_id,
     return_url: `${baseUrl}/${locale}/account`,

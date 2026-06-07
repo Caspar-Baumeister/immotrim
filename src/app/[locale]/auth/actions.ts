@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { getBaseUrl } from "@/lib/url";
 
 const credentialsSchema = z.object({
   email: z.email("Please enter a valid email."),
@@ -18,10 +19,6 @@ export type AuthFormState = {
   success?: boolean;
   fieldErrors?: { email?: string[]; password?: string[] };
 } | undefined;
-
-function baseUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-}
 
 export async function signupAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const parsed = credentialsSchema.safeParse({
@@ -45,7 +42,7 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${baseUrl()}/api/auth/callback?next=${encodeURIComponent(next)}`,
+      emailRedirectTo: `${getBaseUrl()}/api/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
   if (error) return { error: error.message };
@@ -97,7 +94,7 @@ export async function requestPasswordResetAction(_prev: AuthFormState, formData:
 
   const sb = await createServerSupabase();
   await sb.auth.resetPasswordForEmail(parsed.data, {
-    redirectTo: `${baseUrl()}/api/auth/callback?next=${encodeURIComponent(next)}`,
+    redirectTo: `${getBaseUrl()}/api/auth/callback?next=${encodeURIComponent(next)}`,
   });
   return { success: true };
 }
