@@ -11,7 +11,10 @@ legal pages, polish) is already done. Do the steps roughly in this order.
 1. **Buy a domain** (e.g. at Namecheap, Porkbun, or your registrar of choice).
 2. **Create a Vercel project**: vercel.com → Add New → Project → import this git repo.
    - Framework preset: **Next.js** (auto-detected). Build command `next build`, no changes needed.
-   - Vercel sets `NODE_ENV=production` automatically → the app will use your **LIVE** Stripe keys.
+   - On the production deploy Vercel sets `VERCEL_ENV=production` → with Production-scoped
+     env vars the app uses your **LIVE** Stripe keys + live price IDs.
+   - Want a separate test deployment (`dev.immotrim.com`, Stripe test keys, separate DB)?
+     See **[STAGING.md](STAGING.md)**.
 3. **Connect the domain**: Vercel → Project → Settings → Domains → add your domain and follow the DNS instructions.
 4. **Add environment variables** (Vercel → Settings → Environment Variables, scope = **Production**). See the full list in §5.
 5. Deploy. Confirm the build succeeds (it builds clean locally already).

@@ -3,14 +3,16 @@ import Stripe from "stripe";
 
 let _stripe: Stripe | null = null;
 
-// Pick TEST key in development, LIVE in production.
-// Supports either split naming (STRIPE_SECRET_KEY_TEST / _LIVE) or a single STRIPE_SECRET_KEY.
+// Prefer the canonical STRIPE_SECRET_KEY, which Vercel sets per environment (live on
+// Production, test on Preview/staging). Fall back to the split TEST/LIVE naming for local
+// dev and any unscoped setup, keyed off VERCEL_ENV — NOT NODE_ENV, which Vercel sets to
+// "production" on every deploy (previews included), so it can't distinguish prod from preview.
 function getStripeSecretKey(): string {
   const single = process.env.STRIPE_SECRET_KEY;
   if (single) return single;
-  const isProd = process.env.NODE_ENV === "production";
+  const isProd = process.env.VERCEL_ENV === "production";
   const key = isProd ? process.env.STRIPE_SECRET_KEY_LIVE : process.env.STRIPE_SECRET_KEY_TEST;
-  if (!key) throw new Error("Missing Stripe secret key. Set STRIPE_SECRET_KEY_TEST (dev) or STRIPE_SECRET_KEY_LIVE (prod).");
+  if (!key) throw new Error("Missing Stripe secret key. Set STRIPE_SECRET_KEY (per environment) or STRIPE_SECRET_KEY_TEST/_LIVE.");
   return key;
 }
 
