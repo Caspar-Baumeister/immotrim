@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { PropertyForm } from "@/features/property-input/components/PropertyForm";
 import { LivePreview } from "@/features/property-input/components/LivePreview";
@@ -11,7 +11,11 @@ import { DocumentUpload } from "@/features/property-input/components/DocumentUpl
 import type { AppliedPatch } from "@/features/property-input/extraction-types";
 import { Button } from "@/components/ui/button";
 import { usePropertyFormStore } from "@/lib/store";
-import { getProperty, updateProperty } from "@/lib/property-service";
+import {
+  getProperty,
+  updateProperty,
+  deleteProperty,
+} from "@/lib/property-service";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
@@ -22,6 +26,7 @@ export default function EditPropertyPage({ params }: Props) {
   const { name, address, inputs, setName, setAddress, setAllInputs } =
     usePropertyFormStore();
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +68,19 @@ export default function EditPropertyPage({ params }: Props) {
     } catch {
       setError("Failed to save changes.");
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(t("deleteConfirm"))) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteProperty(id);
+      router.push(`/${locale}/portfolio`);
+    } catch {
+      setError("Failed to delete property.");
+      setDeleting(false);
     }
   };
 
@@ -111,6 +129,20 @@ export default function EditPropertyPage({ params }: Props) {
               )}
             </Button>
           </div>
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 transition-colors disabled:opacity-50"
+          >
+            {deleting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5" />
+            )}
+            {t("actions.delete")}
+          </button>
         </div>
 
         <div className="w-64 flex-shrink-0 hidden lg:block p-6 border-l border-border">

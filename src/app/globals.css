@@ -105,8 +105,11 @@
   --sidebar-border: rgba(0, 0, 0, 0.06);
   --sidebar-ring: rgba(0, 0, 0, 0.2);
 
-  /* Static diagonal two-tone background gradient */
-  --gradient-bg: linear-gradient(135deg, #fbfcfe 0%, #f4f6fa 50%, #eef2f8 100%);
+  /* Static two-source background gradient (soft warm mesh, low saturation) */
+  --gradient-bg:
+    radial-gradient(60% 60% at 15% 0%, #fbf1dd 0%, transparent 60%),
+    radial-gradient(55% 55% at 100% 100%, #f5ece0 0%, transparent 55%),
+    #f1efea;
 
   /* Chart helper tokens (black-alpha on light surfaces) */
   --chart-grid: rgba(0, 0, 0, 0.06);
@@ -155,7 +158,10 @@
   --sidebar-border: rgba(255, 255, 255, 0.06);
   --sidebar-ring: rgba(255, 255, 255, 0.2);
 
-  --gradient-bg: linear-gradient(135deg, #0c0d11 0%, #0a0a0a 50%, #0b0e14 100%);
+  --gradient-bg:
+    radial-gradient(60% 60% at 15% 0%, #2a2114 0%, transparent 60%),
+    radial-gradient(55% 55% at 100% 100%, #241d12 0%, transparent 55%),
+    #0a0a0a;
 
   --chart-grid: rgba(255, 255, 255, 0.04);
   --chart-cursor: rgba(255, 255, 255, 0.03);
