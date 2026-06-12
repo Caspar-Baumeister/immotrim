@@ -34,12 +34,10 @@ export type CashFlowMetrics = {
 };
 
 export function calculateCashFlow(
-  inputs: PropertyInputs,
-  options?: { mietentwicklungOverride?: number }
+  inputs: PropertyInputs
 ): CashFlowMetrics {
   const mortgage = calculateMortgage(inputs);
-  const mietentwicklung =
-    options?.mietentwicklungOverride ?? inputs.mietentwicklung;
+  const mietentwicklung = inputs.mietentwicklung ?? 0;
 
   const baseKaltmiete = inputs.kaltmiete * 12;
   const leerstandRate = inputs.leerstand / 100;

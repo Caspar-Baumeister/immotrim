@@ -29,7 +29,6 @@ function mortgageInputsFor(
     tilgung: g.tilgung,
     zinsbindung: 10,
     loanStartDate: getCurrentMonth(),
-    annuitaetendarlehen: true,
     kaltmiete: row.kaltmiete ?? 0,
     nichtUmlagefaehig: 0,
     leerstand: 0,

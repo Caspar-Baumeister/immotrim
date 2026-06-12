@@ -27,12 +27,10 @@ export type AppreciationMetrics = {
 };
 
 export function calculateAppreciation(
-  inputs: PropertyInputs,
-  options?: { wertentwicklungOverride?: number }
+  inputs: PropertyInputs
 ): AppreciationMetrics {
   const mortgage = calculateMortgage(inputs);
-  const wertentwicklung =
-    options?.wertentwicklungOverride ?? inputs.wertentwicklung;
+  const wertentwicklung = inputs.wertentwicklung ?? 0;
 
   const startYear = inputs.loanStartDate
     ? parseInt(inputs.loanStartDate.split("-")[0], 10)

@@ -83,6 +83,8 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
 };
 
 export function CashFlowChart({ data, monthlyData, height = 220, monthly = false }: Props) {
+  // Fullscreen modal passes height="100%"; inline cards pass a fixed pixel height.
+  const isFullscreen = typeof height === "string";
   if (monthly && monthlyData && monthlyData.length > 0) {
     // Monthly mode: one bar per month, x-axis labels at each January
     const yearStartTicks = monthlyData
@@ -141,8 +143,11 @@ export function CashFlowChart({ data, monthlyData, height = 220, monthly = false
     <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
-        margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
-        barSize={Math.max(4, Math.min(16, 320 / Math.max(data.length, 1)))}
+        margin={{ top: 4, right: 4, left: 0, bottom: isFullscreen ? 24 : 0 }}
+        // Fullscreen: let recharts size the bars to fill the width (only a small
+        // category gap). Inline: cap width so the few bars don't get chunky.
+        barSize={isFullscreen ? undefined : Math.max(4, Math.min(16, 320 / Math.max(data.length, 1)))}
+        barCategoryGap={isFullscreen ? "18%" : undefined}
       >
         <CartesianGrid
           vertical={false}
@@ -154,7 +159,10 @@ export function CashFlowChart({ data, monthlyData, height = 220, monthly = false
           tick={{ fontSize: 10, fill: "#6b6b6b" }}
           tickLine={false}
           axisLine={false}
-          interval={Math.max(0, Math.ceil(data.length / 6) - 1)}
+          interval={isFullscreen ? 0 : Math.max(0, Math.ceil(data.length / 6) - 1)}
+          angle={isFullscreen ? -45 : 0}
+          textAnchor={isFullscreen ? "end" : "middle"}
+          height={isFullscreen ? 40 : undefined}
         />
         <YAxis
           tick={{ fontSize: 10, fill: "#6b6b6b" }}

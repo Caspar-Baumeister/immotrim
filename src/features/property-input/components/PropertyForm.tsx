@@ -166,6 +166,15 @@ export function PropertyForm() {
     }
   };
 
+  // Growth forecast is optional — when off, calculations use 0% for both.
+  const growthEnabled =
+    inputs.mietentwicklung !== undefined || inputs.wertentwicklung !== undefined;
+
+  const toggleGrowth = (enabled: boolean) => {
+    setInput("mietentwicklung", enabled ? 2 : undefined);
+    setInput("wertentwicklung", enabled ? 2 : undefined);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* Property identity */}
@@ -332,32 +341,6 @@ export function PropertyForm() {
             />
           </div>
 
-          {/* Annuitätendarlehen toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm text-muted-foreground">
-                Annuitätendarlehen
-              </span>
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <button type="button" className="text-muted-foreground/60 hover:text-muted-foreground">
-                      <Info className="h-3.5 w-3.5" />
-                    </button>
-                  }
-                />
-                <TooltipContent side="top">
-                  Konstante monatliche Rate aus Zins und Tilgung.
-                  Der Tilgungsanteil steigt, der Zinsanteil sinkt über die Zeit.
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <ToggleSwitch
-              checked={inputs.annuitaetendarlehen}
-              onChange={(v) => setInput("annuitaetendarlehen", v)}
-            />
-          </div>
-
           {/* Derived display */}
           <div className="bg-muted/30 rounded-lg px-3 py-2.5 flex flex-col gap-1 text-xs">
             <div className="flex justify-between">
@@ -509,29 +492,40 @@ export function PropertyForm() {
         )}
       </InputSection>
 
-      {/* ── Wachstumsannahmen ──────────────────────────────────────────────── */}
-      <InputSection title="Wachstumsannahmen" defaultOpen={false}>
-        <p className="text-[10px] text-muted-foreground/70 -mb-1">
-          Diese Werte dienen als Standardeinstellung für die Stellregler in den Graphen.
-        </p>
-        <SliderInput
-          label="Mietentwicklung p.a."
-          value={inputs.mietentwicklung}
-          onChange={(v) => setInput("mietentwicklung", v)}
-          min={0}
-          max={8}
-          step={0.1}
-          unit="%"
-        />
-        <SliderInput
-          label="Wertentwicklung p.a."
-          value={inputs.wertentwicklung}
-          onChange={(v) => setInput("wertentwicklung", v)}
-          min={-2}
-          max={10}
-          step={0.1}
-          unit="%"
-        />
+      {/* ── Wachstumsannahmen (optional) ───────────────────────────────────── */}
+      <InputSection title="Wachstumsannahmen (optional)" defaultOpen={false}>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            Wachstumsprognose aktivieren
+          </span>
+          <ToggleSwitch checked={growthEnabled} onChange={toggleGrowth} />
+        </div>
+        {growthEnabled && (
+          <div className="flex flex-col gap-4 pt-2 border-t border-border/60">
+            <p className="text-[10px] text-muted-foreground/70 -mb-1">
+              Erwartete jährliche Steigerung von Miete und Immobilienwert. Ohne
+              Prognose wird mit 0 % gerechnet.
+            </p>
+            <SliderInput
+              label="Mietentwicklung p.a."
+              value={inputs.mietentwicklung ?? 0}
+              onChange={(v) => setInput("mietentwicklung", v)}
+              min={0}
+              max={8}
+              step={0.1}
+              unit="%"
+            />
+            <SliderInput
+              label="Wertentwicklung p.a."
+              value={inputs.wertentwicklung ?? 0}
+              onChange={(v) => setInput("wertentwicklung", v)}
+              min={-2}
+              max={10}
+              step={0.1}
+              unit="%"
+            />
+          </div>
+        )}
       </InputSection>
     </div>
   );

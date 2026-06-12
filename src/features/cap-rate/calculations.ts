@@ -23,12 +23,10 @@ export type CapRateMetrics = {
 };
 
 export function calculateCapRate(
-  inputs: PropertyInputs,
-  options?: { mietentwicklungOverride?: number }
+  inputs: PropertyInputs
 ): CapRateMetrics {
-  const cashFlow = calculateCashFlow(inputs, options);
-  const mietentwicklung =
-    options?.mietentwicklungOverride ?? inputs.mietentwicklung;
+  const cashFlow = calculateCashFlow(inputs);
+  const mietentwicklung = inputs.mietentwicklung ?? 0;
 
   const grossAnnualRentY1 = inputs.kaltmiete * 12;
   const bruttoMietrenditeY1 =

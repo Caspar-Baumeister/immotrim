@@ -93,6 +93,8 @@ const CustomLegend = () => (
 );
 
 export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220, monthly = false }: Props) {
+  // Fullscreen modal passes height="100%"; inline cards pass a fixed pixel height.
+  const isFullscreen = typeof height === "string";
   if (monthly && monthlyData && monthlyData.length > 0) {
     // Monthly mode: one bar per month, x-axis labels at each January
     const yearStartTicks = monthlyData
@@ -203,9 +205,11 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart
         data={chartData}
-        margin={{ top: 4, right: 52, left: 0, bottom: 18 }}
-        barSize={Math.max(4, Math.min(14, 280 / Math.max(data.length, 1)))}
-        barCategoryGap="25%"
+        margin={{ top: 4, right: 52, left: 0, bottom: isFullscreen ? 28 : 18 }}
+        // Fullscreen: let recharts size the bars to fill the width (only a small
+        // category gap). Inline: cap width so the few bars don't get chunky.
+        barSize={isFullscreen ? undefined : Math.max(4, Math.min(14, 280 / Math.max(data.length, 1)))}
+        barCategoryGap={isFullscreen ? "18%" : "25%"}
       >
         <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
@@ -213,7 +217,10 @@ export function AmortizationChart({ data, monthlyData, zinsbindung, height = 220
           tick={{ fontSize: 10, fill: "#6b6b6b" }}
           tickLine={false}
           axisLine={false}
-          interval={Math.max(0, Math.ceil(data.length / 6) - 1)}
+          interval={isFullscreen ? 0 : Math.max(0, Math.ceil(data.length / 6) - 1)}
+          angle={isFullscreen ? -45 : 0}
+          textAnchor={isFullscreen ? "end" : "middle"}
+          height={isFullscreen ? 44 : undefined}
         />
         <YAxis
           yAxisId="bars"

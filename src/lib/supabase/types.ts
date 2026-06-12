@@ -33,7 +33,6 @@ export type PropertyInputs = {
   tilgung: number;               // initial annual repayment rate % — drives full payoff
   zinsbindung: number;           // Zinsbindungsdauer years — chart marker only
   loanStartDate: string;         // "YYYY-MM"
-  annuitaetendarlehen: boolean;  // default true
 
   // === Rent ===
   kaltmiete: number;             // monthly cold rent in €
@@ -43,9 +42,9 @@ export type PropertyInputs = {
   // === Reserves ===
   ruecklagen: number;            // monthly reserves in €
 
-  // === Growth (chart slider defaults) ===
-  mietentwicklung: number;       // rent growth % p.a.
-  wertentwicklung: number;       // appreciation % p.a.
+  // === Growth (optional per-property forecast; calculations fall back to 0%) ===
+  mietentwicklung?: number;      // rent growth % p.a.
+  wertentwicklung?: number;      // appreciation % p.a.
 
   // === Tax (optional — omitting hides tax-related display) ===
   tax?: TaxInputs;
@@ -91,13 +90,12 @@ export const DEFAULT_INPUTS: PropertyInputs = {
   tilgung: 2.0,
   zinsbindung: 10,
   loanStartDate: getCurrentMonth(),
-  annuitaetendarlehen: true,
   kaltmiete: 1_400,
   nichtUmlagefaehig: 280,
   leerstand: 3,
   ruecklagen: 333,
-  mietentwicklung: 2,
-  wertentwicklung: 2,
+  mietentwicklung: undefined,
+  wertentwicklung: undefined,
   tax: undefined,
 };
 

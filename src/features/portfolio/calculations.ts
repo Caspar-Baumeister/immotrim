@@ -54,7 +54,7 @@ export function calculatePortfolio(
     const elapsedYears = Math.max(0, new Date().getFullYear() - startYear);
     const currentValue =
       prop.inputs.kaufpreis *
-      Math.pow(1 + prop.inputs.wertentwicklung / 100, elapsedYears);
+      Math.pow(1 + (prop.inputs.wertentwicklung ?? 0) / 100, elapsedYears);
 
     // Current debt: balance from schedule at elapsed year
     const scheduleIdx = Math.min(elapsedYears, mortgage.schedule.length - 1);
@@ -222,7 +222,7 @@ export function calculatePortfolioKpis(
       : currentYear;
     const elapsedYears = Math.max(0, currentYear - startYear);
     const currentValue =
-      inputs.kaufpreis * Math.pow(1 + inputs.wertentwicklung / 100, elapsedYears);
+      inputs.kaufpreis * Math.pow(1 + (inputs.wertentwicklung ?? 0) / 100, elapsedYears);
     const scheduleIdx = Math.min(elapsedYears, mortgage.schedule.length - 1);
     const currentDebt =
       mortgage.schedule[scheduleIdx]?.balance ?? mortgage.loanAmount;

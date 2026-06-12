@@ -32,18 +32,13 @@ export type ReturnsMetrics = {
 export function calculateReturns(
   inputs: PropertyInputs,
   options?: {
-    mietentwicklungOverride?: number;
-    wertentwicklungOverride?: number;
     includeTilgung?: boolean;
     includeWertzuwachs?: boolean;
   }
 ): ReturnsMetrics {
-  const cashFlowMetrics = calculateCashFlow(inputs, {
-    mietentwicklungOverride: options?.mietentwicklungOverride,
-  });
+  const cashFlowMetrics = calculateCashFlow(inputs);
   const mortgage = calculateMortgage(inputs);
-  const wertentwicklung =
-    options?.wertentwicklungOverride ?? inputs.wertentwicklung;
+  const wertentwicklung = inputs.wertentwicklung ?? 0;
   const includeTilgung = options?.includeTilgung ?? false;
   const includeWertzuwachs = options?.includeWertzuwachs ?? false;
 
@@ -58,10 +53,17 @@ export function calculateReturns(
       ? inputs.eigenanteil + nebenkostenAbsolut
       : 1;
 
+  // The EK-Rendite series runs only as long as equity is still tied up in the
+  // property, and never beyond 30 years.
+  const MAX_YEARS = 30;
   const years: EKRenditeYear[] = [];
   let runningCapital = gesamtInvestiertes;
 
-  for (let i = 0; i < cashFlowMetrics.years.length; i++) {
+  for (let i = 0; i < cashFlowMetrics.years.length && i < MAX_YEARS; i++) {
+    // Once cumulative cashflow has fully recouped the invested equity there is
+    // no capital left to earn a return on — stop the series here.
+    if (runningCapital <= 0) break;
+
     const cfYear = cashFlowMetrics.years[i];
     const year = cfYear.year;
 

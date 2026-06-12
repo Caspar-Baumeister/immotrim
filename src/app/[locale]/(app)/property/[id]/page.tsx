@@ -6,13 +6,14 @@ import { Edit2 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { PortfolioKpiPanel } from "@/features/portfolio/components/PortfolioKpiPanel";
 import { ChartCard } from "@/components/shared/ChartCard";
-import { ChartSlider } from "@/components/shared/ChartSlider";
 import { CashFlowChart } from "@/features/cash-flow/components/CashFlowChart";
 import { AmortizationChart } from "@/features/mortgage/components/AmortizationChart";
 import { WertSchuldenChart } from "@/features/appreciation/components/WertSchuldenChart";
 import { EKRenditeChart } from "@/features/returns/components/EKRenditeChart";
 import { MietrenditeChart } from "@/features/cap-rate/components/MietrenditeChart";
+import { VermoegensaufbauChart } from "@/features/wealth/components/VermoegensaufbauChart";
 import { calculateCashFlow } from "@/features/cash-flow/calculations";
+import { calculateWealthBuildup } from "@/features/wealth/calculations";
 import { calculateCapRate } from "@/features/cap-rate/calculations";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import { calculateAppreciation } from "@/features/appreciation/calculations";
@@ -36,11 +37,6 @@ export default function PropertyInsightsPage({ params }: Props) {
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Global scenario controls
-  const [globalMiet, setGlobalMiet] = useState(2);
-  const [globalWert, setGlobalWert] = useState(2);
-  const [period, setPeriod] = useState<"monthly" | "yearly">("yearly");
-
   // EK-Rendite chart toggles (chart-specific)
   const [ekTilgung, setEkTilgung] = useState(false);
   const [ekWertzuwachs, setEkWertzuwachs] = useState(false);
@@ -51,10 +47,6 @@ export default function PropertyInsightsPage({ params }: Props) {
   useEffect(() => {
     getProperty(id).then((p) => {
       setProperty(p);
-      if (p) {
-        setGlobalMiet(p.inputs.mietentwicklung);
-        setGlobalWert(p.inputs.wertentwicklung);
-      }
       setLoading(false);
     });
   }, [id]);
@@ -95,27 +87,24 @@ export default function PropertyInsightsPage({ params }: Props) {
     });
   };
 
-  // Base calculations (no overrides) for the TopBar stats
+  // Per-property growth forecast (saved in property settings; 0% when unset)
+  const mietentwicklung = inputs.mietentwicklung ?? 0;
+  const wertentwicklung = inputs.wertentwicklung ?? 0;
+
+  // Base calculations for the TopBar stats
   const cashFlow0 = calculateCashFlow(inputs);
   const capRate0 = calculateCapRate(inputs);
   const mortgage = calculateMortgage(inputs);
 
-  // Chart calculations with global scenario overrides
-  const cashFlowData = calculateCashFlow(inputs, {
-    mietentwicklungOverride: globalMiet,
-  });
+  // Chart calculations use the property's saved growth forecast
+  const cashFlowData = calculateCashFlow(inputs);
   const ekRenditeData = calculateReturns(inputs, {
-    mietentwicklungOverride: globalMiet,
-    wertentwicklungOverride: globalWert,
     includeTilgung: ekTilgung,
     includeWertzuwachs: ekWertzuwachs,
   });
-  const wertSchuldenData = calculateAppreciation(inputs, {
-    wertentwicklungOverride: globalWert,
-  });
-  const mietrenditeData = calculateCapRate(inputs, {
-    mietentwicklungOverride: globalMiet,
-  });
+  const wertSchuldenData = calculateAppreciation(inputs);
+  const mietrenditeData = calculateCapRate(inputs);
+  const wealthData = calculateWealthBuildup(inputs);
 
   const cfPositive = cashFlow0.monthlyCashFlow >= 0;
 
@@ -215,65 +204,28 @@ export default function PropertyInsightsPage({ params }: Props) {
           ])}
         />
 
-        {/* ── Global scenario controls ──────────────────────────────────── */}
-        <div className="bg-card border border-border rounded-xl px-4 py-3 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-          <div className="flex-1 flex flex-col gap-2 min-w-0">
-            <ChartSlider
-              label="Mietentwicklung"
-              value={globalMiet}
-              onChange={setGlobalMiet}
-              min={0}
-              max={8}
-              step={0.1}
-            />
-            <ChartSlider
-              label="Wertentwicklung"
-              value={globalWert}
-              onChange={setGlobalWert}
-              min={-2}
-              max={10}
-              step={0.1}
-            />
-          </div>
-          <div className="flex items-center gap-2 sm:pl-4 sm:border-l sm:border-border">
-            <span className="text-[10px] text-muted-foreground shrink-0">Ansicht</span>
-            <div className="flex items-center gap-1">
-              <ToggleChip
-                label="Monatlich"
-                active={period === "monthly"}
-                onClick={() => setPeriod("monthly")}
-              />
-              <ToggleChip
-                label="Jährlich"
-                active={period === "yearly"}
-                onClick={() => setPeriod("yearly")}
-              />
-            </div>
-          </div>
-        </div>
-
         {/* ── Charts 3-column grid ──────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {/* 1 — Cashflow */}
           <ChartCard
             title="Cashflow"
-            subtitle={period === "monthly" ? "Monatl. Netto-Cashflow nach Rate, Rücklagen & NK" : "Jährl. Netto-Cashflow nach Rate, Rücklagen & NK"}
+            subtitle="Jährl. Netto-Cashflow nach Rate, Rücklagen & NK"
             expandLabel={t("actions.expand")}
             modalStats={[
               {
                 label: "Y1",
-                value: formatCurrency((cashFlowData.years[0]?.cashFlow ?? 0) / (period === "monthly" ? 12 : 1)),
+                value: formatCurrency(cashFlowData.years[0]?.cashFlow ?? 0),
                 positive: (cashFlowData.years[0]?.cashFlow ?? 0) >= 0,
               },
               {
                 label: "Y10",
-                value: formatCurrency((cashFlowData.years[9]?.cashFlow ?? 0) / (period === "monthly" ? 12 : 1)),
+                value: formatCurrency(cashFlowData.years[9]?.cashFlow ?? 0),
                 positive: (cashFlowData.years[9]?.cashFlow ?? 0) >= 0,
               },
               {
-                label: `Mietentw. ${globalMiet}%`,
+                label: `Mietentw. ${mietentwicklung}%`,
                 value: formatCurrency(
-                  (cashFlowData.years[cashFlowData.years.length - 1]?.cashFlow ?? 0) / (period === "monthly" ? 12 : 1)
+                  cashFlowData.years[cashFlowData.years.length - 1]?.cashFlow ?? 0
                 ),
                 positive:
                   (cashFlowData.years[cashFlowData.years.length - 1]
@@ -281,10 +233,10 @@ export default function PropertyInsightsPage({ params }: Props) {
               },
             ]}
             modalContent={
-              <CashFlowChart data={cashFlowData.years} monthlyData={cashFlowData.monthlyYears} monthly={period === "monthly"} height="100%" />
+              <CashFlowChart data={cashFlowData.years} monthlyData={cashFlowData.monthlyYears} monthly={false} height="100%" />
             }
           >
-            <CashFlowChart data={cashFlowData.years} monthlyData={cashFlowData.monthlyYears} monthly={period === "monthly"} height={190} />
+            <CashFlowChart data={cashFlowData.years} monthlyData={cashFlowData.monthlyYears} monthly={false} height={190} />
           </ChartCard>
 
           {/* 2 — Tilgungsplan */}
@@ -312,7 +264,7 @@ export default function PropertyInsightsPage({ params }: Props) {
                 data={mortgage.schedule}
                 monthlyData={mortgage.monthlySchedule}
                 zinsbindung={inputs.zinsbindung}
-                monthly={period === "monthly"}
+                monthly={false}
                 height="100%"
               />
             }
@@ -321,7 +273,7 @@ export default function PropertyInsightsPage({ params }: Props) {
               data={mortgage.schedule}
               monthlyData={mortgage.monthlySchedule}
               zinsbindung={inputs.zinsbindung}
-              monthly={period === "monthly"}
+              monthly={false}
               height={190}
             />
           </ChartCard>
@@ -367,7 +319,7 @@ export default function PropertyInsightsPage({ params }: Props) {
                     monthlyData={ekRenditeData.monthlyYears}
                     includeTilgung={ekTilgung}
                     includeWertzuwachs={ekWertzuwachs}
-                    monthly={period === "monthly"}
+                    monthly={false}
                     height="100%"
                   />
                 </div>
@@ -392,7 +344,7 @@ export default function PropertyInsightsPage({ params }: Props) {
                 monthlyData={ekRenditeData.monthlyYears}
                 includeTilgung={ekTilgung}
                 includeWertzuwachs={ekWertzuwachs}
-                monthly={period === "monthly"}
+                monthly={false}
                 height={160}
               />
             </div>
@@ -409,7 +361,7 @@ export default function PropertyInsightsPage({ params }: Props) {
                 value: formatCurrency(inputs.kaufpreis, "de-DE", true),
               },
               {
-                label: `Wert (${mortgage.totalYears}J, ${globalWert}%)`,
+                label: `Wert (${mortgage.totalYears}J, ${wertentwicklung}%)`,
                 value: formatCurrency(
                   wertSchuldenData.years[wertSchuldenData.years.length - 1]
                     ?.immobilienwert ?? inputs.kaufpreis,
@@ -430,10 +382,10 @@ export default function PropertyInsightsPage({ params }: Props) {
               },
             ]}
             modalContent={
-              <WertSchuldenChart data={wertSchuldenData.years} monthlyData={wertSchuldenData.monthlyYears} monthly={period === "monthly"} height="100%" />
+              <WertSchuldenChart data={wertSchuldenData.years} monthlyData={wertSchuldenData.monthlyYears} monthly={false} height="100%" />
             }
           >
-            <WertSchuldenChart data={wertSchuldenData.years} monthlyData={wertSchuldenData.monthlyYears} monthly={period === "monthly"} height={190} />
+            <WertSchuldenChart data={wertSchuldenData.years} monthlyData={wertSchuldenData.monthlyYears} monthly={false} height={190} />
           </ChartCard>
 
           {/* 5 — Brutto-Mietrendite */}
@@ -455,7 +407,7 @@ export default function PropertyInsightsPage({ params }: Props) {
                 ),
               },
               {
-                label: `Mietentw. ${globalMiet}%`,
+                label: `Mietentw. ${mietentwicklung}%`,
                 value: formatPercent(
                   mietrenditeData.years[mietrenditeData.years.length - 1]
                     ?.bruttoMietrendite ?? 0
@@ -467,7 +419,7 @@ export default function PropertyInsightsPage({ params }: Props) {
                 data={mietrenditeData.years}
                 monthlyData={mietrenditeData.monthlyYears}
                 baselineY1={capRate0.bruttoMietrenditeY1}
-                monthly={period === "monthly"}
+                monthly={false}
                 height="100%"
               />
             }
@@ -476,8 +428,49 @@ export default function PropertyInsightsPage({ params }: Props) {
               data={mietrenditeData.years}
               monthlyData={mietrenditeData.monthlyYears}
               baselineY1={capRate0.bruttoMietrenditeY1}
-              monthly={period === "monthly"}
+              monthly={false}
               height={190}
+            />
+          </ChartCard>
+
+          {/* 6 — Vermögensaufbau pro Jahr */}
+          <ChartCard
+            title="Vermögensaufbau pro Jahr"
+            subtitle="Tilgung + Cashflow + Wertwachstum, jährlich (nicht kumuliert)"
+            expandLabel={t("actions.expand")}
+            modalStats={[
+              {
+                label: "Y1",
+                value: formatCurrency(wealthData.years[0]?.total ?? 0),
+                positive: (wealthData.years[0]?.total ?? 0) >= 0,
+              },
+              {
+                label: "Y10",
+                value: formatCurrency(wealthData.years[9]?.total ?? 0),
+                positive: (wealthData.years[9]?.total ?? 0) >= 0,
+              },
+              {
+                label: `Wertentw. ${wertentwicklung}%`,
+                value: formatCurrency(
+                  wealthData.years[wealthData.years.length - 1]?.total ?? 0
+                ),
+                positive:
+                  (wealthData.years[wealthData.years.length - 1]?.total ?? 0) >=
+                  0,
+              },
+            ]}
+            modalContent={
+              <VermoegensaufbauChart
+                data={wealthData.years}
+                showWertwachstum={wealthData.hasWertwachstum}
+                height="100%"
+              />
+            }
+          >
+            <VermoegensaufbauChart
+              data={wealthData.years}
+              showWertwachstum={wealthData.hasWertwachstum}
+              height={160}
             />
           </ChartCard>
         </div>
