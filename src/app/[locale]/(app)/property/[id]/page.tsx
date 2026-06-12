@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Edit2 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
-import { FactColumn } from "@/components/shared/FactColumn";
+import { PortfolioKpiPanel } from "@/features/portfolio/components/PortfolioKpiPanel";
 import { ChartCard } from "@/components/shared/ChartCard";
 import { ChartSlider } from "@/components/shared/ChartSlider";
 import { CashFlowChart } from "@/features/cash-flow/components/CashFlowChart";
@@ -17,7 +17,7 @@ import { calculateCapRate } from "@/features/cap-rate/calculations";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import { calculateAppreciation } from "@/features/appreciation/calculations";
 import { calculateReturns } from "@/features/returns/calculations";
-import { calculateTax } from "@/features/tax/calculations";
+import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { getProperty, updateProperty } from "@/lib/property-service";
 import { type Property } from "@/lib/supabase";
 import { formatCurrency, formatPercent } from "@/lib/utils";
@@ -95,12 +95,10 @@ export default function PropertyInsightsPage({ params }: Props) {
     });
   };
 
-  // Base calculations (no overrides) for facts panel
+  // Base calculations (no overrides) for the TopBar stats
   const cashFlow0 = calculateCashFlow(inputs);
   const capRate0 = calculateCapRate(inputs);
   const mortgage = calculateMortgage(inputs);
-  const appreciation0 = calculateAppreciation(inputs);
-  const tax = calculateTax(inputs);
 
   // Chart calculations with global scenario overrides
   const cashFlowData = calculateCashFlow(inputs, {
@@ -121,8 +119,7 @@ export default function PropertyInsightsPage({ params }: Props) {
 
   const cfPositive = cashFlow0.monthlyCashFlow >= 0;
 
-  // Derived facts
-  const darlehensbetrag = mortgage.loanAmount;
+  // Derived TopBar stat: return on invested capital (cashflow + tilgung ÷ EK)
   const totalNebenkostenPct =
     inputs.nebenkosten.grunderwerbsteuerPct +
     inputs.nebenkosten.notarGrundbuchPct +
@@ -135,8 +132,6 @@ export default function PropertyInsightsPage({ params }: Props) {
     totalInvestedCapital > 0
       ? ((cashFlow0.monthlyCashFlow * 12 + year1Tilgung) / totalInvestedCapital) * 100
       : 0;
-  const finalAppreciation =
-    appreciation0.years[appreciation0.years.length - 1];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -206,217 +201,19 @@ export default function PropertyInsightsPage({ params }: Props) {
           </div>
         )}
 
-        {/* ── Dense facts panel ─────────────────────────────────────────── */}
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div
-            className={cn(
-              "grid divide-x divide-border",
-              tax ? "grid-cols-2 xl:grid-cols-4" : "grid-cols-3"
-            )}
-          >
-            <FactColumn
-              title="Kauf & Finanzierung"
-              facts={[
-                {
-                  label: "Kaufpreis",
-                  value: formatCurrency(inputs.kaufpreis, "de-DE", true),
-                },
-                {
-                  label: "Eigenanteil",
-                  value: formatCurrency(inputs.eigenanteil, "de-DE", true),
-                },
-                {
-                  label: "Darlehensbetrag",
-                  value: formatCurrency(darlehensbetrag, "de-DE", true),
-                },
-                {
-                  label: "Monatliche Rate",
-                  value: formatCurrency(mortgage.monthlyPayment),
-                  highlight: true,
-                },
-                {
-                  label: "Nebenkosten",
-                  value: `${formatPercent(totalNebenkostenPct, 2)} = ${formatCurrency(totalNebenkostenEur, "de-DE", true)}`,
-                  muted: true,
-                },
-                {
-                  label: "Gesamtkosten",
-                  value: formatCurrency(
-                    inputs.kaufpreis + totalNebenkostenEur,
-                    "de-DE",
-                    true
-                  ),
-                },
-                {
-                  label: "Investiertes Kapital",
-                  value: formatCurrency(
-                    inputs.eigenanteil + totalNebenkostenEur,
-                    "de-DE",
-                    true
-                  ),
-                },
-              ]}
-            />
-            <FactColumn
-              title="Einnahmen & Cashflow"
-              facts={[
-                {
-                  label: "Kaltmiete",
-                  value: formatCurrency(inputs.kaltmiete) + "/Monat",
-                },
-                {
-                  label: "Leerstand",
-                  value: `${formatPercent(inputs.leerstand, 1)} Rate`,
-                  muted: true,
-                },
-                {
-                  label: "Nicht umlagefähige NK",
-                  value: formatCurrency(inputs.nichtUmlagefaehig) + "/Monat",
-                  negative: true,
-                },
-                {
-                  label: "Rücklagen",
-                  value: formatCurrency(inputs.ruecklagen) + "/Monat",
-                  negative: true,
-                },
-                {
-                  label: "Jährl. Gesamtkosten",
-                  value: formatCurrency(
-                    mortgage.monthlyPayment * 12 +
-                      inputs.ruecklagen * 12 +
-                      inputs.nichtUmlagefaehig * 12,
-                    "de-DE",
-                    true
-                  ),
-                  negative: true,
-                },
-                {
-                  label: "Monatl. Cashflow",
-                  value: formatCurrency(cashFlow0.monthlyCashFlow),
-                  highlight: true,
-                  positive: cfPositive,
-                },
-                {
-                  label: "Jährl. Cashflow",
-                  value: formatCurrency(cashFlow0.annualCashFlow, "de-DE", true),
-                  highlight: true,
-                  positive: cashFlow0.annualCashFlow >= 0,
-                },
-              ]}
-            />
-            <FactColumn
-              title="Rendite & Wachstum"
-              facts={[
-                {
-                  label: "Brutto-Mietrendite",
-                  value: formatPercent(capRate0.bruttoMietrenditeY1),
-                  highlight: true,
-                },
-                {
-                  label: "Cash-on-Cash",
-                  value: formatPercent(capRate0.cashOnCashReturn),
-                  highlight: true,
-                  positive: capRate0.cashOnCashReturn >= 0,
-                },
-                {
-                  label: "Volltilgung nach",
-                  value: `~${mortgage.totalYears} Jahren`,
-                },
-                {
-                  label: "Zinsbindung",
-                  value: `${inputs.zinsbindung} Jahre`,
-                  muted: true,
-                },
-                {
-                  label: "Gesamtzinsen",
-                  value: formatCurrency(mortgage.totalInterestPaid, "de-DE", true),
-                  negative: true,
-                },
-                {
-                  label: `Immo-Wert (${mortgage.totalYears}J, ${inputs.wertentwicklung}% p.a.)`,
-                  value: formatCurrency(
-                    finalAppreciation?.immobilienwert ?? inputs.kaufpreis,
-                    "de-DE",
-                    true
-                  ),
-                  positive: true,
-                },
-                {
-                  label: `Eigenkapital (${mortgage.totalYears}J)`,
-                  value: formatCurrency(
-                    finalAppreciation?.eigenkapital ?? 0,
-                    "de-DE",
-                    true
-                  ),
-                  positive: true,
-                  highlight: true,
-                },
-              ]}
-            />
-            {/* ── 4th column: tax (only when activated) ──────────────────── */}
-            {tax && (
-              <FactColumn
-                title="Steuer (Jahr 1)"
-                facts={[
-                  {
-                    label: "Grenzsteuersatz",
-                    value: formatPercent(tax.grenzsteuersatz, 0),
-                    tooltip:
-                      "Persönlicher Spitzensteuersatz auf das zusätzliche Einkommen (in Deutschland meist 42 %). Damit werden Steuerersparnis bzw. -belastung berechnet.",
-                  },
-                  {
-                    label: "AfA-Satz",
-                    value: formatPercent(tax.afaSatz, 1),
-                    tooltip:
-                      "Jährlicher Abschreibungssatz auf den Gebäudewert. 2 % Bestand (ab Baujahr 1925), 2,5 % vor 1925, 3 % Neubau ab 2023.",
-                  },
-                  {
-                    label: "Jährliche AfA",
-                    value: formatCurrency(tax.jaehrlicheAfa, "de-DE", true),
-                    negative: true,
-                    tooltip: `Abschreibung pro Jahr = Bemessungsgrundlage × Gebäudeanteil × AfA-Satz = ${formatCurrency(tax.afaBemessungsgrundlage, "de-DE", true)} × ${formatPercent(tax.afaSatz, 1)}. Mindert das steuerliche Ergebnis, ist aber kein realer Geldabfluss.`,
-                  },
-                  {
-                    label: "Steuerliches Ergebnis",
-                    value: formatCurrency(tax.steuerlichesErgebnis, "de-DE", true),
-                    highlight: true,
-                    positive: tax.steuerlichesErgebnis >= 0,
-                    tooltip: `Netto-Kaltmiete − AfA − Schuldzinsen (Jahr 1) − nicht umlagefähige Kosten = ${formatCurrency(tax.nettoMieteY1, "de-DE", true)} − ${formatCurrency(tax.jaehrlicheAfa, "de-DE", true)} − ${formatCurrency(tax.schuldzinsenY1, "de-DE", true)} − ${formatCurrency(tax.nichtUmlagefaehigY1, "de-DE", true)}. Tilgung ist nicht absetzbar; Rücklagen erst bei tatsächlicher Verwendung. Ein negatives Ergebnis (Verlust) senkt die Steuerlast.`,
-                  },
-                  {
-                    label:
-                      tax.steuerEffekt >= 0
-                        ? "Steuerersparnis"
-                        : "Steuerbelastung",
-                    value: formatCurrency(tax.steuerEffekt, "de-DE", true),
-                    highlight: true,
-                    positive: tax.steuerEffekt >= 0,
-                    tooltip:
-                      "Steuerliches Ergebnis × Grenzsteuersatz. Bei einem Verlust ergibt sich eine Steuerersparnis (mindert die Steuer auf übriges Einkommen), bei einem Gewinn eine zusätzliche Steuerbelastung.",
-                  },
-                  {
-                    label: "Cashflow n. Steuern",
-                    value: formatCurrency(
-                      tax.cashflowNachSteuern,
-                      "de-DE",
-                      true
-                    ),
-                    highlight: true,
-                    positive: tax.cashflowNachSteuern >= 0,
-                    tooltip: `Cashflow vor Steuern + Steuereffekt = ${formatCurrency(tax.cashflowVorSteuern, "de-DE", true)} ${tax.steuerEffekt >= 0 ? "+" : "−"} ${formatCurrency(Math.abs(tax.steuerEffekt), "de-DE", true)} pro Jahr.`,
-                  },
-                  {
-                    label: "Cash-on-Cash n. St.",
-                    value: formatPercent(tax.cashOnCashNachSteuern),
-                    highlight: true,
-                    positive: tax.cashOnCashNachSteuern >= 0,
-                    tooltip: `Cashflow nach Steuern ÷ Eigenanteil. Vor Steuern: ${formatPercent(tax.cashOnCashVorSteuern)}.`,
-                  },
-                ]}
-              />
-            )}
-          </div>
-        </div>
+        {/* ── Dense KPI panel ───────────────────────────────────────────── */}
+        {/* Same KPIs/rows/colors/explanations as the portfolio dashboard —
+            a single property is just a portfolio of one. */}
+        <PortfolioKpiPanel
+          kpis={calculatePortfolioKpis([
+            {
+              id: property.id,
+              name: property.name,
+              address: property.address,
+              inputs,
+            },
+          ])}
+        />
 
         {/* ── Global scenario controls ──────────────────────────────────── */}
         <div className="bg-card border border-border rounded-xl px-4 py-3 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">

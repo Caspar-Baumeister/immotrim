@@ -32,10 +32,15 @@ export default async function LandingPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
+      {/* Beta banner */}
+      <div className="bg-amber-500/10 border-b border-amber-500/20 text-center text-xs sm:text-sm py-2 px-4 text-amber-700 dark:text-amber-300">
+        {t("beta.banner")}
+      </div>
+
       {/* Top nav */}
       <nav className="border-b border-border bg-card/80 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
-          <Link href={`/${locale}`} className="flex items-center">
+          <Link href={`/${locale}`} className="flex items-center gap-2">
             <Image
               src="/logo_immotrim.png"
               alt="Immotrim"
@@ -44,6 +49,9 @@ export default async function LandingPage({ params }: Props) {
               className="h-7 w-auto object-contain"
               priority
             />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded-full px-1.5 py-0.5">
+              {t("beta.badge")}
+            </span>
           </Link>
           <div className="flex items-center gap-2 text-sm">
             <ThemeToggle />
@@ -120,6 +128,42 @@ export default async function LandingPage({ params }: Props) {
               <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* About me */}
+      <section id="about" className="mx-auto max-w-5xl px-6 py-20">
+        <div className="grid md:grid-cols-2 gap-10 lg:gap-14 items-center">
+          <div className="mx-auto w-full max-w-sm">
+            <Image
+              src="/caspar_freundlich.JPG"
+              alt={t("about.imageAlt")}
+              width={768}
+              height={1024}
+              className="rounded-2xl border border-border object-cover w-full shadow-sm"
+            />
+          </div>
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/caspar_square_transparent.png"
+                alt=""
+                width={48}
+                height={48}
+                className="h-12 w-12 rounded-full border border-border bg-card object-cover"
+              />
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  {t("about.title")}
+                </h2>
+                <p className="text-sm text-muted-foreground">{t("about.subtitle")}</p>
+              </div>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">{t("about.p1")}</p>
+            <p className="text-muted-foreground leading-relaxed">{t("about.p2")}</p>
+            <p className="text-muted-foreground leading-relaxed">{t("about.p3")}</p>
+            <p className="font-medium text-foreground">{t("about.signature")}</p>
+          </div>
         </div>
       </section>
 

@@ -105,6 +105,10 @@
   "livePreview": "Live Preview",
   "deleteConfirm": "Are you sure you want to delete this property? This action cannot be undone.",
   "landing": {
+    "beta": {
+      "badge": "Beta",
+      "banner": "🚧 Immotrim is currently in beta – we're improving it constantly. Your feedback is very welcome!"
+    },
     "hero": {
       "eyebrow": "Smart property analysis for private investors",
       "title": "Documents in. Returns understood.",
@@ -121,6 +125,15 @@
       "f2Desc": "Every detected value appears in a clear review panel. Correct individual fields with a single click before the calculation runs — full transparency, no black box.",
       "f3Title": "Instant return analysis",
       "f3Desc": "Cash flow, amortization, rental yield and equity return are calculated automatically — clearly presented and visualized at a glance."
+    },
+    "about": {
+      "title": "About me",
+      "subtitle": "Caspar – Founder of Immotrim",
+      "imageAlt": "Caspar, founder of Immotrim",
+      "p1": "I've been investing in property in Berlin since 2023, with one goal: building a portfolio that lets me reach financial freedom. I come from stock investing, and what I always missed with real estate was a simple way to track my progress, stay motivated and never lose the overview.",
+      "p2": "I run several strategies at once — furnished short-term lets, room-by-room (WG) renting and classic long-term rentals. I wanted to see at a glance which property performs how well, without guessing every time.",
+      "p3": "As the father of a one-year-old daughter, I hated the part of acquisition where I had to type every single number into Excel by hand. With my developer background, I built Immotrim for myself first: paste in the listing, done — and get more time with my family.",
+      "signature": "— Caspar"
     },
     "pricing": {
       "title": "Simple pricing",
@@ -330,8 +343,14 @@
   },
   "legal": {
     "draftNotice": "Draft — placeholder text. This must be completed and reviewed by a lawyer before launch.",
-    "impressum": { "title": "Imprint" },
-    "datenschutz": { "title": "Privacy Policy" },
-    "agb": { "title": "Terms of Service" }
+    "impressum": {
+      "title": "Imprint"
+    },
+    "datenschutz": {
+      "title": "Privacy Policy"
+    },
+    "agb": {
+      "title": "Terms of Service"
+    }
   }
 }

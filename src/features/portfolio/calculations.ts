@@ -118,6 +118,7 @@ export type PortfolioKpis = {
 
   // 2 — Financing & income (annualized)
   annualColdRent: number;
+  annualVacancyLoss: number;
   annualNonRecoverableCosts: number;
   annualDebtService: number;
   annualInterest: number;
@@ -153,6 +154,7 @@ export function calculatePortfolioKpis(
     outstandingLoanBalance: 0,
     netPropertyEquity: 0,
     annualColdRent: 0,
+    annualVacancyLoss: 0,
     annualNonRecoverableCosts: 0,
     annualDebtService: 0,
     annualInterest: 0,
@@ -180,6 +182,7 @@ export function calculatePortfolioKpis(
   let outstandingLoanBalance = 0;
 
   let annualColdRent = 0;
+  let annualVacancyLoss = 0;
   let annualNonRecoverableCosts = 0;
   let annualDebtService = 0;
   let annualInterest = 0;
@@ -237,6 +240,7 @@ export function calculatePortfolioKpis(
 
     // 2 — Financing & income (current monthly × 12)
     annualColdRent += inputs.kaltmiete * 12;
+    annualVacancyLoss += inputs.kaltmiete * 12 * (inputs.leerstand / 100);
     annualNonRecoverableCosts += inputs.nichtUmlagefaehig * 12;
     annualDebtService += mortgage.monthlyPayment * 12;
     annualInterest += currentInterest;
@@ -282,6 +286,7 @@ export function calculatePortfolioKpis(
 
   const cashFlowBeforeTax =
     annualColdRent -
+    annualVacancyLoss -
     annualNonRecoverableCosts -
     annualReserveContributions -
     annualInterest -
@@ -322,6 +327,7 @@ export function calculatePortfolioKpis(
     outstandingLoanBalance,
     netPropertyEquity,
     annualColdRent,
+    annualVacancyLoss,
     annualNonRecoverableCosts,
     annualDebtService,
     annualInterest,

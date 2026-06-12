@@ -105,6 +105,10 @@
   "livePreview": "Live-Vorschau",
   "deleteConfirm": "Möchten Sie diese Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
   "landing": {
+    "beta": {
+      "badge": "Beta",
+      "banner": "🚧 Immotrim befindet sich aktuell in der Beta – wir entwickeln ständig weiter. Dein Feedback ist herzlich willkommen!"
+    },
     "hero": {
       "eyebrow": "Smarte Immobilienanalyse für private Investoren",
       "title": "Dokumente rein. Rendite verstehen.",
@@ -121,6 +125,15 @@
       "f2Desc": "Alle erkannten Werte erscheinen übersichtlich zur Prüfung. Korrigiere einzelne Felder mit einem Klick, bevor die Berechnung startet — volle Transparenz, keine Blackbox.",
       "f3Title": "Sofortige Renditeanalyse",
       "f3Desc": "Cashflow, Tilgung, Mietrendite und Eigenkapitalrendite werden automatisch berechnet — verständlich aufbereitet und auf einen Blick visualisiert."
+    },
+    "about": {
+      "title": "Über mich",
+      "subtitle": "Caspar – Gründer von Immotrim",
+      "imageAlt": "Caspar, Gründer von Immotrim",
+      "p1": "Seit 2023 investiere ich in Immobilien in Berlin. Mein Ziel: ein Portfolio aufbauen, das mir finanzielle Freiheit ermöglicht. Ich komme ursprünglich vom Aktieninvestment – und was mir bei Immobilien immer gefehlt hat, war eine einfache Möglichkeit, den Fortschritt zu verfolgen, motiviert zu bleiben und nicht den Überblick zu verlieren.",
+      "p2": "Ich verfolge mehrere Strategien gleichzeitig – möbliertes Wohnen auf Zeit, WG-Vermietung und klassische Langzeitvermietung. Ich wollte auf einen Blick sehen, welche Immobilie wie gut performt, ohne jedes Mal raten zu müssen.",
+      "p3": "Als Vater einer einjährigen Tochter habe ich die Akquise gehasst, bei der ich jede einzelne Zahl von Hand in Excel-Tabellen eintragen musste. Mit meinem Entwickler-Hintergrund habe ich Immotrim zuerst für mich selbst gebaut: Exposé einfügen, fertig – und mehr Zeit für meine Familie.",
+      "signature": "— Caspar"
     },
     "pricing": {
       "title": "Einfache Preise",
@@ -330,8 +343,14 @@
   },
   "legal": {
     "draftNotice": "Entwurf — Platzhaltertext. Diese Angaben müssen vor dem Start vervollständigt und rechtlich geprüft werden.",
-    "impressum": { "title": "Impressum" },
-    "datenschutz": { "title": "Datenschutzerklärung" },
-    "agb": { "title": "AGB" }
+    "impressum": {
+      "title": "Impressum"
+    },
+    "datenschutz": {
+      "title": "Datenschutzerklärung"
+    },
+    "agb": {
+      "title": "AGB"
+    }
   }
 }
