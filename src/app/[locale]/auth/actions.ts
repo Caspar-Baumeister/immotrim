@@ -74,6 +74,25 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
   redirect(`/${locale}/portfolio`);
 }
 
+// Starts the Google OAuth flow. Calling signInWithOAuth server-side writes the
+// PKCE code-verifier cookie (server actions have a writable cookie store), then we
+// redirect the browser to the Supabase-generated Google consent URL. Google →
+// Supabase → /api/auth/callback?code=… exchanges the code for a session. New users
+// land on /portfolio, where the (app) gate sends them to /pricing if unsubscribed.
+export async function signInWithGoogleAction(formData: FormData): Promise<void> {
+  const locale = localeSchema.parse(formData.get("locale") ?? "en");
+  const next = `/${locale}/portfolio`;
+  const sb = await createServerSupabase();
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${getBaseUrl()}/api/auth/callback?next=${encodeURIComponent(next)}`,
+    },
+  });
+  if (error || !data.url) redirect(`/${locale}/login?auth_error=1`);
+  redirect(data.url);
+}
+
 export async function logoutAction(formData: FormData): Promise<void> {
   const locale = localeSchema.parse(formData.get("locale") ?? "en");
   const sb = await createServerSupabase();

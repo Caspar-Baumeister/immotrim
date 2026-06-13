@@ -12,37 +12,34 @@ export type ExtractedField<T> = {
 export type ExtractedWishlistFields = {
   name?: ExtractedField<string>;
   address?: ExtractedField<string>;
+  exposeUrl?: ExtractedField<string>;
   kaufpreis?: ExtractedField<number>;
   wohnflaeche?: ExtractedField<number>;
   zimmer?: ExtractedField<number>;
+  schlafzimmer?: ExtractedField<number>;
+  badezimmer?: ExtractedField<number>;
+  etage?: ExtractedField<number>;
+  etagenGesamt?: ExtractedField<number>;
+  wohnungstyp?: ExtractedField<string>;
   baujahr?: ExtractedField<number>;
-  kaltmiete?: ExtractedField<number>;
+  objektzustand?: ExtractedField<string>;
+  ausstattung?: ExtractedField<string>;
+  istMiete?: ExtractedField<number>;
+  sollMiete?: ExtractedField<number>;
+  hausgeld?: ExtractedField<number>;
+  stellplaetze?: ExtractedField<number>;
+  provisionsfrei?: ExtractedField<boolean>;
+  heizungsart?: ExtractedField<string>;
+  energietraeger?: ExtractedField<string>;
+  energieausweistyp?: ExtractedField<string>;
+  energieKennwert?: ExtractedField<number>;
+  energieKlasse?: ExtractedField<string>;
+  maklerName?: ExtractedField<string>;
+  maklerTelefon?: ExtractedField<string>;
 };
 
 export type WishlistFieldKey = keyof ExtractedWishlistFields;
 
 export type WishlistExtractResponse = {
   fields: ExtractedWishlistFields;
-};
-
-// What the review panel hands back to the Add dialog when the user clicks Apply.
-export type WishlistPatch = {
-  name?: string;
-  address?: string;
-  kaufpreis?: number;
-  wohnflaeche?: number;
-  zimmer?: number;
-  baujahr?: number;
-  kaltmiete?: number;
-};
-
-// Snapshot of the dialog's current form values, used to diff old → new.
-export type WishlistSnapshot = {
-  name: string;
-  address: string;
-  kaufpreis: number | null;
-  wohnflaeche: number | null;
-  zimmer: number | null;
-  baujahr: number | null;
-  kaltmiete: number | null;
 };

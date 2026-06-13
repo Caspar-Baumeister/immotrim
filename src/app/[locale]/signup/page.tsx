@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { SignupForm } from "./SignupForm";
+import { GoogleSignInButton } from "../auth/GoogleSignInButton";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -42,6 +43,12 @@ export default async function SignupPage({ params, searchParams }: Props) {
           </div>
 
           <SignupForm locale={locale} plan={selectedPlan} />
+
+          <GoogleSignInButton
+            locale={locale}
+            label={t("continueWithGoogle")}
+            dividerLabel={t("or")}
+          />
 
           <p className="text-sm text-center text-muted-foreground">
             {t("haveAccount")}{" "}

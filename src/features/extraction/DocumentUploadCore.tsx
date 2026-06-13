@@ -2,52 +2,59 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { FileText, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
+import { Download, FileText, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   deleteDocument,
+  getDownloadUrl,
   listDocuments,
   uploadDocument,
 } from "@/lib/document-service";
 import type { PropertyDocument } from "@/lib/supabase";
-import { ExtractionReviewPanel } from "@/features/extraction/ExtractionReviewPanel";
-import type {
-  ExtractedWishlistFields,
-  WishlistFieldKey,
-  WishlistExtractResponse,
-  WishlistPatch,
-  WishlistSnapshot,
-} from "../extraction-types";
-import {
-  FIELD_ORDER,
-  buildPatch,
-  currentValueFor,
-  formatFieldValue,
-} from "../extraction-apply";
+import { ExtractionReviewPanel, type ExtractedLike } from "./ExtractionReviewPanel";
 
 const ACCEPTED = ["application/pdf", "image/png", "image/jpeg", "image/webp"];
 const MAX_BYTES = 50 * 1024 * 1024;
 
-type Props = {
-  draftId: string;
-  current: WishlistSnapshot;
-  onApply: (patch: WishlistPatch) => void;
+type Target = { draftId: string } | { propertyId: string };
+
+// Bag of extracted fields keyed by field name, as returned by /api/extract.
+export type ExtractedBag = Record<string, ExtractedLike | undefined>;
+
+// Feature-specific glue so the same upload+extract+review UI serves both the
+// property and the Objektanalyse flows.
+export type ExtractionAdapter = {
+  mode: "property" | "wishlist";
+  fieldOrder: string[];
+  isPresent: (fields: ExtractedBag, key: string) => boolean;
+  fieldFor: (fields: ExtractedBag, key: string) => ExtractedLike;
+  label: (key: string) => string;
+  currentValue: (key: string) => string | number | undefined;
+  formatValue: (key: string, value: string | number | undefined) => string;
+  apply: (selectedKeys: string[], fields: ExtractedBag) => void;
 };
 
-export function ExposeUpload({ draftId, current, onApply }: Props) {
+type Props = {
+  target: Target;
+  adapter: ExtractionAdapter;
+};
+
+export function DocumentUploadCore({ target, adapter }: Props) {
   const t = useTranslations("documents");
-  const tExpose = useTranslations("wishlist.expose");
   const [docs, setDocs] = useState<PropertyDocument[]>([]);
   const [uploading, setUploading] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [extracted, setExtracted] = useState<ExtractedWishlistFields | null>(null);
+  const [extracted, setExtracted] = useState<ExtractedBag | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const targetKey = "draftId" in target ? target.draftId : target.propertyId;
+
   useEffect(() => {
-    listDocuments({ draftId }).then(setDocs);
-  }, [draftId]);
+    listDocuments(target).then(setDocs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetKey]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -63,7 +70,7 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
           setError(t("sizeError", { name: file.name }));
           continue;
         }
-        const row = await uploadDocument(file, { draftId });
+        const row = await uploadDocument(file, target);
         setDocs((prev) => [row, ...prev]);
       }
     } catch {
@@ -80,8 +87,13 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
       await deleteDocument(doc);
     } catch {
       setError(t("deleteFailed"));
-      listDocuments({ draftId }).then(setDocs);
+      listDocuments(target).then(setDocs);
     }
+  };
+
+  const handleDownload = async (doc: PropertyDocument) => {
+    const url = await getDownloadUrl(doc.file_path);
+    if (url) window.open(url, "_blank", "noopener");
   };
 
   const handleExtract = async () => {
@@ -93,7 +105,7 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "wishlist",
+          mode: adapter.mode,
           docs: docs.map((d) => ({ path: d.file_path, name: d.file_name })),
         }),
       });
@@ -101,7 +113,7 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
         setError(res.status === 503 ? t("extractBusy") : t("extractFailed"));
         return;
       }
-      const data = (await res.json()) as WishlistExtractResponse;
+      const data = (await res.json()) as { fields?: ExtractedBag };
       setExtracted(data.fields ?? {});
     } catch {
       setError(t("extractFailed"));
@@ -121,7 +133,6 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      {/* Dropzone */}
       <div
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => e.preventDefault()}
@@ -136,8 +147,8 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
         ) : (
           <Upload className="h-5 w-5 text-muted-foreground" />
         )}
-        <span className="text-sm text-foreground">{tExpose("upload")}</span>
-        <span className="text-[11px] text-muted-foreground">{tExpose("uploadHint")}</span>
+        <span className="text-sm text-foreground">{t("upload")}</span>
+        <span className="text-[11px] text-muted-foreground">{t("uploadHint")}</span>
       </div>
 
       {error && (
@@ -146,13 +157,21 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
         </p>
       )}
 
-      {/* File list */}
       {docs.length > 0 && (
         <div className="flex flex-col divide-y divide-border/50 rounded-xl border border-border overflow-hidden">
           {docs.map((doc) => (
             <div key={doc.id} className="flex items-center gap-2 px-3 py-2">
               <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
               <span className="text-xs text-foreground truncate flex-1">{doc.file_name}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => handleDownload(doc)}
+                aria-label={t("download")}
+              >
+                <Download className="h-3.5 w-3.5" />
+              </Button>
               <Button
                 type="button"
                 variant="ghost"
@@ -168,7 +187,6 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
         </div>
       )}
 
-      {/* Extract action */}
       {docs.length > 0 && (
         <Button
           type="button"
@@ -189,13 +207,13 @@ export function ExposeUpload({ draftId, current, onApply }: Props) {
 
       {extracted && (
         <ExtractionReviewPanel
-          keys={FIELD_ORDER.filter((k) => extracted[k] !== undefined)}
-          fieldFor={(k) => extracted[k as WishlistFieldKey]!}
-          label={(k) => tExpose(`fields.${k}`)}
-          currentValue={(k) => currentValueFor(k as WishlistFieldKey, current)}
-          formatValue={(k, v) => formatFieldValue(k as WishlistFieldKey, v)}
+          keys={adapter.fieldOrder.filter((k) => adapter.isPresent(extracted, k))}
+          fieldFor={(k) => adapter.fieldFor(extracted, k)}
+          label={adapter.label}
+          currentValue={adapter.currentValue}
+          formatValue={adapter.formatValue}
           onApply={(selected) => {
-            onApply(buildPatch(selected as WishlistFieldKey[], extracted));
+            adapter.apply(selected, extracted);
             setExtracted(null);
           }}
         />

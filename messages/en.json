@@ -181,7 +181,9 @@
     "resetTitle": "Set a new password",
     "resetSubtitle": "Choose a new password for your account.",
     "newPassword": "New password",
-    "submitReset": "Update password"
+    "submitReset": "Update password",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google"
   },
   "account": {
     "title": "Account",
@@ -220,7 +222,9 @@
       "nonAllocable": "Non-alloc.",
       "nonAllocableFull": "Non-allocable costs",
       "ofRent": "of rent",
-      "editDefaults": "Edit defaults"
+      "editDefaults": "Edit defaults",
+      "rentIst": "Actual",
+      "rentSoll": "Target"
     },
     "columns": {
       "name": "Name",
@@ -257,7 +261,13 @@
       "identification": "Identification",
       "basics": "Basics",
       "financials": "Financials",
-      "notes": "Notes"
+      "notes": "Notes",
+      "nebenkosten": "Purchase costs",
+      "financing": "Financing",
+      "rent": "Rent & operating costs",
+      "tax": "Tax (optional)",
+      "growth": "Growth (optional)",
+      "details": "Exposé details"
     },
     "fields": {
       "rooms": "Rooms",
@@ -266,7 +276,57 @@
       "equityPlaceholder": "Default: {pct}% of price",
       "nebenkostenPct": "Acquisition costs (%)",
       "globalAssumptionsHint": "Vacancy, reserves and non-allocable costs are set in the global assumptions above.",
-      "notesPlaceholder": "e.g. neighborhood notes, renovation needs, deadlines ..."
+      "notesPlaceholder": "e.g. neighborhood notes, renovation needs, deadlines ...",
+      "name": "Name",
+      "address": "Address",
+      "kaufpreis": "Purchase price",
+      "wohnflaeche": "Living area",
+      "zimmer": "Rooms",
+      "schlafzimmer": "Bedrooms",
+      "badezimmer": "Bathrooms",
+      "etage": "Floor",
+      "etagenGesamt": "Floors total",
+      "istMiete": "Actual rent (€/month)",
+      "sollMiete": "Target rent (€/month)",
+      "istMieteInfo": "Current actual cold rent paid by the tenant.",
+      "sollMieteInfo": "Intended or market cold rent.",
+      "hausgeld": "Service charge",
+      "stellplaetze": "Parking spaces",
+      "provisionsfrei": "Commission-free",
+      "objektzustand": "Condition",
+      "heizungsart": "Heating type",
+      "energietraeger": "Energy source",
+      "energieausweistyp": "Energy cert. type",
+      "energieKennwert": "Energy value (kWh/m²a)",
+      "energieKlasse": "Energy class",
+      "nichtUmlagefaehig": "Non-allocable costs",
+      "ruecklagen": "Reserves / month",
+      "leerstand": "Vacancy",
+      "grunderwerbsteuer": "Land transfer tax",
+      "notarGrundbuch": "Notary + registry",
+      "maklerprovision": "Agent commission",
+      "sonstiges": "Other",
+      "equityInfo": "Equity you contribute. Use the €/% switch to enter it as a percentage of the purchase price.",
+      "financingGlobalHint": "Interest and amortization apply globally to all objects (set above).",
+      "zins": "Interest rate",
+      "tilgung": "Amortization",
+      "monthlyRate": "Monthly payment",
+      "darlehensbetrag": "Loan amount",
+      "gesamtkapital": "Total capital",
+      "taxToggle": "Enable tax calculation",
+      "bemessungsgrundlage": "Assessment basis",
+      "gebaeudeanteil": "Building share",
+      "afa": "Depreciation rate",
+      "steuersatz": "Marginal tax rate",
+      "growthToggle": "Enable growth forecast",
+      "mietentwicklung": "Rent growth p.a.",
+      "wertentwicklung": "Value growth p.a.",
+      "exposeUrl": "Listing URL",
+      "wohnungstyp": "Property type",
+      "ausstattung": "Fit-out quality",
+      "maklerName": "Agent / seller",
+      "maklerTelefon": "Agent phone",
+      "baujahr": "Year built"
     },
     "add": {
       "title": "Add property",
@@ -303,7 +363,8 @@
         "baujahr": "Year built",
         "kaltmiete": "Cold rent"
       }
-    }
+    },
+    "livePreview": "Live preview"
   },
   "documents": {
     "navButton": "Documents",

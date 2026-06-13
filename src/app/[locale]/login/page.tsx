@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { LoginForm } from "./LoginForm";
+import { GoogleSignInButton } from "../auth/GoogleSignInButton";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -37,6 +38,12 @@ export default async function LoginPage({ params }: Props) {
           </div>
 
           <LoginForm locale={locale} />
+
+          <GoogleSignInButton
+            locale={locale}
+            label={t("continueWithGoogle")}
+            dividerLabel={t("or")}
+          />
 
           <p className="text-sm text-center text-muted-foreground">
             {t("noAccount")}{" "}

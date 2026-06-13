@@ -99,3 +99,19 @@ export async function linkDraftDocuments(
     .is("property_id", null);
   if (error) throw error;
 }
+
+// Wishlist documents can't use property_id (its FK points at `properties`, not
+// `wishlist_properties`). draft_id has no FK, so we keep wishlist uploads grouped
+// by draft_id and re-point it from the temporary draft to the saved wishlist id.
+export async function relinkWishlistDocuments(
+  draftId: string,
+  wishlistId: string,
+): Promise<void> {
+  const supabase = getSupabaseBrowserClient();
+  const { error } = await supabase
+    .from("documents")
+    .update({ draft_id: wishlistId })
+    .eq("draft_id", draftId)
+    .is("property_id", null);
+  if (error) throw error;
+}

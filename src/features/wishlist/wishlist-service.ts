@@ -1,8 +1,15 @@
 "use client";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase";
-import type { WishlistDraft, WishlistProperty } from "./types";
+import type { Database, Json } from "@/lib/supabase";
+import {
+  DEFAULT_WISHLIST_EXTRAS,
+  totalNebenkostenPct,
+  type WishlistDetails,
+  type WishlistDraft,
+  type WishlistExtras,
+  type WishlistProperty,
+} from "./types";
 
 type Row = Database["public"]["Tables"]["wishlist_properties"]["Row"];
 
@@ -11,6 +18,21 @@ async function requireUserId(): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
   return user.id;
+}
+
+// `extras`/`details` are stored as jsonb. Coerce defensively so older rows
+// (empty `{}`) still hydrate a complete object.
+function parseExtras(raw: Json): WishlistExtras {
+  const e = (raw ?? {}) as Partial<WishlistExtras>;
+  return {
+    ...DEFAULT_WISHLIST_EXTRAS,
+    ...e,
+    nebenkosten: { ...DEFAULT_WISHLIST_EXTRAS.nebenkosten, ...(e.nebenkosten ?? {}) },
+  };
+}
+
+function parseDetails(raw: Json): WishlistDetails {
+  return (raw ?? {}) as WishlistDetails;
 }
 
 function fromRow(row: Row): WishlistProperty {
@@ -25,34 +47,20 @@ function fromRow(row: Row): WishlistProperty {
     wohnflaeche: row.wohnflaeche,
     zimmer: row.zimmer,
     baujahr: row.baujahr,
-    kaltmiete: row.kaltmiete,
+    istMiete: row.ist_miete,
+    sollMiete: row.soll_miete,
     eigenanteil: row.eigenanteil,
-    nebenkostenPct: row.nebenkosten_pct,
+    extras: parseExtras(row.extras),
+    details: parseDetails(row.details),
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
-function toInsert(userId: string, draft: WishlistDraft) {
-  return {
-    user_id: userId,
-    name: draft.name,
-    address: draft.address,
-    expose_url: draft.exposeUrl,
-    lage: draft.lage,
-    kaufpreis: draft.kaufpreis,
-    wohnflaeche: draft.wohnflaeche,
-    zimmer: draft.zimmer,
-    baujahr: draft.baujahr,
-    kaltmiete: draft.kaltmiete,
-    eigenanteil: draft.eigenanteil,
-    nebenkosten_pct: draft.nebenkostenPct,
-    notes: draft.notes,
-  };
-}
-
-function toUpdate(draft: WishlistDraft) {
+// Shared column mapping for insert/update. nebenkosten_pct is derived from the
+// breakdown to satisfy the NOT NULL column and keep simple displays working.
+function toColumns(draft: WishlistDraft) {
   return {
     name: draft.name,
     address: draft.address,
@@ -62,11 +70,14 @@ function toUpdate(draft: WishlistDraft) {
     wohnflaeche: draft.wohnflaeche,
     zimmer: draft.zimmer,
     baujahr: draft.baujahr,
-    kaltmiete: draft.kaltmiete,
+    ist_miete: draft.istMiete,
+    soll_miete: draft.sollMiete,
+    kaltmiete: draft.sollMiete ?? draft.istMiete, // keep legacy column populated
     eigenanteil: draft.eigenanteil,
-    nebenkosten_pct: draft.nebenkostenPct,
+    nebenkosten_pct: totalNebenkostenPct(draft.extras.nebenkosten),
+    extras: draft.extras as unknown as Json,
+    details: draft.details as unknown as Json,
     notes: draft.notes,
-    updated_at: new Date().toISOString(),
   };
 }
 
@@ -76,7 +87,7 @@ export async function createWishlistProperty(draft: WishlistDraft): Promise<stri
 
   const { data, error } = await supabase
     .from("wishlist_properties")
-    .insert(toInsert(userId, draft))
+    .insert({ user_id: userId, ...toColumns(draft) })
     .select("id")
     .single();
 
@@ -89,7 +100,7 @@ export async function updateWishlistProperty(id: string, draft: WishlistDraft): 
 
   const { error } = await supabase
     .from("wishlist_properties")
-    .update(toUpdate(draft))
+    .update({ ...toColumns(draft), updated_at: new Date().toISOString() })
     .eq("id", id);
 
   if (error) throw error;

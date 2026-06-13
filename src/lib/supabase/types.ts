@@ -112,9 +112,13 @@ type WishlistRowShape = {
   wohnflaeche: number | null;
   zimmer: number | null;
   baujahr: number | null;
-  kaltmiete: number | null;
+  kaltmiete: number | null; // deprecated; kept for backfill only
+  ist_miete: number | null;
+  soll_miete: number | null;
   eigenanteil: number | null;
   nebenkosten_pct: number;
+  extras: Json;
+  details: Json;
   notes: string | null;
   created_at: string;
   updated_at: string;

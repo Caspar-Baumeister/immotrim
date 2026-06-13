@@ -1,13 +1,13 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PlusCircle, LineChart } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { GlobalAssumptionsBar } from "@/features/wishlist/components/GlobalAssumptionsBar";
 import { WishlistTable } from "@/features/wishlist/components/WishlistTable";
-import { AddPropertyDialog } from "@/features/wishlist/components/AddPropertyDialog";
 import {
   getAllWishlistProperties,
   deleteWishlistProperty,
@@ -18,12 +18,14 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default function WishlistPage({ params }: Props) {
   const { locale } = use(params);
+  const router = useRouter();
   const t = useTranslations("wishlist");
   const tDelete = useTranslations();
   const [rows, setRows] = useState<WishlistProperty[]>([]);
   const [loading, setLoading] = useState(true);
-  const [addOpen, setAddOpen] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+
+  const goToNew = () => router.push(`/${locale}/wishlist/new`);
 
   function load() {
     getAllWishlistProperties().then((r) => {
@@ -61,7 +63,7 @@ export default function WishlistPage({ params }: Props) {
           </h2>
           <Button
             size="sm"
-            onClick={() => setAddOpen(true)}
+            onClick={goToNew}
             className="bg-amber-500 hover:bg-amber-400 text-black font-semibold gap-1.5"
           >
             <PlusCircle className="h-3.5 w-3.5" />
@@ -85,7 +87,7 @@ export default function WishlistPage({ params }: Props) {
               <p className="text-xs text-muted-foreground mt-1">{t("emptyDesc")}</p>
             </div>
             <Button
-              onClick={() => setAddOpen(true)}
+              onClick={goToNew}
               className="bg-amber-500 hover:bg-amber-400 text-black font-semibold"
             >
               {t("addFirst")}
@@ -102,13 +104,6 @@ export default function WishlistPage({ params }: Props) {
           />
         )}
       </div>
-
-      <AddPropertyDialog
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        locale={locale}
-        onCreated={load}
-      />
     </div>
   );
 }

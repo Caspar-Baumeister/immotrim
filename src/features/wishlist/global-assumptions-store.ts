@@ -44,6 +44,7 @@ export const useGlobalAssumptions = create<State>()(
         nichtUmlagefaehigPctOfMiete: s.nichtUmlagefaehigPctOfMiete,
         defaultEigenanteilPct: s.defaultEigenanteilPct,
         yieldMode: s.yieldMode,
+        rentBasis: s.rentBasis,
         cashflowSettings: s.cashflowSettings,
         ekReturnSettings: s.ekReturnSettings,
       }),

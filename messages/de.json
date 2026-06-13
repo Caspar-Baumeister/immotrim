@@ -181,7 +181,9 @@
     "resetTitle": "Neues Passwort festlegen",
     "resetSubtitle": "Wähle ein neues Passwort für dein Konto.",
     "newPassword": "Neues Passwort",
-    "submitReset": "Passwort aktualisieren"
+    "submitReset": "Passwort aktualisieren",
+    "or": "oder",
+    "continueWithGoogle": "Mit Google fortfahren"
   },
   "account": {
     "title": "Account",
@@ -220,7 +222,9 @@
       "nonAllocable": "Nicht umlegb.",
       "nonAllocableFull": "Nicht umlegbare NK",
       "ofRent": "der Miete",
-      "editDefaults": "Annahmen bearbeiten"
+      "editDefaults": "Annahmen bearbeiten",
+      "rentIst": "Ist",
+      "rentSoll": "Soll"
     },
     "columns": {
       "name": "Name",
@@ -257,7 +261,13 @@
       "identification": "Identifikation",
       "basics": "Eckdaten",
       "financials": "Finanzen",
-      "notes": "Notizen"
+      "notes": "Notizen",
+      "nebenkosten": "Kaufnebenkosten",
+      "financing": "Finanzierung",
+      "rent": "Miete & Bewirtschaftung",
+      "tax": "Steuer (optional)",
+      "growth": "Wachstum (optional)",
+      "details": "Exposé-Details"
     },
     "fields": {
       "rooms": "Zimmer",
@@ -266,7 +276,57 @@
       "equityPlaceholder": "Standard: {pct}% des Kaufpreises",
       "nebenkostenPct": "Kaufnebenkosten (%)",
       "globalAssumptionsHint": "Leerstand, Rücklagen und nicht umlegbare NK werden in den globalen Annahmen oben gesetzt.",
-      "notesPlaceholder": "z.B. Lage-Notizen, Renovierungsbedarf, Termine ..."
+      "notesPlaceholder": "z.B. Lage-Notizen, Renovierungsbedarf, Termine ...",
+      "name": "Bezeichnung",
+      "address": "Adresse",
+      "kaufpreis": "Kaufpreis",
+      "wohnflaeche": "Wohnfläche",
+      "zimmer": "Zimmer",
+      "schlafzimmer": "Schlafzimmer",
+      "badezimmer": "Badezimmer",
+      "etage": "Etage",
+      "etagenGesamt": "Etagen gesamt",
+      "istMiete": "Ist-Miete (€/Monat)",
+      "sollMiete": "Soll-Miete (€/Monat)",
+      "istMieteInfo": "Aktuelle tatsächliche Kaltmiete des Mieters.",
+      "sollMieteInfo": "Angestrebte bzw. marktübliche Kaltmiete.",
+      "hausgeld": "Hausgeld",
+      "stellplaetze": "Stellplätze",
+      "provisionsfrei": "Provisionsfrei",
+      "objektzustand": "Objektzustand",
+      "heizungsart": "Heizungsart",
+      "energietraeger": "Energieträger",
+      "energieausweistyp": "Energieausweistyp",
+      "energieKennwert": "Energiekennwert (kWh/m²a)",
+      "energieKlasse": "Energieklasse",
+      "nichtUmlagefaehig": "Nicht umlegbare NK",
+      "ruecklagen": "Rücklagen / Monat",
+      "leerstand": "Leerstand",
+      "grunderwerbsteuer": "Grunderwerbsteuer",
+      "notarGrundbuch": "Notar + Grundbuch",
+      "maklerprovision": "Maklerprovision",
+      "sonstiges": "Sonstiges",
+      "equityInfo": "Eigenkapital, das du einbringst. Über den €/%-Schalter auch als Prozent des Kaufpreises eingebbar.",
+      "financingGlobalHint": "Zins und Tilgung gelten global für alle Objekte (oben einstellbar).",
+      "zins": "Zinssatz",
+      "tilgung": "Tilgung",
+      "monthlyRate": "Monatliche Rate",
+      "darlehensbetrag": "Darlehensbetrag",
+      "gesamtkapital": "Gesamtkapital",
+      "taxToggle": "Steuerberechnung aktivieren",
+      "bemessungsgrundlage": "Bemessungsgrundlage",
+      "gebaeudeanteil": "Gebäudeanteil",
+      "afa": "AfA-Satz",
+      "steuersatz": "Grenzsteuersatz",
+      "growthToggle": "Wachstumsprognose aktivieren",
+      "mietentwicklung": "Mietentwicklung p.a.",
+      "wertentwicklung": "Wertentwicklung p.a.",
+      "exposeUrl": "Expose-URL",
+      "wohnungstyp": "Wohnungstyp",
+      "ausstattung": "Ausstattung",
+      "maklerName": "Anbieter / Makler",
+      "maklerTelefon": "Telefon Anbieter",
+      "baujahr": "Baujahr"
     },
     "add": {
       "title": "Immobilie hinzufügen",
@@ -303,7 +363,8 @@
         "baujahr": "Baujahr",
         "kaltmiete": "Kaltmiete"
       }
-    }
+    },
+    "livePreview": "Live-Vorschau"
   },
   "documents": {
     "navButton": "Dokumente",

@@ -27,7 +27,9 @@ const MAX_FILE_BYTES = 50 * 1024 * 1024; // Gemini PDF ceiling
 type ReqDoc = { path: string; name: string };
 
 // One extracted value: { value, sourceDoc, confidence }.
-function fieldSchema(valueType: typeof Type.STRING | typeof Type.NUMBER) {
+function fieldSchema(
+  valueType: typeof Type.STRING | typeof Type.NUMBER | typeof Type.BOOLEAN,
+) {
   return {
     type: Type.OBJECT,
     properties: {
@@ -78,6 +80,35 @@ Feld-Hinweise:
 Für jedes Feld: value (Zahl bzw. Text), sourceDoc (der Dokumenttyp oder Dateiname, woraus der Wert stammt), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
+const WISHLIST_FIELD_ORDER = [
+  "name",
+  "address",
+  "exposeUrl",
+  "kaufpreis",
+  "wohnflaeche",
+  "zimmer",
+  "schlafzimmer",
+  "badezimmer",
+  "etage",
+  "etagenGesamt",
+  "wohnungstyp",
+  "baujahr",
+  "objektzustand",
+  "ausstattung",
+  "istMiete",
+  "sollMiete",
+  "hausgeld",
+  "stellplaetze",
+  "provisionsfrei",
+  "heizungsart",
+  "energietraeger",
+  "energieausweistyp",
+  "energieKennwert",
+  "energieKlasse",
+  "maklerName",
+  "maklerTelefon",
+];
+
 const WISHLIST_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -86,32 +117,71 @@ const WISHLIST_SCHEMA = {
       properties: {
         name: fieldSchema(Type.STRING),
         address: fieldSchema(Type.STRING),
+        exposeUrl: fieldSchema(Type.STRING),
         kaufpreis: fieldSchema(Type.NUMBER),
         wohnflaeche: fieldSchema(Type.NUMBER),
         zimmer: fieldSchema(Type.NUMBER),
+        schlafzimmer: fieldSchema(Type.NUMBER),
+        badezimmer: fieldSchema(Type.NUMBER),
+        etage: fieldSchema(Type.NUMBER),
+        etagenGesamt: fieldSchema(Type.NUMBER),
+        wohnungstyp: fieldSchema(Type.STRING),
         baujahr: fieldSchema(Type.NUMBER),
-        kaltmiete: fieldSchema(Type.NUMBER),
+        objektzustand: fieldSchema(Type.STRING),
+        ausstattung: fieldSchema(Type.STRING),
+        istMiete: fieldSchema(Type.NUMBER),
+        sollMiete: fieldSchema(Type.NUMBER),
+        hausgeld: fieldSchema(Type.NUMBER),
+        stellplaetze: fieldSchema(Type.NUMBER),
+        provisionsfrei: fieldSchema(Type.BOOLEAN),
+        heizungsart: fieldSchema(Type.STRING),
+        energietraeger: fieldSchema(Type.STRING),
+        energieausweistyp: fieldSchema(Type.STRING),
+        energieKennwert: fieldSchema(Type.NUMBER),
+        energieKlasse: fieldSchema(Type.STRING),
+        maklerName: fieldSchema(Type.STRING),
+        maklerTelefon: fieldSchema(Type.STRING),
       },
+      propertyOrdering: WISHLIST_FIELD_ORDER,
     },
   },
   required: ["fields"],
 };
 
 const WISHLIST_PROMPT = `Du bist ein Assistent, der deutsche Immobilien-Exposés auswertet, um eine Objektanalyse vorauszufüllen.
-Du erhältst ein oder mehrere Dokumente: typischerweise ein Verkaufs-Exposé (z.B. von ImmoScout24 oder einem Makler), eventuell als PDF oder Screenshot.
+Du erhältst ein oder mehrere Dokumente: typischerweise ein Verkaufs-Exposé (z.B. von ImmoScout24 oder einem Makler), als PDF oder Screenshot.
 
-Extrahiere NUR Felder, die du tatsächlich im Dokument findest. Erfinde nichts. Lass ein Feld weg, wenn es nicht eindeutig belegt ist.
+WICHTIG: Lies das GESAMTE Dokument (alle Seiten) sorgfältig und extrahiere ALLE im Dokument vorhandenen Felder aus dem Schema. Gib für jedes Feld, das du im Dokument findest, einen Wert zurück – auch wenn es nur an einer Stelle steht. Lass ein Feld NUR dann weg, wenn die Information wirklich nicht im Dokument vorkommt. Erfinde keine Werte und schätze nicht.
 
-Feld-Hinweise:
-- name: kurze Bezeichnung der Immobilie (z.B. Objekttitel oder Straße + Ort), falls ableitbar.
-- address: vollständige Adresse bzw. Lage (Straße, PLZ, Ort), soweit angegeben.
-- kaufpreis: Kaufpreis in Euro (reine Zahl, ohne Tausenderpunkte/€).
-- wohnflaeche: Wohnfläche in Quadratmetern (reine Zahl).
-- zimmer: Anzahl der Zimmer (Zahl, ggf. mit Nachkommastelle wie 2.5).
-- baujahr: Baujahr als vierstellige Jahreszahl.
-- kaltmiete: monatliche Kaltmiete in Euro, falls das Exposé eine (Ist- oder Soll-)Miete nennt.
+Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. Beispiele: "349.900 €" -> 349900, "81,13 m²" -> 81.13, "92,2 kWh/(m²*a)" -> 92.2.
 
-Für jedes Feld: value (Zahl bzw. Text), sourceDoc (der Dokumenttyp oder Dateiname, woraus der Wert stammt), confidence (0 bis 1).
+Feld-Hinweise (typische ImmoScout24-Labels in Klammern):
+- name: kurze Bezeichnung/Objekttitel der Immobilie (die Überschrift des Exposés).
+- address: Adresse bzw. Lage – Stadtteil, PLZ, Ort, Straße soweit angegeben (z.B. "Kreuzberg, 10967 Berlin").
+- exposeUrl: die vollständige ImmoScout24-Exposé-URL. Steht meist im Kopf-/Fußbereich, Form "https://www.immobilienscout24.de/expose/<ID>". Übernimm sie OHNE den Zusatz "/print".
+- kaufpreis: ("Kaufpreis") Kaufpreis in Euro.
+- wohnflaeche: ("Wohnfläche ca.") in m².
+- zimmer: ("Zimmer") Anzahl der Zimmer (ggf. mit Nachkommastelle).
+- schlafzimmer: ("Schlafzimmer"). badezimmer: ("Badezimmer").
+- etage / etagenGesamt: ("Etage"). Bei "1 von 4" ist etage=1 und etagenGesamt=4.
+- wohnungstyp: ("Wohnungstyp", z.B. "Etagenwohnung", "Erdgeschosswohnung", "Maisonette").
+- baujahr: ("Baujahr") vierstellige Jahreszahl.
+- objektzustand: ("Objektzustand", z.B. "Gepflegt", "Neuwertig").
+- ausstattung: ("Qualität der Ausstattung", z.B. "Normal", "Gehoben").
+- istMiete: aktuelle monatliche Ist-Kaltmiete in Euro. Meist als "Mieteinnahmen pro Monat" angegeben. Falls nur "Jahresnettokaltmiete" genannt ist, teile sie durch 12.
+- sollMiete: angestrebte/marktübliche monatliche Soll-Kaltmiete in Euro, nur falls explizit als solche genannt.
+- hausgeld: ("Hausgeld") monatlich in Euro.
+- stellplaetze: Anzahl Stellplätze/Garagen, falls genannt.
+- provisionsfrei: true, wenn "Provision für Käufer: Nein" oder "provisionsfrei" steht; false, wenn eine Käuferprovision angegeben ist.
+- heizungsart: ("Heizungsart", z.B. "Etagenheizung", "Zentralheizung", "Fernwärme").
+- energietraeger: ("Wesentliche Energieträger", z.B. "Gas", "Öl").
+- energieausweistyp: ("Energieausweistyp": "Verbrauchsausweis" oder "Bedarfsausweis").
+- energieKennwert: ("Endenergieverbrauch"/"Endenergiebedarf") als Zahl in kWh/(m²·a).
+- energieKlasse: ("Energieeffizienzklasse", A+ bis H).
+- maklerName: Name des Anbieters/Ansprechpartners bzw. der Maklerfirma (Anbieter-Bereich).
+- maklerTelefon: Telefon-/Mobilnummer des Anbieters (z.B. "Mobil: 0163 2189233").
+
+Für jedes Feld: value (Zahl, Text bzw. Wahrheitswert), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
 const MODES = {
@@ -220,6 +290,12 @@ async function generateWithRetry(
           systemInstruction: MODES[mode].prompt,
           responseMimeType: "application/json",
           responseSchema: MODES[mode].schema,
+          // Document extraction is a lookup task, not a reasoning one. Deterministic
+          // output + disabled thinking avoids gemini-2.5-flash returning a sparse
+          // object (it otherwise skips obvious fields under constrained JSON decoding).
+          temperature: 0,
+          maxOutputTokens: 4096,
+          thinkingConfig: { thinkingBudget: 0 },
         },
       });
     } catch (e) {

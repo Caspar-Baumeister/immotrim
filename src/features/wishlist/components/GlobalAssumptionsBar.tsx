@@ -6,6 +6,8 @@ import { Settings2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { useGlobalAssumptions } from "../global-assumptions-store";
+import { cn } from "@/lib/utils";
+import type { RentBasis } from "../types";
 
 export function GlobalAssumptionsBar() {
   const t = useTranslations("wishlist.global");
@@ -15,6 +17,7 @@ export function GlobalAssumptionsBar() {
     leerstandPct,
     ruecklagenPctOfMiete,
     nichtUmlagefaehigPctOfMiete,
+    rentBasis,
     setScalar,
   } = useGlobalAssumptions();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -22,9 +25,16 @@ export function GlobalAssumptionsBar() {
   return (
     <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-          {t("title")}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+            {t("title")}
+          </span>
+          <RentBasisToggle
+            value={rentBasis}
+            onChange={(v) => setScalar("rentBasis", v)}
+            labels={{ ist: t("rentIst"), soll: t("rentSoll") }}
+          />
+        </div>
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
           <span className="tabular-nums">
             {t("vacancy")} {leerstandPct.toFixed(0)}%
@@ -101,6 +111,36 @@ export function GlobalAssumptionsBar() {
           />
         </div>
       )}
+    </div>
+  );
+}
+
+function RentBasisToggle({
+  value,
+  onChange,
+  labels,
+}: {
+  value: RentBasis;
+  onChange: (v: RentBasis) => void;
+  labels: { ist: string; soll: string };
+}) {
+  return (
+    <div className="flex items-center rounded-md bg-muted/60 p-0.5 text-[11px] leading-none">
+      {(["ist", "soll"] as RentBasis[]).map((b) => (
+        <button
+          key={b}
+          type="button"
+          onClick={() => onChange(b)}
+          className={cn(
+            "px-2 py-1 rounded transition-colors font-medium",
+            value === b
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {b === "ist" ? labels.ist : labels.soll}
+        </button>
+      ))}
     </div>
   );
 }

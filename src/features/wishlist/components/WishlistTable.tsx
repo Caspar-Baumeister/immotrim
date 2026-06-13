@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Trash2, ExternalLink } from "lucide-react";
+import { Trash2, ExternalLink, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -20,10 +20,10 @@ import {
   CashflowSettingsPopover,
   EkReturnSettingsPopover,
 } from "./ColumnSettingsPopovers";
-import { calculateWishlistRowKpis } from "../calculations";
+import { calculateWishlistRowKpis, effectiveRent } from "../calculations";
 import { useGlobalAssumptions } from "../global-assumptions-store";
 import type { WishlistGlobalAssumptions, WishlistProperty, WishlistRowKpis } from "../types";
-import { LAGE_OPTIONS } from "../types";
+import { LAGE_OPTIONS, totalNebenkostenPct } from "../types";
 import { formatCurrency, formatPercent, cn } from "@/lib/utils";
 
 type SortDir = "asc" | "desc";
@@ -40,7 +40,7 @@ type SortKey =
   | "monthlyCashFlow"
   | "ekRendite";
 
-type EnrichedRow = WishlistProperty & { kpis: WishlistRowKpis };
+type EnrichedRow = WishlistProperty & { kpis: WishlistRowKpis; rent: number };
 
 type Props = {
   rows: WishlistProperty[];
@@ -69,7 +69,7 @@ function getSortValue(row: EnrichedRow, key: SortKey): number | string | null {
     case "pricePerSqm":
       return row.kpis.pricePerSqm;
     case "kaltmiete":
-      return row.kaltmiete;
+      return row.rent;
     case "mietrendite":
       return row.kpis.mietrendite;
     case "monthlyCashFlow":
@@ -85,6 +85,15 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
   const assumptions = useGlobalAssumptions();
   const [sortKey, setSortKey] = useState<SortKey>("mietrendite");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (id: string) =>
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const g: WishlistGlobalAssumptions = {
     zins: assumptions.zins,
@@ -94,12 +103,18 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
     nichtUmlagefaehigPctOfMiete: assumptions.nichtUmlagefaehigPctOfMiete,
     defaultEigenanteilPct: assumptions.defaultEigenanteilPct,
     yieldMode: assumptions.yieldMode,
+    rentBasis: assumptions.rentBasis,
     cashflowSettings: assumptions.cashflowSettings,
     ekReturnSettings: assumptions.ekReturnSettings,
   };
 
   const enriched: EnrichedRow[] = useMemo(
-    () => rows.map((r) => ({ ...r, kpis: calculateWishlistRowKpis(r, g) })),
+    () =>
+      rows.map((r) => ({
+        ...r,
+        kpis: calculateWishlistRowKpis(r, g),
+        rent: effectiveRent(r, g),
+      })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       rows,
@@ -110,6 +125,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
       g.nichtUmlagefaehigPctOfMiete,
       g.defaultEigenanteilPct,
       g.yieldMode,
+      g.rentBasis,
       g.cashflowSettings.subtractReserves,
       g.cashflowSettings.subtractNonAllocable,
       g.cashflowSettings.subtractVacancy,
@@ -154,6 +170,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
+            <TableHead className="w-8" />
             <SortableHeader
               label={t("columns.name")}
               sortKey="name"
@@ -237,12 +254,28 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
         <TableBody>
           {sorted.map((row) => {
             const cfPositive = (row.kpis.monthlyCashFlow ?? 0) >= 0;
+            const isExpanded = expandedIds.has(row.id);
             return (
+              <Fragment key={row.id}>
               <TableRow
                 key={row.id}
                 onClick={() => router.push(`/${locale}/wishlist/${row.id}`)}
                 className="cursor-pointer"
               >
+                <TableCell
+                  className="w-8"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExpanded(row.id);
+                  }}
+                >
+                  <ChevronRight
+                    className={cn(
+                      "h-3.5 w-3.5 text-muted-foreground transition-transform",
+                      isExpanded && "rotate-90"
+                    )}
+                  />
+                </TableCell>
                 <TableCell className="font-medium text-foreground">
                   {row.name}
                 </TableCell>
@@ -262,7 +295,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
                   {fmtCurrency(row.kpis.pricePerSqm)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
-                  {fmtCurrency(row.kaltmiete)}
+                  {fmtCurrency(row.rent || null)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {fmtPct(row.kpis.mietrendite)}
@@ -315,10 +348,80 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
                   </div>
                 </TableCell>
               </TableRow>
+              {isExpanded && (
+                <TableRow className="hover:bg-transparent bg-muted/20">
+                  <TableCell colSpan={12} className="py-3">
+                    <DetailPanel row={row} t={t} />
+                  </TableCell>
+                </TableRow>
+              )}
+              </Fragment>
             );
           })}
         </TableBody>
       </Table>
+    </div>
+  );
+}
+
+function DetailPanel({
+  row,
+  t,
+}: {
+  row: EnrichedRow;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const d = row.details;
+  const nkPct = totalNebenkostenPct(row.extras.nebenkosten);
+  const items: { label: string; value: string }[] = [
+    { label: t("fields.istMiete"), value: fmtCurrency(row.istMiete) },
+    { label: t("fields.sollMiete"), value: fmtCurrency(row.sollMiete) },
+    { label: t("add.equity"), value: fmtCurrency(row.eigenanteil) },
+    { label: t("sections.nebenkosten"), value: formatPercent(nkPct, 2) },
+    { label: t("fields.yearBuilt"), value: row.baujahr ? String(row.baujahr) : "—" },
+    {
+      label: t("fields.etage"),
+      value:
+        d.etage != null
+          ? `${d.etage}${d.etagenGesamt != null ? ` / ${d.etagenGesamt}` : ""}`
+          : "—",
+    },
+    {
+      label: t("fields.rooms"),
+      value:
+        (row.zimmer != null ? String(row.zimmer) : "—") +
+        (d.schlafzimmer != null || d.badezimmer != null
+          ? ` (${d.schlafzimmer ?? "–"} / ${d.badezimmer ?? "–"})`
+          : ""),
+    },
+    { label: t("fields.hausgeld"), value: fmtCurrency(d.hausgeld ?? null) },
+    { label: t("fields.wohnungstyp"), value: d.wohnungstyp ?? "—" },
+    { label: t("fields.energieKlasse"), value: d.energieKlasse ?? "—" },
+    { label: t("fields.heizungsart"), value: d.heizungsart ?? "—" },
+    { label: t("fields.objektzustand"), value: d.objektzustand ?? "—" },
+    {
+      label: t("fields.provisionsfrei"),
+      value: d.provisionsfrei == null ? "—" : d.provisionsfrei ? "Ja" : "Nein",
+    },
+    { label: t("fields.maklerTelefon"), value: d.maklerTelefon ?? "—" },
+  ];
+  return (
+    <div className="flex flex-col gap-2 px-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2">
+        {items.map((it) => (
+          <div key={it.label} className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {it.label}
+            </span>
+            <span className="text-xs tabular-nums text-foreground">{it.value}</span>
+          </div>
+        ))}
+      </div>
+      {row.notes && (
+        <p className="text-xs text-muted-foreground border-t border-border/50 pt-2 mt-1 whitespace-pre-line">
+          {row.notes}
+        </p>
+      )}
     </div>
   );
 }
