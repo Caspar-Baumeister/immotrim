@@ -36,7 +36,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
         Restschuld: {formatCurrency(entry.restschuld, "de-DE", true)}
       </p>
       <p className="text-emerald-400 font-semibold border-t border-border pt-0.5 mt-0.5">
-        Eigenkapital: {formatCurrency(entry.eigenkapital, "de-DE", true)}
+        Nettovermögen: {formatCurrency(entry.eigenkapital, "de-DE", true)}
       </p>
     </div>
   );
@@ -56,7 +56,7 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
         Restschuld: {formatCurrency(entry.restschuld, "de-DE", true)}
       </p>
       <p className="text-emerald-400 font-semibold border-t border-border pt-0.5 mt-0.5">
-        Eigenkapital: {formatCurrency(entry.eigenkapital, "de-DE", true)}
+        Nettovermögen: {formatCurrency(entry.eigenkapital, "de-DE", true)}
       </p>
     </div>
   );
@@ -73,8 +73,8 @@ const CustomLegend = () => (
       <span className="text-[10px] text-muted-foreground">Restschuld</span>
     </div>
     <div className="flex items-center gap-1.5">
-      <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 opacity-30" />
-      <span className="text-[10px] text-muted-foreground">Eigenkapital</span>
+      <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 opacity-40" />
+      <span className="text-[10px] text-muted-foreground">Nettovermögen</span>
     </div>
   </div>
 );
@@ -115,13 +115,28 @@ export function WertSchuldenChart({ data, monthlyData, height = 220, monthly = f
             content={<CustomTooltipMonthly />}
             cursor={{ stroke: "var(--chart-cursor)" }}
           />
+          {/* Net worth band: filled region between Restschuld and Immobilienwert */}
           <Area
             type="monotone"
-            dataKey="immobilienwert"
-            fill="#10b981"
-            fillOpacity={0.08}
+            dataKey="restschuld"
+            stackId="networth"
             stroke="none"
+            fill="none"
+            fillOpacity={0}
             legendType="none"
+            activeDot={false}
+            tooltipType="none"
+          />
+          <Area
+            type="monotone"
+            dataKey="eigenkapital"
+            stackId="networth"
+            stroke="none"
+            fill="#10b981"
+            fillOpacity={0.12}
+            legendType="none"
+            activeDot={false}
+            tooltipType="none"
           />
           <Line
             type="monotone"
@@ -175,14 +190,28 @@ export function WertSchuldenChart({ data, monthlyData, height = 220, monthly = f
           content={<CustomTooltipYearly />}
           cursor={{ stroke: "var(--chart-cursor)" }}
         />
-        {/* Shaded eigenkapital area between the two lines */}
+        {/* Net worth band: filled region between Restschuld and Immobilienwert */}
         <Area
           type="monotone"
-          dataKey="immobilienwert"
-          fill="#10b981"
-          fillOpacity={0.08}
+          dataKey="restschuld"
+          stackId="networth"
           stroke="none"
+          fill="none"
+          fillOpacity={0}
           legendType="none"
+          activeDot={false}
+          tooltipType="none"
+        />
+        <Area
+          type="monotone"
+          dataKey="eigenkapital"
+          stackId="networth"
+          stroke="none"
+          fill="#10b981"
+          fillOpacity={0.12}
+          legendType="none"
+          activeDot={false}
+          tooltipType="none"
         />
         <Line
           type="monotone"

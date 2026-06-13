@@ -1,14 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChartModal } from "./ChartModal";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 type Props = {
   title: string;
   subtitle?: string;
   badge?: string;
+  /** Optional (i) tooltip next to the title explaining exactly what is plotted. */
+  info?: React.ReactNode;
   children: React.ReactNode;
   modalContent?: React.ReactNode;
   modalStats?: { label: string; value: string; positive?: boolean }[];
@@ -20,6 +27,7 @@ export function ChartCard({
   title,
   subtitle,
   badge,
+  info,
   children,
   modalContent,
   modalStats,
@@ -44,8 +52,28 @@ export function ChartCard({
               </span>
             )}
             <div className="min-w-0">
-              <h3 className="text-sm font-medium text-foreground truncate">
-                {title}
+              <h3 className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                <span className="truncate">{title}</span>
+                {info && (
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <button
+                          type="button"
+                          className="text-muted-foreground/50 hover:text-muted-foreground flex-shrink-0"
+                        >
+                          <Info className="h-3.5 w-3.5" />
+                        </button>
+                      }
+                    />
+                    <TooltipContent
+                      side="top"
+                      className="max-w-[300px] text-left leading-snug"
+                    >
+                      {info}
+                    </TooltipContent>
+                  </Tooltip>
+                )}
               </h3>
               {subtitle && (
                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">

@@ -22,6 +22,9 @@ type Props = {
   includeWertzuwachs?: boolean;
   height?: number | `${number}%`;
   monthly?: boolean;
+  /** Show the effective-equity line + right axis. Off for the portfolio, where
+   *  the denominator is a constant invested-equity base and the line is flat. */
+  showEffectiveEigenkapital?: boolean;
 };
 
 const CustomTooltipYearly = ({
@@ -30,6 +33,7 @@ const CustomTooltipYearly = ({
   label,
   includeTilgung,
   includeWertzuwachs,
+  showEffectiveEigenkapital,
 }: any) => {
   if (!active || !payload?.length) return null;
   const entry = payload[0]?.payload as EKRenditeYear;
@@ -53,9 +57,11 @@ const CustomTooltipYearly = ({
         EK-Rendite:{" "}
         {entry.ekRendite != null ? formatPercent(entry.ekRendite) : "—"}
       </p>
-      <p className="text-indigo-400">
-        Effekt. Eigenkapital: {formatCurrency(entry.effectiveEigenkapital, "de-DE", true)}
-      </p>
+      {showEffectiveEigenkapital && (
+        <p className="text-indigo-400">
+          Effekt. Eigenkapital: {formatCurrency(entry.effectiveEigenkapital, "de-DE", true)}
+        </p>
+      )}
     </div>
   );
 };
@@ -65,6 +71,7 @@ const CustomTooltipMonthly = ({
   payload,
   includeTilgung,
   includeWertzuwachs,
+  showEffectiveEigenkapital,
 }: any) => {
   if (!active || !payload?.length) return null;
   const entry = payload[0]?.payload as EKRenditeMonth;
@@ -89,9 +96,11 @@ const CustomTooltipMonthly = ({
         EK-Rendite (p.a.):{" "}
         {entry.ekRendite != null ? formatPercent(entry.ekRendite) : "—"}
       </p>
-      <p className="text-indigo-400">
-        Effekt. Eigenkapital: {formatCurrency(entry.effectiveEigenkapital, "de-DE", true)}
-      </p>
+      {showEffectiveEigenkapital && (
+        <p className="text-indigo-400">
+          Effekt. Eigenkapital: {formatCurrency(entry.effectiveEigenkapital, "de-DE", true)}
+        </p>
+      )}
     </div>
   );
 };
@@ -103,7 +112,9 @@ export function EKRenditeChart({
   includeWertzuwachs = false,
   height = 220,
   monthly = false,
+  showEffectiveEigenkapital = true,
 }: Props) {
+  const chartMarginRight = showEffectiveEigenkapital ? 48 : 8;
   if (monthly && monthlyData && monthlyData.length > 0) {
     const yearStartTicks = monthlyData
       .filter((d) => d.month === 1)
@@ -113,7 +124,7 @@ export function EKRenditeChart({
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={monthlyData}
-          margin={{ top: 4, right: 48, left: 0, bottom: 0 }}
+          margin={{ top: 4, right: chartMarginRight, left: 0, bottom: 0 }}
         >
           <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
           <XAxis
@@ -136,26 +147,29 @@ export function EKRenditeChart({
             tickFormatter={(v) => `${v.toFixed(0)}%`}
             width={40}
           />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tick={{ fontSize: 10, fill: "#6b7280" }}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(v) =>
-              v >= 1_000_000
-                ? `${(v / 1_000_000).toFixed(1)}M`
-                : v >= 1_000
-                ? `${(v / 1_000).toFixed(0)}k`
-                : `${v.toFixed(0)}`
-            }
-            width={44}
-          />
+          {showEffectiveEigenkapital && (
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 10, fill: "#6b7280" }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) =>
+                v >= 1_000_000
+                  ? `${(v / 1_000_000).toFixed(1)}M`
+                  : v >= 1_000
+                  ? `${(v / 1_000).toFixed(0)}k`
+                  : `${v.toFixed(0)}`
+              }
+              width={44}
+            />
+          )}
           <Tooltip
             content={
               <CustomTooltipMonthly
                 includeTilgung={includeTilgung}
                 includeWertzuwachs={includeWertzuwachs}
+                showEffectiveEigenkapital={showEffectiveEigenkapital}
               />
             }
             cursor={{ stroke: "var(--chart-cursor)" }}
@@ -176,16 +190,18 @@ export function EKRenditeChart({
             connectNulls={false}
             activeDot={{ r: 3, fill: "#ffffff" }}
           />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="effectiveEigenkapital"
-            stroke="#6366f1"
-            strokeWidth={1.5}
-            strokeDasharray="4 3"
-            dot={false}
-            activeDot={{ r: 3, fill: "#6366f1" }}
-          />
+          {showEffectiveEigenkapital && (
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="effectiveEigenkapital"
+              stroke="#6366f1"
+              strokeWidth={1.5}
+              strokeDasharray="4 3"
+              dot={false}
+              activeDot={{ r: 3, fill: "#6366f1" }}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     );
@@ -196,7 +212,7 @@ export function EKRenditeChart({
     <ResponsiveContainer width="100%" height={height}>
       <LineChart
         data={data}
-        margin={{ top: 4, right: 48, left: 0, bottom: 0 }}
+        margin={{ top: 4, right: chartMarginRight, left: 0, bottom: 0 }}
       >
         <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
@@ -216,26 +232,29 @@ export function EKRenditeChart({
           width={40}
         />
         {/* Right axis: Effective Eigenkapital € */}
-        <YAxis
-          yAxisId="right"
-          orientation="right"
-          tick={{ fontSize: 10, fill: "#6b7280" }}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(v) =>
-            v >= 1_000_000
-              ? `${(v / 1_000_000).toFixed(1)}M`
-              : v >= 1_000
-              ? `${(v / 1_000).toFixed(0)}k`
-              : `${v.toFixed(0)}`
-          }
-          width={44}
-        />
+        {showEffectiveEigenkapital && (
+          <YAxis
+            yAxisId="right"
+            orientation="right"
+            tick={{ fontSize: 10, fill: "#6b7280" }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(v) =>
+              v >= 1_000_000
+                ? `${(v / 1_000_000).toFixed(1)}M`
+                : v >= 1_000
+                ? `${(v / 1_000).toFixed(0)}k`
+                : `${v.toFixed(0)}`
+            }
+            width={44}
+          />
+        )}
         <Tooltip
           content={
             <CustomTooltipYearly
               includeTilgung={includeTilgung}
               includeWertzuwachs={includeWertzuwachs}
+              showEffectiveEigenkapital={showEffectiveEigenkapital}
             />
           }
           cursor={{ stroke: "var(--chart-cursor)" }}
@@ -256,16 +275,18 @@ export function EKRenditeChart({
           connectNulls={false}
           activeDot={{ r: 3, fill: "#ffffff" }}
         />
-        <Line
-          yAxisId="right"
-          type="monotone"
-          dataKey="effectiveEigenkapital"
-          stroke="#6366f1"
-          strokeWidth={1.5}
-          strokeDasharray="4 3"
-          dot={false}
-          activeDot={{ r: 3, fill: "#6366f1" }}
-        />
+        {showEffectiveEigenkapital && (
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="effectiveEigenkapital"
+            stroke="#6366f1"
+            strokeWidth={1.5}
+            strokeDasharray="4 3"
+            dot={false}
+            activeDot={{ r: 3, fill: "#6366f1" }}
+          />
+        )}
       </LineChart>
     </ResponsiveContainer>
   );
