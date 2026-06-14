@@ -128,11 +128,11 @@
     },
     "about": {
       "title": "About me",
-      "subtitle": "Caspar – Founder of Immotrim",
-      "imageAlt": "Caspar, founder of Immotrim",
-      "p1": "I've been investing in property in Berlin since 2023, with one goal: building a portfolio that lets me reach financial freedom. I come from stock investing, and what I always missed with real estate was a simple way to track my progress, stay motivated and never lose the overview.",
-      "p2": "I run several strategies at once — furnished short-term lets, room-by-room (WG) renting and classic long-term rentals. I wanted to see at a glance which property performs how well, without guessing every time.",
-      "p3": "As the father of a one-year-old daughter, I hated the part of acquisition where I had to type every single number into Excel by hand. With my developer background, I built Immotrim for myself first: paste in the listing, done — and get more time with my family.",
+      "subtitle": "Caspar – the developer behind Immotrim",
+      "imageAlt": "Caspar, the developer behind Immotrim",
+      "p1": "Ever since I started investing in real estate, I had the same problem: I'm a bit messy. With every new property my laptop and inbox got more cluttered — and I lost track of what my properties were actually producing.",
+      "p2": "That wasn't just a problem for me to judge whether something was working. It was a pain for the banks too: every new loan request meant filling out their financial-disclosure forms by hand, over and over again.",
+      "p3": "That's why I built Immotrim for myself first: to finally keep everything in one organised place. I develop this project alone — with immense passion.",
       "signature": "— Caspar"
     },
     "pricing": {

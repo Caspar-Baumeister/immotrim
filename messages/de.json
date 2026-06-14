@@ -128,11 +128,11 @@
     },
     "about": {
       "title": "Über mich",
-      "subtitle": "Caspar – Gründer von Immotrim",
-      "imageAlt": "Caspar, Gründer von Immotrim",
-      "p1": "Seit 2023 investiere ich in Immobilien in Berlin. Mein Ziel: ein Portfolio aufbauen, das mir finanzielle Freiheit ermöglicht. Ich komme ursprünglich vom Aktieninvestment – und was mir bei Immobilien immer gefehlt hat, war eine einfache Möglichkeit, den Fortschritt zu verfolgen, motiviert zu bleiben und nicht den Überblick zu verlieren.",
-      "p2": "Ich verfolge mehrere Strategien gleichzeitig – möbliertes Wohnen auf Zeit, WG-Vermietung und klassische Langzeitvermietung. Ich wollte auf einen Blick sehen, welche Immobilie wie gut performt, ohne jedes Mal raten zu müssen.",
-      "p3": "Als Vater einer einjährigen Tochter habe ich die Akquise gehasst, bei der ich jede einzelne Zahl von Hand in Excel-Tabellen eintragen musste. Mit meinem Entwickler-Hintergrund habe ich Immotrim zuerst für mich selbst gebaut: Exposé einfügen, fertig – und mehr Zeit für meine Familie.",
+      "subtitle": "Caspar – Entwickler hinter Immotrim",
+      "imageAlt": "Caspar, Entwickler hinter Immotrim",
+      "p1": "Seit ich in Immobilien investiere, hatte ich immer dasselbe Problem: Ich bin ein bisschen chaotisch. Mit jeder neuen Wohnung wurden mein Laptop und mein Postfach voller – und ich verlor den Überblick, was meine Objekte eigentlich wirklich abwerfen.",
+      "p2": "Das war nicht nur für mich ein Problem, um zu sehen, ob sich etwas lohnt. Auch für die Banken war es jedes Mal ein Krampf: Bei jeder neuen Kreditanfrage durfte ich ihre Selbstauskunft von Hand ausfüllen – immer wieder aufs Neue.",
+      "p3": "Deshalb habe ich Immotrim zuerst für mich selbst gebaut: um endlich alles an einem Ort organisiert zu haben. Ich entwickle dieses Projekt allein – mit enormer Leidenschaft.",
       "signature": "— Caspar"
     },
     "pricing": {
