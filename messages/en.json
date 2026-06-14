@@ -144,11 +144,16 @@
       "perYear": "/year",
       "monthlyDesc": "Billed monthly. Cancel anytime.",
       "yearlyDesc": "Two months free vs. monthly billing.",
+      "lifetime": "Lifetime",
+      "lifetimeDesc": "One-time payment. Yours forever.",
+      "perOnce": "one-time",
+      "lifetimeBadge": "Best deal · limited time",
+      "lifetimeCta": "Buy lifetime",
       "cta": "Subscribe",
       "includes": "Everything included:",
-      "f1": "Up to 5 properties in your portfolio",
-      "f2": "Up to 50 properties in property analysis",
-      "f3": "Unlimited document analysis with Gemini 2.5 Flash",
+      "f1": "Unlimited properties in your portfolio",
+      "f2": "Unlimited properties in property analysis",
+      "f3": "500 AI document extractions per month",
       "f4": "Cash-flow, yield & return analytics",
       "f5": "Multi-language (EN/DE)"
     },
@@ -400,7 +405,8 @@
       "nichtUmlagefaehig": "Non-allocable (monthly)",
       "ruecklagen": "Reserves (monthly)"
     },
-    "extractBusy": "The extraction service is busy right now. Please try again in a moment."
+    "extractBusy": "The extraction service is busy right now. Please try again in a moment.",
+    "extractLimit": "You've reached your monthly limit of {limit} AI document extractions. It resets at the start of next month."
   },
   "legal": {
     "draftNotice": "Draft — placeholder text. This must be completed and reviewed by a lawyer before launch.",

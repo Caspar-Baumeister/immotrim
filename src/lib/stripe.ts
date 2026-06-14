@@ -26,9 +26,13 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-export type Plan = "monthly" | "yearly";
+export type Plan = "monthly" | "yearly" | "lifetime";
+
+// Lifetime is a one-time purchase (Checkout `mode: "payment"`), not a recurring subscription.
+export const isOneTimePlan = (plan: Plan): boolean => plan === "lifetime";
 
 export function priceIdForPlan(plan: Plan): string {
+  if (plan === "lifetime") return process.env.STRIPE_PRICE_LIFETIME!;
   return plan === "yearly"
     ? process.env.STRIPE_PRICE_YEARLY!
     : process.env.STRIPE_PRICE_MONTHLY!;
@@ -38,5 +42,6 @@ export function planFromPriceId(priceId: string | null | undefined): Plan | null
   if (!priceId) return null;
   if (priceId === process.env.STRIPE_PRICE_MONTHLY) return "monthly";
   if (priceId === process.env.STRIPE_PRICE_YEARLY) return "yearly";
+  if (priceId === process.env.STRIPE_PRICE_LIFETIME) return "lifetime";
   return null;
 }

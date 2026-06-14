@@ -22,15 +22,16 @@ async function fetchPriceAmount(priceId: string): Promise<string> {
 
 export async function PricingCards({ locale }: Props) {
   const t = await getTranslations("landing.pricing");
-  const [monthlyAmount, yearlyAmount] = await Promise.all([
+  const [monthlyAmount, yearlyAmount, lifetimeAmount] = await Promise.all([
     fetchPriceAmount(process.env.STRIPE_PRICE_MONTHLY!),
     fetchPriceAmount(process.env.STRIPE_PRICE_YEARLY!),
+    fetchPriceAmount(process.env.STRIPE_PRICE_LIFETIME!),
   ]);
 
   const features = [t("f1"), t("f2"), t("f3"), t("f4"), t("f5")];
 
   return (
-    <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
       <PlanCard
         title={t("monthly")}
         amount={monthlyAmount}
@@ -52,6 +53,18 @@ export async function PricingCards({ locale }: Props) {
         locale={locale}
         features={features}
         includesLabel={t("includes")}
+      />
+      <PlanCard
+        title={t("lifetime")}
+        amount={lifetimeAmount}
+        per={t("perOnce")}
+        desc={t("lifetimeDesc")}
+        ctaLabel={t("lifetimeCta")}
+        plan="lifetime"
+        locale={locale}
+        features={features}
+        includesLabel={t("includes")}
+        badge={t("lifetimeBadge")}
         highlight
       />
     </div>
@@ -68,6 +81,7 @@ function PlanCard({
   locale,
   features,
   includesLabel,
+  badge,
   highlight = false,
 }: {
   title: string;
@@ -75,18 +89,24 @@ function PlanCard({
   per: string;
   desc: string;
   ctaLabel: string;
-  plan: "monthly" | "yearly";
+  plan: "monthly" | "yearly" | "lifetime";
   locale: string;
   features: string[];
   includesLabel: string;
+  badge?: string;
   highlight?: boolean;
 }) {
   return (
     <div
-      className={`rounded-2xl border bg-card p-6 flex flex-col gap-5 ${
+      className={`relative rounded-2xl border bg-card p-6 flex flex-col gap-5 ${
         highlight ? "border-amber-500/40 ring-1 ring-amber-500/20" : "border-border"
       }`}
     >
+      {badge && (
+        <span className="absolute -top-3 left-6 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-black">
+          {badge}
+        </span>
+      )}
       <div>
         <h3 className="text-lg font-semibold">{title}</h3>
         <p className="text-xs text-muted-foreground mt-1">{desc}</p>

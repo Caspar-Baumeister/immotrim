@@ -12,6 +12,7 @@ import {
   type Part,
 } from "@google/genai";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { getMonthlyUsage, consumeMonthlyUsage } from "@/lib/ai-usage";
 import type { ExtractResponse } from "@/features/property-input/extraction-types";
 
 export const runtime = "nodejs";
@@ -200,6 +201,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  // The only usage restriction: 500 AI extractions per user per month. Pre-check
+  // here so an already-exhausted user doesn't spend a Gemini call; the actual
+  // increment happens only after a successful extraction (see below).
+  const { used, limit } = await getMonthlyUsage(sb, user.id);
+  if (used >= limit) {
+    return NextResponse.json({ error: "limit", used, limit }, { status: 429 });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "Extraction is not configured." }, { status: 503 });
@@ -262,6 +271,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ fields: {} } satisfies ExtractResponse);
     }
     const parsed = JSON.parse(text) as ExtractResponse;
+    // Count this successful extraction against the monthly quota (atomic, capped).
+    await consumeMonthlyUsage(sb);
     return NextResponse.json({ fields: parsed.fields ?? {} } satisfies ExtractResponse);
   } catch (e) {
     console.error("Gemini extraction failed:", e);

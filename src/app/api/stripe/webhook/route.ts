@@ -63,11 +63,30 @@ export async function POST(req: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.user_id;
         const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
+        if (!userId || !customerId) break;
+        const admin = getSupabaseAdmin();
+
+        // One-time purchase (lifetime): no subscription object. A null current_period_end
+        // makes the entitlement gate in dal.ts grant access permanently.
+        if (session.mode === "payment") {
+          await admin.from("subscriptions").upsert({
+            user_id: userId,
+            stripe_customer_id: customerId,
+            status: "active",
+            stripe_subscription_id: null,
+            price_id: process.env.STRIPE_PRICE_LIFETIME ?? null,
+            plan_interval: "lifetime",
+            current_period_end: null,
+            cancel_at_period_end: false,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "user_id" });
+          break;
+        }
+
         const subId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
-        if (!userId || !customerId || !subId) break;
+        if (!subId) break;
 
         const subscription = await stripe.subscriptions.retrieve(subId);
-        const admin = getSupabaseAdmin();
         await admin.from("subscriptions").upsert({
           user_id: userId,
           stripe_customer_id: customerId,

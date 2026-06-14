@@ -110,7 +110,12 @@ export function DocumentUploadCore({ target, adapter }: Props) {
         }),
       });
       if (!res.ok) {
-        setError(res.status === 503 ? t("extractBusy") : t("extractFailed"));
+        if (res.status === 429) {
+          const body = (await res.json().catch(() => null)) as { limit?: number } | null;
+          setError(t("extractLimit", { limit: body?.limit ?? 500 }));
+        } else {
+          setError(res.status === 503 ? t("extractBusy") : t("extractFailed"));
+        }
         return;
       }
       const data = (await res.json()) as { fields?: ExtractedBag };

@@ -211,8 +211,27 @@ export type Database = {
         Update: Partial<Omit<SubscriptionRowShape, "id" | "user_id" | "created_at">>;
         Relationships: [];
       };
+      ai_extraction_usage: {
+        // Per-user monthly AI extraction counter. Mutated only via the
+        // consume_ai_extraction RPC; users can read their own row.
+        Row: {
+          user_id: string;
+          period: string;
+          count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      consume_ai_extraction: {
+        Args: { p_limit: number };
+        Returns: { allowed: boolean; used: number }[];
+      };
+    };
   };
 };

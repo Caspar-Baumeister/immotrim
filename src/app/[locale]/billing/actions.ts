@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getStripe, priceIdForPlan, type Plan } from "@/lib/stripe";
+import { getStripe, priceIdForPlan, isOneTimePlan, type Plan } from "@/lib/stripe";
 import { getBaseUrl } from "@/lib/url";
 
-const planSchema = z.enum(["monthly", "yearly"]);
+const planSchema = z.enum(["monthly", "yearly", "lifetime"]);
 const localeSchema = z.enum(["en", "de"]).default("en");
 
 // Look up the user's Stripe customer id (if any), create one on the fly otherwise.
@@ -48,12 +48,16 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   const customerId = await getOrCreateStripeCustomer(user.id, user.email ?? "");
   const baseUrl = getBaseUrl();
 
+  const oneTime = isOneTimePlan(plan);
   const session = await getStripe().checkout.sessions.create({
-    mode: "subscription",
+    mode: oneTime ? "payment" : "subscription",
     customer: customerId,
     line_items: [{ price: priceIdForPlan(plan), quantity: 1 }],
     metadata: { user_id: user.id },
-    subscription_data: { metadata: { user_id: user.id } },
+    // Recurring plans carry user_id on the subscription; one-time on the payment intent.
+    ...(oneTime
+      ? { payment_intent_data: { metadata: { user_id: user.id } } }
+      : { subscription_data: { metadata: { user_id: user.id } } }),
     success_url: `${baseUrl}/${locale}/portfolio`,
     cancel_url: `${baseUrl}/${locale}/pricing`,
     allow_promotion_codes: true,

@@ -144,11 +144,16 @@
       "perYear": "/Jahr",
       "monthlyDesc": "Monatlich abgerechnet. Jederzeit kündbar.",
       "yearlyDesc": "Zwei Monate gratis vs. Monatsabo.",
+      "lifetime": "Lifetime",
+      "lifetimeDesc": "Einmalzahlung. Für immer.",
+      "perOnce": "einmalig",
+      "lifetimeBadge": "Bestes Angebot · nur kurze Zeit",
+      "lifetimeCta": "Lifetime kaufen",
       "cta": "Abonnieren",
       "includes": "Alles inklusive:",
-      "f1": "Bis zu 5 Immobilien in deinem Portfolio",
-      "f2": "Bis zu 50 Immobilien in der Objektanalyse",
-      "f3": "Unbegrenzte Dokumentenanalyse mit Gemini 2.5 Flash",
+      "f1": "Unbegrenzte Immobilien in deinem Portfolio",
+      "f2": "Unbegrenzte Immobilien in der Objektanalyse",
+      "f3": "500 KI-Dokumentenauswertungen pro Monat",
       "f4": "Cashflow-, Rendite- & Return-Analysen",
       "f5": "Mehrsprachig (DE/EN)"
     },
@@ -400,7 +405,8 @@
       "nichtUmlagefaehig": "Nicht umlagefähig (mtl.)",
       "ruecklagen": "Rücklagen (mtl.)"
     },
-    "extractBusy": "Der Auslese-Dienst ist gerade ausgelastet. Bitte versuche es gleich noch einmal."
+    "extractBusy": "Der Auslese-Dienst ist gerade ausgelastet. Bitte versuche es gleich noch einmal.",
+    "extractLimit": "Du hast dein monatliches Limit von {limit} KI-Dokumentenauswertungen erreicht. Es wird zum Monatsanfang zurückgesetzt."
   },
   "legal": {
     "draftNotice": "Entwurf — Platzhaltertext. Diese Angaben müssen vor dem Start vervollständigt und rechtlich geprüft werden.",
