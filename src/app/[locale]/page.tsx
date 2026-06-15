@@ -98,16 +98,16 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Product screenshot. To show a real image, drop a 16:9 file at
-          /public/landing/hero.png and swap this block for a <Image fill .../>. */}
+      {/* Product demo video */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
-        <div className="rounded-2xl border border-border bg-gradient-to-br from-card to-amber-500/5 overflow-hidden aspect-[16/9] flex items-center justify-center">
-          <Image
-            src="/logo_immotrim.png"
-            alt="Immotrim"
-            width={200}
-            height={56}
-            className="h-12 w-auto object-contain opacity-30"
+        <div className="rounded-2xl border border-border overflow-hidden aspect-[16/9]">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/Xsqcq9AA9OI"
+            title="Immotrim"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="h-full w-full"
           />
         </div>
       </section>
