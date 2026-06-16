@@ -24,11 +24,17 @@ data or real money.
 
 1. supabase.com → **New project** (the free tier allows a second project) → name it e.g.
    `immotrim-staging`.
-2. Apply the schema — run these files **in order** in the SQL Editor (or `supabase db push`
-   if you link the CLI):
+2. Apply the schema — run **every** file in `supabase/migrations/` **in filename order**
+   in the SQL Editor (or `supabase db push` if you link the CLI). The migrations are
+   additive and idempotent, so re-running is safe. As of this writing, in order:
    - `supabase/migrations/20260515_create_wishlist_properties.sql`
    - `supabase/migrations/20260516_auth_and_subscriptions.sql`
    - `supabase/migrations/20260607_property_documents.sql`
+   - `supabase/migrations/20260613_wishlist_rich_model.sql`
+   - `supabase/migrations/20260614_ai_extraction_usage.sql`
+
+   > Whenever a new migration is added to the repo, apply it to the staging project too —
+   > staging is a **separate** Supabase project and does not auto-receive migrations.
 3. Copy its **Project URL**, **anon key**, and **service-role key** (Project Settings → API)
    for the Preview env vars in §C.
 4. Authentication → **URL Configuration**: Site URL `https://dev.immotrim.com`; add
