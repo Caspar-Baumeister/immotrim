@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, Building2, Info, LineChart, User, LogOut, CreditCard, Menu } from "lucide-react";
+import { Globe, Building2, Info, LineChart, User, LogOut, CreditCard } from "lucide-react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -64,29 +64,6 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
 
   return (
     <header className="h-14 border-b border-border bg-card/80 backdrop-blur flex items-center px-3 sm:px-5 gap-2 sm:gap-4 flex-shrink-0">
-      {/* Mobile nav (hamburger) */}
-      <DropdownMenu>
-        <DropdownMenuTrigger className="md:hidden flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors p-1.5 -ml-1 rounded-lg hover:bg-foreground/5 flex-shrink-0">
-          <Menu className="h-5 w-5" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="bg-popover border-border min-w-[180px]">
-          <DropdownMenuItem
-            onClick={() => router.push(`/${locale}/portfolio`)}
-            className={cn("cursor-pointer text-sm gap-2", isActive("/portfolio") && "text-amber-400")}
-          >
-            <Building2 className="h-3.5 w-3.5" />
-            {t("portfolio")}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => router.push(`/${locale}/wishlist`)}
-            className={cn("cursor-pointer text-sm gap-2", isActive("/wishlist") && "text-amber-400")}
-          >
-            <LineChart className="h-3.5 w-3.5" />
-            {t("wishlist")}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
       {/* Logo */}
       <Link href={`/${locale}/portfolio`} className="flex items-center gap-2 flex-shrink-0">
         <Image
@@ -100,10 +77,10 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
       </Link>
 
       {/* Nav separator */}
-      <div className="w-px h-5 bg-border flex-shrink-0 hidden md:block" />
+      <div className="w-px h-5 bg-border flex-shrink-0 hidden sm:block" />
 
-      {/* Nav links (desktop) */}
-      <nav className="hidden md:flex items-center gap-1">
+      {/* Nav links */}
+      <nav className="flex items-center gap-1">
         <NavLink
           href={`/${locale}/portfolio`}
           label={t("portfolio")}
@@ -257,15 +234,16 @@ function NavLink({
   return (
     <Link
       href={href}
+      aria-label={label}
       className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors",
+        "flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-sm transition-colors",
         active
           ? "bg-foreground/10 text-foreground font-medium"
           : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
       )}
     >
       {icon}
-      {label}
+      <span className="hidden sm:inline">{label}</span>
     </Link>
   );
 }
