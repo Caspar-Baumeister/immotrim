@@ -147,7 +147,7 @@ export default function PropertyInsightsPage({ params }: Props) {
         ]}
       />
 
-      <div className="flex-1 p-6 flex flex-col gap-5 overflow-auto">
+      <div className="flex-1 p-4 sm:p-6 flex flex-col gap-5 overflow-auto">
         {/* Top action row */}
         <div className="flex items-center justify-end gap-2">
           <Button

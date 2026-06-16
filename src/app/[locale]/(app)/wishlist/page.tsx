@@ -53,10 +53,10 @@ export default function WishlistPage({ params }: Props) {
     <div className="flex flex-col min-h-screen">
       <TopBar title={t("title")} locale={locale} />
 
-      <div className="flex-1 p-6 flex flex-col gap-5 overflow-auto">
+      <div className="flex-1 p-4 sm:p-6 flex flex-col gap-5 overflow-auto">
         <GlobalAssumptionsBar />
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <h2 className="text-sm font-medium text-muted-foreground">
             {rows.length}{" "}
             {rows.length === 1 ? t("propertySingular") : t("propertyPlural")}
@@ -78,7 +78,7 @@ export default function WishlistPage({ params }: Props) {
         )}
 
         {!loading && rows.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 py-20">
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 py-16 sm:py-20 px-4">
             <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
               <LineChart className="h-7 w-7 text-muted-foreground" />
             </div>

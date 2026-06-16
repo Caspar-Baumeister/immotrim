@@ -108,8 +108,10 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
         </>
       )}
 
-      {/* Spacer when no title */}
-      {!title && <div className="flex-1" />}
+      {/* Spacer: always keeps the right-side controls pushed right.
+          The title block above carries flex-1 at md+, so on mobile (where it's
+          hidden) this spacer grows instead. When there's no title, it grows at all sizes. */}
+      {title ? <div className="flex-1 md:hidden" /> : <div className="flex-1" />}
 
       {/* Stat chips */}
       {stats && stats.length > 0 && (

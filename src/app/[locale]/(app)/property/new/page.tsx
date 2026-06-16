@@ -57,7 +57,7 @@ export default function NewPropertyPage({ params }: Props) {
 
       <div className="flex-1 flex">
         {/* Form column */}
-        <div className="flex-1 overflow-y-auto p-6 max-w-2xl">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-2xl">
           <div className="mb-6">
             <DocumentUpload
               target={{ draftId }}

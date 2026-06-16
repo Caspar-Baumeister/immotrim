@@ -99,7 +99,7 @@ export default function WishlistDetailPage({ params }: Props) {
       <TopBar title={t("editTitle")} subtitle={store.name} locale={locale} />
 
       <div className="flex-1 flex">
-        <div className="flex-1 overflow-y-auto p-6 max-w-2xl">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-2xl">
           <div className="mb-4">
             <Link
               href={`/${locale}/wishlist`}
