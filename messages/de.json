@@ -409,7 +409,6 @@
     "extractLimit": "Du hast dein monatliches Limit von {limit} KI-Dokumentenauswertungen erreicht. Es wird zum Monatsanfang zurückgesetzt."
   },
   "legal": {
-    "draftNotice": "Entwurf — Platzhaltertext. Diese Angaben müssen vor dem Start vervollständigt und rechtlich geprüft werden.",
     "impressum": {
       "title": "Impressum"
     },

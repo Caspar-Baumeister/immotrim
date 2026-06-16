@@ -3,22 +3,17 @@ import { LegalShell } from "@/components/marketing/LegalShell";
 
 type Props = { params: Promise<{ locale: string }> };
 
-// NOTE: Placeholder content. Replace [bracketed] fields and have a lawyer review
-// before launch (esp. Widerrufsrecht for consumers and liability clauses).
 export default async function AgbPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations("legal");
 
   return (
     <LegalShell locale={locale} title={t("agb.title")}>
-      <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-amber-200">
-        {t("draftNotice")}
-      </p>
-
       <h2>1. Geltungsbereich</h2>
       <p>
         Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des
-        Online-Dienstes Immotrim, angeboten von [Name / Firma] („Anbieter“).
+        Online-Dienstes Immotrim, angeboten von Caspar Baumeister, Fürbringerstr. 27,
+        10961 Berlin, Deutschland („Anbieter“).
       </p>
 
       <h2>2. Leistungsbeschreibung</h2>
@@ -51,8 +46,35 @@ export default async function AgbPage({ params }: Props) {
 
       <h2>6. Widerrufsrecht für Verbraucher</h2>
       <p>
-        Verbrauchern steht ein gesetzliches Widerrufsrecht zu. [Vollständige
-        Widerrufsbelehrung hier einfügen.]
+        Verbrauchern steht ein gesetzliches Widerrufsrecht zu. Sie haben das Recht,
+        binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.
+        Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+      </p>
+      <p>
+        Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Caspar Baumeister,
+        Fürbringerstr. 27, 10961 Berlin, Deutschland,{" "}
+        <a href="mailto:caspar.baumeister.privat@gmail.com">
+          caspar.baumeister.privat@gmail.com
+        </a>
+        ) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief
+        oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen,
+        informieren. Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die
+        Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist
+        absenden.
+      </p>
+      <p>
+        Im Falle eines wirksamen Widerrufs erstatten wir Ihnen alle Zahlungen, die wir
+        von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab
+        dem Tag, an dem die Mitteilung über Ihren Widerruf bei uns eingegangen ist.
+      </p>
+      <p>
+        Vorzeitiges Erlöschen des Widerrufsrechts: Bei einem Vertrag über die
+        Erbringung digitaler Inhalte bzw. Dienstleistungen erlischt das Widerrufsrecht,
+        wenn wir mit der Ausführung des Vertrags begonnen haben, nachdem Sie
+        ausdrücklich zugestimmt haben, dass wir vor Ablauf der Widerrufsfrist mit der
+        Ausführung beginnen, und Sie Ihre Kenntnis davon bestätigt haben, dass Sie
+        durch Ihre Zustimmung mit Beginn der Ausführung des Vertrags Ihr Widerrufsrecht
+        verlieren (§ 356 Abs. 4, § 357 BGB).
       </p>
 
       <h2>7. Haftung</h2>

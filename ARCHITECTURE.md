@@ -171,6 +171,7 @@ Use the secret two ways:
 | Paid in Stripe but **always bounced back to `/pricing`** | Subscription row stuck at `incomplete` — the webhook never updated it. | Check Stripe → Webhooks → Event deliveries for non-200s (see next two rows). |
 | Webhook deliveries return **401** with body = Vercel "Authentication Required" HTML | Vercel Deployment Protection blocking Stripe (no SSO cookie). | Add Protection Bypass for Automation secret; append `?x-vercel-protection-bypass=<SECRET>` to the webhook URL; **Resend** failed events. |
 | Webhook returns **400 "Invalid signature"** | `STRIPE_WEBHOOK_SECRET` on that scope ≠ the endpoint's signing secret, or wrong endpoint. | Copy the endpoint's signing secret into the matching Vercel scope; redeploy. |
+| Webhook returns **308** with body `{"redirect":"https://www.immotrim.com/api/stripe/webhook"}` | Endpoint targets the apex `immotrim.com`, which permanently redirects to the canonical `www.immotrim.com`. **Stripe does not follow redirects** → delivery fails, row never updates. | Point the webhook at the non-redirecting canonical host: `https://www.immotrim.com/api/stripe/webhook`; resend. |
 | Pricing cards render **blank** | Price IDs don't match the Stripe key mode (test vs live), so `prices.retrieve` throws. | Use test price IDs with test key (staging), live with live (prod). |
 | Stripe behaves as wrong mode on a preview deploy | Code keyed mode off `NODE_ENV` instead of `VERCEL_ENV` | Already handled in [stripe.ts](src/lib/stripe.ts) — uses `VERCEL_ENV`. |
 
@@ -179,6 +180,20 @@ Use the secret two ways:
 - **Supabase** → Logs → `auth` / `api` (or via MCP `get_logs`). Point any MCP/CLI at the
   **correct** project (staging vs prod are separate).
 - **Vercel** → Deployment → Functions logs for `/api/stripe/webhook` (look for the 200).
+
+### Going-live checklist (Stripe on production)
+Live mode is **fully separate** from test mode — nothing carries over. Before/after launch:
+1. **Live webhook endpoint** exists in **LIVE mode**, URL = `https://www.immotrim.com/api/stripe/webhook`
+   (the canonical `www` host — the apex `immotrim.com` 308-redirects and Stripe won't follow it).
+   No `?x-vercel-protection-bypass=…` (prod is public).
+2. Subscribed to `checkout.session.completed`, `customer.subscription.{created,updated,deleted}`,
+   `invoice.payment_failed`.
+3. Production Vercel scope: `STRIPE_WEBHOOK_SECRET` = the **live** endpoint's signing secret →
+   **redeploy** after setting it.
+4. Production `STRIPE_PRICE_MONTHLY`/`_YEARLY` = **live** price IDs at the intended amount.
+5. After a real test payment, the live webhook delivery returns **200** and the prod
+   `subscriptions` row flips to `active`. If a historical event needs replaying (e.g. endpoint
+   created after the payment), use **Resend** on the real event — not "Send test events".
 
 ### Verifying a fix end-to-end
 1. Subscribe with a Stripe **test card** on staging.

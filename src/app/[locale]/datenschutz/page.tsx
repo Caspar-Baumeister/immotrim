@@ -3,23 +3,22 @@ import { LegalShell } from "@/components/marketing/LegalShell";
 
 type Props = { params: Promise<{ locale: string }> };
 
-// NOTE: Placeholder content. Replace [bracketed] fields and have a lawyer / privacy
-// specialist review before launch. The sub-processor list below reflects the actual
-// services Immotrim uses — keep it accurate if you add/remove vendors.
+// The sub-processor list below reflects the actual services Immotrim uses —
+// keep it accurate if you add/remove vendors.
 export default async function DatenschutzPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations("legal");
 
   return (
     <LegalShell locale={locale} title={t("datenschutz.title")}>
-      <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-amber-200">
-        {t("draftNotice")}
-      </p>
-
       <h2>1. Verantwortlicher</h2>
       <p>
         Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br />
-        [Name / Firma], [Anschrift], [E-Mail-Adresse].
+        Caspar Baumeister, Fürbringerstr. 27, 10961 Berlin, Deutschland,{" "}
+        <a href="mailto:caspar.baumeister.privat@gmail.com">
+          caspar.baumeister.privat@gmail.com
+        </a>
+        .
       </p>
 
       <h2>2. Welche Daten wir verarbeiten</h2>
@@ -81,8 +80,11 @@ export default async function DatenschutzPage({ params }: Props) {
       <p>
         Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der
         Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht, sich bei
-        einer Aufsichtsbehörde zu beschweren. Anfragen richten Sie bitte an
-        [E-Mail-Adresse].
+        einer Aufsichtsbehörde zu beschweren. Anfragen richten Sie bitte an{" "}
+        <a href="mailto:caspar.baumeister.privat@gmail.com">
+          caspar.baumeister.privat@gmail.com
+        </a>
+        .
       </p>
     </LegalShell>
   );

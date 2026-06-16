@@ -409,7 +409,6 @@
     "extractLimit": "You've reached your monthly limit of {limit} AI document extractions. It resets at the start of next month."
   },
   "legal": {
-    "draftNotice": "Draft — placeholder text. This must be completed and reviewed by a lawyer before launch.",
     "impressum": {
       "title": "Imprint"
     },
