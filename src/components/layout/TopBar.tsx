@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, Building2, Info, LineChart, User, LogOut, CreditCard } from "lucide-react";
+import { Globe, Building2, Info, LineChart, User, LogOut, CreditCard, Menu } from "lucide-react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -63,7 +63,30 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
   const isActive = (segment: string) => pathname.includes(segment);
 
   return (
-    <header className="h-14 border-b border-border bg-card/80 backdrop-blur flex items-center px-5 gap-4 flex-shrink-0">
+    <header className="h-14 border-b border-border bg-card/80 backdrop-blur flex items-center px-3 sm:px-5 gap-2 sm:gap-4 flex-shrink-0">
+      {/* Mobile nav (hamburger) */}
+      <DropdownMenu>
+        <DropdownMenuTrigger className="md:hidden flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors p-1.5 -ml-1 rounded-lg hover:bg-foreground/5 flex-shrink-0">
+          <Menu className="h-5 w-5" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="bg-popover border-border min-w-[180px]">
+          <DropdownMenuItem
+            onClick={() => router.push(`/${locale}/portfolio`)}
+            className={cn("cursor-pointer text-sm gap-2", isActive("/portfolio") && "text-amber-400")}
+          >
+            <Building2 className="h-3.5 w-3.5" />
+            {t("portfolio")}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push(`/${locale}/wishlist`)}
+            className={cn("cursor-pointer text-sm gap-2", isActive("/wishlist") && "text-amber-400")}
+          >
+            <LineChart className="h-3.5 w-3.5" />
+            {t("wishlist")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       {/* Logo */}
       <Link href={`/${locale}/portfolio`} className="flex items-center gap-2 flex-shrink-0">
         <Image
@@ -71,16 +94,16 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
           alt="Immotrim"
           width={100}
           height={28}
-          className="h-7 w-auto object-contain"
+          className="h-6 sm:h-7 w-auto object-contain"
           priority
         />
       </Link>
 
       {/* Nav separator */}
-      <div className="w-px h-5 bg-border flex-shrink-0" />
+      <div className="w-px h-5 bg-border flex-shrink-0 hidden md:block" />
 
-      {/* Nav links */}
-      <nav className="flex items-center gap-1">
+      {/* Nav links (desktop) */}
+      <nav className="hidden md:flex items-center gap-1">
         <NavLink
           href={`/${locale}/portfolio`}
           label={t("portfolio")}
@@ -158,7 +181,7 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-xs px-2 py-1.5 rounded-lg hover:bg-foreground/5 flex-shrink-0">
           <Globe className="h-3.5 w-3.5" />
-          <span className="uppercase font-medium">{locale}</span>
+          <span className="uppercase font-medium hidden sm:inline">{locale}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
