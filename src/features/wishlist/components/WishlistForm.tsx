@@ -143,7 +143,7 @@ export function WishlistForm() {
           step={1}
           unit=" m²"
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <NumberField
             label={t("fields.rooms")}
             value={s.zimmer}
@@ -362,7 +362,7 @@ export function WishlistForm() {
 
       {/* Expose-Details */}
       <InputSection title={t("sections.details")} defaultOpen={false}>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <NumberField label={t("fields.etage")} value={s.details.etage ?? null} onChange={(v) => s.patchDetails({ etage: v })} allowEmpty />
           <NumberField label={t("fields.etagenGesamt")} value={s.details.etagenGesamt ?? null} onChange={(v) => s.patchDetails({ etagenGesamt: v })} allowEmpty />
           <NumberField label={t("fields.schlafzimmer")} value={s.details.schlafzimmer ?? null} onChange={(v) => s.patchDetails({ schlafzimmer: v })} allowEmpty />
@@ -378,7 +378,7 @@ export function WishlistForm() {
             />
           </FieldLabel>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <TextField label={t("fields.wohnungstyp")} value={s.details.wohnungstyp ?? ""} onChange={(v) => s.patchDetails({ wohnungstyp: v || null })} />
           <TextField label={t("fields.objektzustand")} value={s.details.objektzustand ?? ""} onChange={(v) => s.patchDetails({ objektzustand: v || null })} />
           <TextField label={t("fields.ausstattung")} value={s.details.ausstattung ?? ""} onChange={(v) => s.patchDetails({ ausstattung: v || null })} />

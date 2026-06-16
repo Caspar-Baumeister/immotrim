@@ -344,7 +344,7 @@ export default function PortfolioPage({ params }: Props) {
         )}
 
         {/* Header row */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <h2 className="text-sm font-medium text-muted-foreground">
             {properties.length} {t("portfolio.properties")}
           </h2>
@@ -361,7 +361,7 @@ export default function PortfolioPage({ params }: Props) {
 
         {/* Empty state */}
         {!loading && properties.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 py-24">
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 py-16 sm:py-24 px-4">
             <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
               <BarChart3 className="h-7 w-7 text-muted-foreground" />
             </div>

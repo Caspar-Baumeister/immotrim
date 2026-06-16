@@ -20,13 +20,13 @@ export default async function AccountPage({ params }: Props) {
   return (
     <>
       <TopBar locale={locale} userEmail={user.email ?? null} />
-      <main className="mx-auto max-w-2xl px-6 py-12 space-y-8">
+      <main className="mx-auto max-w-2xl px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         <header>
           <h1 className="text-2xl font-semibold">{t("title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
         </header>
 
-        <section className="rounded-xl border border-border bg-card p-6 space-y-4">
+        <section className="rounded-xl border border-border bg-card p-4 sm:p-6 space-y-4">
           <h2 className="font-medium">{t("subscription")}</h2>
           {sub ? (
             <dl className="grid grid-cols-2 gap-y-2 text-sm">

@@ -166,7 +166,105 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
     assumptions.yieldMode === "netto" ? t("columns.netYield") : t("columns.grossYield");
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <>
+      {/* Mobile: stacked cards (the wide comparison table doesn't fit < md) */}
+      <div className="md:hidden flex flex-col gap-3">
+        {sorted.map((row) => {
+          const cfPositive = (row.kpis.monthlyCashFlow ?? 0) >= 0;
+          const isExpanded = expandedIds.has(row.id);
+          return (
+            <div
+              key={row.id}
+              className="bg-card border border-border rounded-xl p-4 flex flex-col gap-3"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/${locale}/wishlist/${row.id}`)}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-medium text-foreground truncate">{row.name}</span>
+                    <LageBadge value={row.lage} />
+                  </div>
+                  {row.address && (
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{row.address}</p>
+                  )}
+                </button>
+                <div className="flex items-center gap-0.5 flex-shrink-0">
+                  {row.exposeUrl && (
+                    <a
+                      href={row.exposeUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      aria-label={t("openExpose")}
+                      className="inline-flex items-center justify-center h-7 w-7 rounded text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => onDelete(row.id)}
+                    disabled={deletingId === row.id}
+                    className="text-muted-foreground hover:text-red-400 h-7 w-7"
+                    aria-label={t("delete")}
+                  >
+                    {deletingId === row.id ? (
+                      <div className="w-3.5 h-3.5 border border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-x-3 gap-y-2">
+                <CardMetric label={t("columns.price")} value={fmtCurrency(row.kaufpreis)} />
+                <CardMetric label={yieldLabel} value={fmtPct(row.kpis.mietrendite)} />
+                <CardMetric
+                  label={t("columns.cashflow")}
+                  value={fmtCurrency(row.kpis.monthlyCashFlow)}
+                  valueClassName={cn(
+                    row.kpis.monthlyCashFlow == null
+                      ? "text-muted-foreground"
+                      : cfPositive
+                      ? "text-amber-400"
+                      : "text-red-400"
+                  )}
+                />
+                <CardMetric label={t("columns.ekReturn")} value={fmtPct(row.kpis.ekRendite)} />
+                <CardMetric label={t("columns.area")} value={fmtArea(row.wohnflaeche)} />
+                <CardMetric
+                  label={t("columns.pricePerSqm")}
+                  value={fmtCurrency(row.kpis.pricePerSqm)}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => toggleExpanded(row.id)}
+                aria-expanded={isExpanded}
+                className="flex items-center gap-1 self-start text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ChevronRight
+                  className={cn("h-3.5 w-3.5 transition-transform", isExpanded && "rotate-90")}
+                />
+                {t("sections.details")}
+              </button>
+              {isExpanded && (
+                <div className="border-t border-border/50 pt-3">
+                  <DetailPanel row={row} t={t} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop: full comparison table */}
+      <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
@@ -360,6 +458,28 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
           })}
         </TableBody>
       </Table>
+      </div>
+    </>
+  );
+}
+
+function CardMetric({
+  label,
+  value,
+  valueClassName,
+}: {
+  label: string;
+  value: string;
+  valueClassName?: string;
+}) {
+  return (
+    <div className="flex flex-col min-w-0">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground truncate">
+        {label}
+      </span>
+      <span className={cn("text-sm font-medium tabular-nums text-foreground", valueClassName)}>
+        {value}
+      </span>
     </div>
   );
 }

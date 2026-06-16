@@ -23,8 +23,8 @@ export function GlobalAssumptionsBar() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
+    <div className="bg-card border border-border rounded-xl p-3 sm:p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-x-2 gap-y-2 flex-wrap">
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
             {t("title")}
@@ -35,7 +35,7 @@ export function GlobalAssumptionsBar() {
             labels={{ ist: t("rentIst"), soll: t("rentSoll") }}
           />
         </div>
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           <span className="tabular-nums">
             {t("vacancy")} {leerstandPct.toFixed(0)}%
           </span>
@@ -59,7 +59,7 @@ export function GlobalAssumptionsBar() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3">
         <SliderField
           label={t("interest")}
           value={zins}
@@ -81,7 +81,7 @@ export function GlobalAssumptionsBar() {
       </div>
 
       {settingsOpen && (
-        <div className="mt-1 pt-3 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+        <div className="mt-1 pt-3 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3">
           <NumberField
             label={t("vacancyFull")}
             value={leerstandPct}
