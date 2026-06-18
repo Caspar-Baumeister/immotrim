@@ -1,4 +1,4 @@
-import type { PropertyInputs } from "@/lib/supabase";
+import type { PropertyInputs, ReportDetails } from "@/lib/supabase";
 import type {
   AppliedPatch,
   ExtractedFieldKey,
@@ -11,7 +11,7 @@ export type FormSnapshot = {
   inputs: PropertyInputs;
 };
 
-type FieldKind = "text" | "euro" | "percent";
+type FieldKind = "text" | "euro" | "percent" | "number" | "area" | "year";
 
 // Value formatting kind per field. Human-readable labels live in i18n
 // (messages/*.json → documents.fields.<key>), resolved in the review panel.
@@ -26,6 +26,14 @@ export const FIELD_KIND: Record<ExtractedFieldKey, FieldKind> = {
   kaltmiete: "euro",
   nichtUmlagefaehig: "euro",
   ruecklagen: "euro",
+  // Report-only descriptive details.
+  objekttyp: "text",
+  stadt: "text",
+  wohnflaeche: "area",
+  zimmer: "number",
+  baujahr: "year",
+  kaufdatum: "text",
+  hausgeld: "euro",
 };
 
 export const FIELD_ORDER = Object.keys(FIELD_KIND) as ExtractedFieldKey[];
@@ -36,6 +44,22 @@ const NEBENKOSTEN_KEYS: ExtractedFieldKey[] = [
   "maklerprovisionPct",
   "sonstigePct",
 ];
+
+// Report-only fields live under inputs.report (see ReportDetails).
+const REPORT_KEYS = [
+  "objekttyp",
+  "stadt",
+  "wohnflaeche",
+  "zimmer",
+  "baujahr",
+  "kaufdatum",
+  "hausgeld",
+] as const satisfies readonly ExtractedFieldKey[];
+
+type ReportKey = (typeof REPORT_KEYS)[number] & keyof ReportDetails;
+function isReportKey(key: ExtractedFieldKey): key is ReportKey {
+  return (REPORT_KEYS as readonly string[]).includes(key);
+}
 
 export function currentValueFor(
   key: ExtractedFieldKey,
@@ -59,6 +83,9 @@ export function currentValueFor(
     case "maklerprovisionPct":
     case "sonstigePct":
       return snap.inputs.nebenkosten[key];
+    default:
+      if (isReportKey(key)) return snap.inputs.report?.[key];
+      return undefined;
   }
 }
 
@@ -72,7 +99,10 @@ export function formatFieldValue(
   const num = typeof value === "number" ? value : Number(value);
   if (Number.isNaN(num)) return String(value);
   if (kind === "euro") return num.toLocaleString("de-DE") + " €";
-  return num.toLocaleString("de-DE") + " %";
+  if (kind === "percent") return num.toLocaleString("de-DE") + " %";
+  if (kind === "area") return num.toLocaleString("de-DE") + " m²";
+  if (kind === "year") return String(num); // no thousands separator for a year
+  return num.toLocaleString("de-DE");
 }
 
 // Build a patch from the selected extracted fields, merging nested nebenkosten.
@@ -85,6 +115,8 @@ export function buildPatch(
   const inputs: Partial<PropertyInputs> = {};
   let nebenkosten = { ...snap.inputs.nebenkosten };
   let nebenkostenTouched = false;
+  let report: ReportDetails = { ...(snap.inputs.report ?? {}) };
+  let reportTouched = false;
 
   for (const key of selected) {
     const field = extracted[key];
@@ -100,10 +132,14 @@ export function buildPatch(
     else if (NEBENKOSTEN_KEYS.includes(key)) {
       nebenkosten = { ...nebenkosten, [key]: value as number };
       nebenkostenTouched = true;
+    } else if (isReportKey(key)) {
+      report = { ...report, [key]: value };
+      reportTouched = true;
     }
   }
 
   if (nebenkostenTouched) inputs.nebenkosten = nebenkosten;
+  if (reportTouched) inputs.report = report;
   if (Object.keys(inputs).length > 0) patch.inputs = inputs;
   return patch;
 }

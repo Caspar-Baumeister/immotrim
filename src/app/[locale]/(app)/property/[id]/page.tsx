@@ -206,7 +206,48 @@ export default function PropertyInsightsPage({ params }: Props) {
 
         {/* ── Charts 3-column grid ──────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {/* 1 — Cashflow */}
+          {/* 1 — Vermögensaufbau pro Jahr */}
+          <ChartCard
+            title="Vermögensaufbau pro Jahr"
+            subtitle="Tilgung + Cashflow + Wertwachstum, jährlich (nicht kumuliert)"
+            expandLabel={t("actions.expand")}
+            modalStats={[
+              {
+                label: "Y1",
+                value: formatCurrency(wealthData.years[0]?.total ?? 0),
+                positive: (wealthData.years[0]?.total ?? 0) >= 0,
+              },
+              {
+                label: "Y10",
+                value: formatCurrency(wealthData.years[9]?.total ?? 0),
+                positive: (wealthData.years[9]?.total ?? 0) >= 0,
+              },
+              {
+                label: `Wertentw. ${wertentwicklung}%`,
+                value: formatCurrency(
+                  wealthData.years[wealthData.years.length - 1]?.total ?? 0
+                ),
+                positive:
+                  (wealthData.years[wealthData.years.length - 1]?.total ?? 0) >=
+                  0,
+              },
+            ]}
+            modalContent={
+              <VermoegensaufbauChart
+                data={wealthData.years}
+                showWertwachstum={wealthData.hasWertwachstum}
+                height="100%"
+              />
+            }
+          >
+            <VermoegensaufbauChart
+              data={wealthData.years}
+              showWertwachstum={wealthData.hasWertwachstum}
+              height={160}
+            />
+          </ChartCard>
+
+          {/* 2 — Cashflow */}
           <ChartCard
             title="Cashflow"
             subtitle="Jährl. Netto-Cashflow nach Rate, Rücklagen & NK"
@@ -239,7 +280,7 @@ export default function PropertyInsightsPage({ params }: Props) {
             <CashFlowChart data={cashFlowData.years} monthlyData={cashFlowData.monthlyYears} monthly={false} height={190} />
           </ChartCard>
 
-          {/* 2 — Tilgungsplan */}
+          {/* 3 — Tilgungsplan */}
           <ChartCard
             title="Tilgungsplan"
             subtitle="Tilgung, Zinsen & Restschuld bis zur Volltilgung"
@@ -278,7 +319,7 @@ export default function PropertyInsightsPage({ params }: Props) {
             />
           </ChartCard>
 
-          {/* 3 — Eigenkapitalrendite */}
+          {/* 4 — Eigenkapitalrendite */}
           <ChartCard
             title="Eigenkapitalrendite"
             subtitle="Cashflow ÷ investiertes Kapital (EK + Nebenkosten, jährl. angepasst)"
@@ -350,7 +391,7 @@ export default function PropertyInsightsPage({ params }: Props) {
             </div>
           </ChartCard>
 
-          {/* 4 — Immobilienwert vs. Schulden */}
+          {/* 5 — Immobilienwert vs. Schulden */}
           <ChartCard
             title="Immobilienwert vs. Schulden"
             subtitle="Wertentwicklung und Restschuld über die Laufzeit"
@@ -388,7 +429,7 @@ export default function PropertyInsightsPage({ params }: Props) {
             <WertSchuldenChart data={wertSchuldenData.years} monthlyData={wertSchuldenData.monthlyYears} monthly={false} height={190} />
           </ChartCard>
 
-          {/* 5 — Brutto-Mietrendite */}
+          {/* 6 — Brutto-Mietrendite */}
           <ChartCard
             title="Brutto-Mietrendite"
             subtitle="Kaltmiete / Kaufpreis mit Mietentwicklung"
@@ -433,46 +474,6 @@ export default function PropertyInsightsPage({ params }: Props) {
             />
           </ChartCard>
 
-          {/* 6 — Vermögensaufbau pro Jahr */}
-          <ChartCard
-            title="Vermögensaufbau pro Jahr"
-            subtitle="Tilgung + Cashflow + Wertwachstum, jährlich (nicht kumuliert)"
-            expandLabel={t("actions.expand")}
-            modalStats={[
-              {
-                label: "Y1",
-                value: formatCurrency(wealthData.years[0]?.total ?? 0),
-                positive: (wealthData.years[0]?.total ?? 0) >= 0,
-              },
-              {
-                label: "Y10",
-                value: formatCurrency(wealthData.years[9]?.total ?? 0),
-                positive: (wealthData.years[9]?.total ?? 0) >= 0,
-              },
-              {
-                label: `Wertentw. ${wertentwicklung}%`,
-                value: formatCurrency(
-                  wealthData.years[wealthData.years.length - 1]?.total ?? 0
-                ),
-                positive:
-                  (wealthData.years[wealthData.years.length - 1]?.total ?? 0) >=
-                  0,
-              },
-            ]}
-            modalContent={
-              <VermoegensaufbauChart
-                data={wealthData.years}
-                showWertwachstum={wealthData.hasWertwachstum}
-                height="100%"
-              />
-            }
-          >
-            <VermoegensaufbauChart
-              data={wealthData.years}
-              showWertwachstum={wealthData.hasWertwachstum}
-              height={160}
-            />
-          </ChartCard>
         </div>
       </div>
     </div>

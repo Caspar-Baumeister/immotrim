@@ -113,6 +113,10 @@ export type PortfolioKpis = {
   totalAcquisitionCosts: number;
   totalInvestmentCost: number;
   estimatedPortfolioValue: number;
+  // Owner-supplied estimated market value: Σ(report.marktwert, falling back to the
+  // appreciation projection where unset). null when no property has an estimate.
+  // Display-only — does not feed equity/LTV (those stay on estimatedPortfolioValue).
+  manualMarketValue: number | null;
   outstandingLoanBalance: number;
   netPropertyEquity: number;
 
@@ -151,6 +155,7 @@ export function calculatePortfolioKpis(
     totalAcquisitionCosts: 0,
     totalInvestmentCost: 0,
     estimatedPortfolioValue: 0,
+    manualMarketValue: null,
     outstandingLoanBalance: 0,
     netPropertyEquity: 0,
     annualColdRent: 0,
@@ -179,6 +184,8 @@ export function calculatePortfolioKpis(
   let totalPurchasePrice = 0;
   let totalAcquisitionCosts = 0;
   let estimatedPortfolioValue = 0;
+  let manualMarketSum = 0;
+  let hasManualMarket = false;
   let outstandingLoanBalance = 0;
 
   let annualColdRent = 0;
@@ -236,6 +243,9 @@ export function calculatePortfolioKpis(
     totalPurchasePrice += inputs.kaufpreis;
     totalAcquisitionCosts += nebenkostenEur;
     estimatedPortfolioValue += currentValue;
+    const marktwert = inputs.report?.marktwert;
+    if (marktwert != null) hasManualMarket = true;
+    manualMarketSum += marktwert ?? currentValue;
     outstandingLoanBalance += currentDebt;
 
     // 2 — Financing & income (current monthly × 12)
@@ -324,6 +334,7 @@ export function calculatePortfolioKpis(
     totalAcquisitionCosts,
     totalInvestmentCost,
     estimatedPortfolioValue,
+    manualMarketValue: hasManualMarket ? manualMarketSum : null,
     outstandingLoanBalance,
     netPropertyEquity,
     annualColdRent,

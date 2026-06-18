@@ -58,6 +58,13 @@ const PROPERTY_SCHEMA = {
         kaltmiete: fieldSchema(Type.NUMBER),
         nichtUmlagefaehig: fieldSchema(Type.NUMBER),
         ruecklagen: fieldSchema(Type.NUMBER),
+        objekttyp: fieldSchema(Type.STRING),
+        stadt: fieldSchema(Type.STRING),
+        wohnflaeche: fieldSchema(Type.NUMBER),
+        zimmer: fieldSchema(Type.NUMBER),
+        baujahr: fieldSchema(Type.NUMBER),
+        kaufdatum: fieldSchema(Type.STRING),
+        hausgeld: fieldSchema(Type.NUMBER),
       },
     },
   },
@@ -77,6 +84,15 @@ Feld-Hinweise:
 - kaltmiete: monatliche Kaltmiete in Euro — meist aus dem Mietvertrag.
 - nichtUmlagefaehig: monatliche nicht umlagefähige Kosten in Euro (Verwaltung, Instandhaltung) — z.B. aus der Hausgeld-/Wohngeldabrechnung.
 - ruecklagen: monatliche Instandhaltungsrücklage in Euro — aus der Wohngeld-/Hausgeldabrechnung (Jahresbetrag durch 12 teilen, falls jährlich angegeben).
+
+Beschreibende Objektdetails (nur für den Bericht, ohne Einfluss auf Berechnungen — nur ausfüllen, wenn eindeutig belegt):
+- objekttyp: Immobilientyp, z.B. "Eigentumswohnung", "Mehrfamilienhaus", "Einfamilienhaus", "Reihenhaus".
+- stadt: Stadt bzw. Stadtteil/Bezirk (z.B. "Berlin-Kreuzberg").
+- wohnflaeche: Wohnfläche in m² (reine Zahl).
+- zimmer: Anzahl der Zimmer (ggf. mit Nachkommastelle).
+- baujahr: vierstellige Baujahr-Zahl.
+- kaufdatum: Kaufdatum aus dem Kaufvertrag im Format YYYY-MM-DD.
+- hausgeld: monatliches Hausgeld / Wohngeld in Euro (Jahresbetrag durch 12 teilen, falls jährlich angegeben).
 
 Für jedes Feld: value (Zahl bzw. Text), sourceDoc (der Dokumenttyp oder Dateiname, woraus der Wert stammt), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;

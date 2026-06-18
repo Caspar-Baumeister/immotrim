@@ -3,8 +3,9 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { PlusCircle, Edit2, BarChart3, MapPin } from "lucide-react";
+import { PlusCircle, Edit2, BarChart3, MapPin, FileText } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
+import { ReportDialog } from "@/features/report/components/ReportDialog";
 import { PortfolioKpiPanel } from "@/features/portfolio/components/PortfolioKpiPanel";
 import { ChartCard } from "@/components/shared/ChartCard";
 import { CashFlowChart } from "@/features/cash-flow/components/CashFlowChart";
@@ -39,6 +40,9 @@ export default function PortfolioPage({ params }: Props) {
   // EK-Rendite chart toggles — mirror the single-property page.
   const [ekTilgung, setEkTilgung] = useState(false);
   const [ekWertzuwachs, setEkWertzuwachs] = useState(false);
+
+  // Bank report ("Portfolio-Finanzierungsbericht") config dialog.
+  const [reportOpen, setReportOpen] = useState(false);
 
   const loadProperties = () => {
     getAllProperties().then((ps) => {
@@ -89,7 +93,44 @@ export default function PortfolioPage({ params }: Props) {
             (or value-weighted average, for %) of all properties by calendar year. */}
         {properties.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {/* 1 — Cashflow */}
+            {/* 1 — Vermögensaufbau pro Jahr */}
+            <ChartCard
+              title="Vermögensaufbau pro Jahr"
+              subtitle="Σ Tilgung + Cashflow + Wertwachstum aller Objekte (jährl.)"
+              info={chartTip(
+                "Vermögenszuwachs pro Jahr (nicht kumuliert), aufgeteilt in Tilgung (grün), Cashflow (gelb) und Wertwachstum (blau) — je Immobilie berechnet und summiert. Der Cashflow-Anteil ist identisch mit dem Cashflow-Diagramm.",
+                "Σ Tilgung + Σ Cashflow + Σ Wertwachstum je Immobilie",
+                "Wertwachstum = Wertzuwachs des Jahres. Nach Volltilgung entfällt der Tilgungs-Anteil, der Cashflow-Anteil steigt entsprechend."
+              )}
+              expandLabel={t("actions.expand")}
+              modalStats={[
+                {
+                  label: String(wealthSeries.years[0]?.year ?? ""),
+                  value: formatCurrency(wealthSeries.years[0]?.total ?? 0),
+                  positive: (wealthSeries.years[0]?.total ?? 0) >= 0,
+                },
+                {
+                  label: String(wealthLast?.year ?? ""),
+                  value: formatCurrency(wealthLast?.total ?? 0),
+                  positive: (wealthLast?.total ?? 0) >= 0,
+                },
+              ]}
+              modalContent={
+                <VermoegensaufbauChart
+                  data={wealthSeries.years}
+                  showWertwachstum={wealthSeries.hasWertwachstum}
+                  height="100%"
+                />
+              }
+            >
+              <VermoegensaufbauChart
+                data={wealthSeries.years}
+                showWertwachstum={wealthSeries.hasWertwachstum}
+                height={160}
+              />
+            </ChartCard>
+
+            {/* 2 — Cashflow */}
             <ChartCard
               title="Cashflow"
               subtitle="Summe des jährl. Netto-Cashflows aller Objekte"
@@ -118,7 +159,7 @@ export default function PortfolioPage({ params }: Props) {
               <CashFlowChart data={cashFlowSeries} monthly={false} height={190} />
             </ChartCard>
 
-            {/* 2 — Tilgungsplan */}
+            {/* 3 — Tilgungsplan */}
             <ChartCard
               title="Tilgungsplan"
               subtitle="Summe von Tilgung, Zinsen & Restschuld aller Objekte"
@@ -151,7 +192,7 @@ export default function PortfolioPage({ params }: Props) {
               <AmortizationChart data={amortizationSeries} monthly={false} height={190} />
             </ChartCard>
 
-            {/* 3 — Eigenkapitalrendite */}
+            {/* 4 — Eigenkapitalrendite */}
             <ChartCard
               title="Eigenkapitalrendite"
               subtitle="Σ Rendite ÷ noch gebundenes Eigenkapital des Portfolios"
@@ -228,7 +269,7 @@ export default function PortfolioPage({ params }: Props) {
               </div>
             </ChartCard>
 
-            {/* 4 — Immobilienwert vs. Schulden */}
+            {/* 5 — Immobilienwert vs. Schulden */}
             <ChartCard
               title="Immobilienwert vs. Schulden"
               subtitle="Summe von Wert, Restschuld & Nettovermögen aller Objekte"
@@ -262,7 +303,7 @@ export default function PortfolioPage({ params }: Props) {
               <WertSchuldenChart data={appreciationSeries} monthly={false} height={190} />
             </ChartCard>
 
-            {/* 5 — Brutto-Mietrendite */}
+            {/* 6 — Brutto-Mietrendite */}
             <ChartCard
               title="Brutto-Mietrendite"
               subtitle="Σ Kaltmiete ÷ Σ Kaufpreis (kaufpreisgewichtet)"
@@ -304,42 +345,6 @@ export default function PortfolioPage({ params }: Props) {
               />
             </ChartCard>
 
-            {/* 6 — Vermögensaufbau pro Jahr */}
-            <ChartCard
-              title="Vermögensaufbau pro Jahr"
-              subtitle="Σ Tilgung + Cashflow + Wertwachstum aller Objekte (jährl.)"
-              info={chartTip(
-                "Vermögenszuwachs pro Jahr (nicht kumuliert), aufgeteilt in Tilgung (grün), Cashflow (gelb) und Wertwachstum (blau) — je Immobilie berechnet und summiert. Der Cashflow-Anteil ist identisch mit dem Cashflow-Diagramm.",
-                "Σ Tilgung + Σ Cashflow + Σ Wertwachstum je Immobilie",
-                "Wertwachstum = Wertzuwachs des Jahres. Nach Volltilgung entfällt der Tilgungs-Anteil, der Cashflow-Anteil steigt entsprechend."
-              )}
-              expandLabel={t("actions.expand")}
-              modalStats={[
-                {
-                  label: String(wealthSeries.years[0]?.year ?? ""),
-                  value: formatCurrency(wealthSeries.years[0]?.total ?? 0),
-                  positive: (wealthSeries.years[0]?.total ?? 0) >= 0,
-                },
-                {
-                  label: String(wealthLast?.year ?? ""),
-                  value: formatCurrency(wealthLast?.total ?? 0),
-                  positive: (wealthLast?.total ?? 0) >= 0,
-                },
-              ]}
-              modalContent={
-                <VermoegensaufbauChart
-                  data={wealthSeries.years}
-                  showWertwachstum={wealthSeries.hasWertwachstum}
-                  height="100%"
-                />
-              }
-            >
-              <VermoegensaufbauChart
-                data={wealthSeries.years}
-                showWertwachstum={wealthSeries.hasWertwachstum}
-                height={160}
-              />
-            </ChartCard>
           </div>
         )}
 
@@ -348,16 +353,36 @@ export default function PortfolioPage({ params }: Props) {
           <h2 className="text-sm font-medium text-muted-foreground">
             {properties.length} {t("portfolio.properties")}
           </h2>
-          <Link href={`/${locale}/property/new`}>
-            <Button
-              size="sm"
-              className="bg-amber-500 hover:bg-amber-400 text-black font-semibold gap-1.5"
-            >
-              <PlusCircle className="h-3.5 w-3.5" />
-              {t("nav.newProperty")}
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {properties.length > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setReportOpen(true)}
+                className="gap-1.5"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                Bankbericht
+              </Button>
+            )}
+            <Link href={`/${locale}/property/new`}>
+              <Button
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-400 text-black font-semibold gap-1.5"
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                {t("nav.newProperty")}
+              </Button>
+            </Link>
+          </div>
         </div>
+
+        <ReportDialog
+          open={reportOpen}
+          onOpenChange={setReportOpen}
+          properties={properties}
+          locale={locale}
+        />
 
         {/* Empty state */}
         {!loading && properties.length === 0 && (

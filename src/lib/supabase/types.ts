@@ -48,6 +48,27 @@ export type PropertyInputs = {
 
   // === Tax (optional — omitting hides tax-related display) ===
   tax?: TaxInputs;
+
+  // === Report-only descriptive details (optional) ===
+  // Used ONLY for the bank report (Objektangaben on detail pages). All calculation
+  // functions ignore these fields entirely — they have no effect on any KPI/chart.
+  report?: ReportDetails;
+};
+
+// Descriptive object details shown on the bank report's individual property pages.
+// Every field is optional; missing fields are omitted from the report (no placeholder).
+export type ReportDetails = {
+  objekttyp?: string;    // Immobilientyp, e.g. "Eigentumswohnung", "Mehrfamilienhaus"
+  // Owner's estimated current market value €. Display-only: surfaced in the report
+  // as the portfolio's "Geschätzter Marktwert", but no KPI/chart calculation uses it.
+  marktwert?: number;
+  stadt?: string;        // Stadt / Bezirk
+  wohnflaeche?: number;  // m²
+  zimmer?: number;       // number of rooms
+  baujahr?: number;      // year built
+  kaufdatum?: string;    // "YYYY-MM-DD" — exact purchase date (loanStartDate is month-only)
+  hausgeld?: number;     // Hausgeld / WEG-Kosten, monthly €
+  notizen?: string;      // free-text notes / comments
 };
 
 export type Property = {
@@ -136,6 +157,24 @@ type DocumentRowShape = {
   created_at: string;
 };
 
+type ReportImageRowShape = {
+  id: string;
+  user_id: string;
+  property_id: string | null;
+  scope: "title" | "property";
+  file_path: string;
+  created_at: string;
+};
+
+type ReportJobRowShape = {
+  id: string;
+  user_id: string;
+  locale: string;
+  payload: Json;
+  created_at: string;
+  expires_at: string;
+};
+
 type SubscriptionRowShape = {
   id: string;
   user_id: string;
@@ -199,6 +238,25 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Omit<DocumentRowShape, "id" | "user_id" | "created_at">>;
+        Relationships: [];
+      };
+      report_images: {
+        Row: ReportImageRowShape;
+        Insert: Omit<ReportImageRowShape, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<ReportImageRowShape, "id" | "user_id" | "created_at">>;
+        Relationships: [];
+      };
+      report_jobs: {
+        Row: ReportJobRowShape;
+        Insert: Omit<ReportJobRowShape, "id" | "created_at" | "expires_at"> & {
+          id?: string;
+          created_at?: string;
+          expires_at?: string;
+        };
+        Update: Partial<Omit<ReportJobRowShape, "id" | "user_id" | "created_at">>;
         Relationships: [];
       };
       subscriptions: {

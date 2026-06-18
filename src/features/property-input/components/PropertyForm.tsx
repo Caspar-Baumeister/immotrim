@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Info, ChevronDown } from "lucide-react";
 import { usePropertyFormStore } from "@/lib/store";
-import { type Nebenkosten, type TaxInputs } from "@/lib/supabase";
+import { type Nebenkosten, type TaxInputs, type ReportDetails } from "@/lib/supabase";
 import { InputSection } from "./InputSection";
 import { SliderInput } from "./SliderInput";
 import { Input } from "@/components/ui/input";
@@ -165,6 +165,28 @@ export function PropertyForm() {
       setInput("tax", { ...inputs.tax, [field]: value });
     }
   };
+
+  // Report-only descriptive details. Stored under inputs.report; ignored by every
+  // calculation. Empty values are dropped so "missing" stays distinguishable from 0.
+  const report = inputs.report ?? {};
+  const setReportField = <K extends keyof ReportDetails>(
+    field: K,
+    value: ReportDetails[K] | undefined
+  ) => {
+    const next: ReportDetails = { ...report };
+    if (
+      value === undefined ||
+      value === "" ||
+      (typeof value === "number" && Number.isNaN(value))
+    ) {
+      delete next[field];
+    } else {
+      next[field] = value;
+    }
+    setInput("report", Object.keys(next).length > 0 ? next : undefined);
+  };
+  const reportNum = (v: string): number | undefined =>
+    v === "" ? undefined : Number(v);
 
   // Growth forecast is optional — when off, calculations use 0% for both.
   const growthEnabled =
@@ -526,6 +548,115 @@ export function PropertyForm() {
             />
           </div>
         )}
+      </InputSection>
+
+      {/* ── Objektdetails (nur für den Bericht) ─────────────────────────────── */}
+      <InputSection title="Objektdetails (nur für den Bericht)" defaultOpen={false}>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Immobilientyp</Label>
+            <Input
+              value={report.objekttyp ?? ""}
+              onChange={(e) => setReportField("objekttyp", e.target.value)}
+              placeholder="z.B. Eigentumswohnung"
+              className="bg-card border-border focus-visible:ring-1"
+            />
+          </div>
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">
+              Geschätzter Marktwert (€)
+            </Label>
+            <Input
+              type="number"
+              inputMode="decimal"
+              value={report.marktwert ?? ""}
+              onChange={(e) => setReportField("marktwert", reportNum(e.target.value))}
+              placeholder="z.B. 320000"
+              className="bg-card border-border focus-visible:ring-1"
+            />
+            <p className="text-[10px] text-muted-foreground/60">
+              Eigene Wertschätzung für den Bericht. Ohne Angabe wird der aus dem
+              Kaufpreis fortgeschriebene Wert verwendet.
+            </p>
+          </div>
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Stadt / Bezirk</Label>
+            <Input
+              value={report.stadt ?? ""}
+              onChange={(e) => setReportField("stadt", e.target.value)}
+              placeholder="z.B. Berlin-Kreuzberg"
+              className="bg-card border-border focus-visible:ring-1"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Wohnfläche (m²)</Label>
+            <Input
+              type="number"
+              inputMode="decimal"
+              value={report.wohnflaeche ?? ""}
+              onChange={(e) => setReportField("wohnflaeche", reportNum(e.target.value))}
+              placeholder="z.B. 72"
+              className="bg-card border-border focus-visible:ring-1"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Zimmer</Label>
+            <Input
+              type="number"
+              inputMode="decimal"
+              value={report.zimmer ?? ""}
+              onChange={(e) => setReportField("zimmer", reportNum(e.target.value))}
+              placeholder="z.B. 3"
+              className="bg-card border-border focus-visible:ring-1"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Baujahr</Label>
+            <Input
+              type="number"
+              inputMode="numeric"
+              value={report.baujahr ?? ""}
+              onChange={(e) => setReportField("baujahr", reportNum(e.target.value))}
+              placeholder="z.B. 1998"
+              className="bg-card border-border focus-visible:ring-1"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Hausgeld (€/Monat)</Label>
+            <Input
+              type="number"
+              inputMode="decimal"
+              value={report.hausgeld ?? ""}
+              onChange={(e) => setReportField("hausgeld", reportNum(e.target.value))}
+              placeholder="z.B. 250"
+              className="bg-card border-border focus-visible:ring-1"
+            />
+          </div>
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Kaufdatum</Label>
+            <Input
+              type="date"
+              value={report.kaufdatum ?? ""}
+              onChange={(e) => setReportField("kaufdatum", e.target.value)}
+              className="bg-card border-border focus-visible:ring-1 [color-scheme:dark]"
+            />
+          </div>
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Notizen / Kommentare</Label>
+            <textarea
+              value={report.notizen ?? ""}
+              onChange={(e) => setReportField("notizen", e.target.value)}
+              placeholder="z.B. Anschlussfinanzierung 2028, Dachsanierung 2022 …"
+              rows={3}
+              className="bg-card border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-amber-500 resize-y"
+            />
+          </div>
+        </div>
+        <div className="bg-muted/20 rounded-lg px-3 py-2 text-[10px] text-muted-foreground/70 leading-relaxed">
+          Diese Angaben werden ausschließlich für den Bankbericht verwendet und haben
+          keinen Einfluss auf die Berechnungen. Felder können auch automatisch aus
+          hochgeladenen Dokumenten übernommen werden.
+        </div>
       </InputSection>
     </div>
   );

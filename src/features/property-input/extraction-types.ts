@@ -23,6 +23,14 @@ export type ExtractedFields = {
   kaltmiete?: ExtractedField<number>;
   nichtUmlagefaehig?: ExtractedField<number>;
   ruecklagen?: ExtractedField<number>;
+  // Report-only descriptive details (stored under inputs.report; no calc impact).
+  objekttyp?: ExtractedField<string>;
+  stadt?: ExtractedField<string>;
+  wohnflaeche?: ExtractedField<number>;
+  zimmer?: ExtractedField<number>;
+  baujahr?: ExtractedField<number>;
+  kaufdatum?: ExtractedField<string>;
+  hausgeld?: ExtractedField<number>;
 };
 
 // Identifies a single applyable field for the review panel + apply logic.

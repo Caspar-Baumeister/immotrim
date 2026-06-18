@@ -1,0 +1,76 @@
+/* Bank report — light, print-oriented layout (A4 portrait). Loaded only by the
+   headless print route, so these rules never touch the rest of the app. */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+.report-root {
+  width: 210mm;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #0f1115;
+  font-feature-settings: "tnum";
+  counter-reset: page;
+}
+
+.report-page {
+  position: relative;
+  width: 210mm;
+  min-height: 296mm;
+  padding: 16mm 16mm 18mm;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  break-after: page;
+  page-break-after: always;
+  counter-increment: page;
+  overflow: hidden;
+}
+
+.report-page:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+/* Running header / footer bands inside each page. */
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e9ecf1;
+}
+
+.report-footer {
+  position: absolute;
+  left: 16mm;
+  right: 16mm;
+  bottom: 8mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #9aa1ab;
+  border-top: 1px solid #f0f2f5;
+  padding-top: 6px;
+}
+
+.report-page-num::after {
+  content: counter(page);
+}
+
+.report-avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+  }
+}

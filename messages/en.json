@@ -403,7 +403,14 @@
       "sonstigePct": "Other closing costs",
       "kaltmiete": "Cold rent (monthly)",
       "nichtUmlagefaehig": "Non-allocable (monthly)",
-      "ruecklagen": "Reserves (monthly)"
+      "ruecklagen": "Reserves (monthly)",
+      "objekttyp": "Property type",
+      "stadt": "City / district",
+      "wohnflaeche": "Living area",
+      "zimmer": "Rooms",
+      "baujahr": "Year built",
+      "kaufdatum": "Purchase date",
+      "hausgeld": "HOA fee (monthly)"
     },
     "extractBusy": "The extraction service is busy right now. Please try again in a moment.",
     "extractLimit": "You've reached your monthly limit of {limit} AI document extractions. It resets at the start of next month."

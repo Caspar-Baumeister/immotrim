@@ -184,11 +184,11 @@ export function EKRenditeChart({
             yAxisId="left"
             type="monotone"
             dataKey="ekRendite"
-            stroke="#ffffff"
+            stroke="var(--foreground)"
             strokeWidth={2}
             dot={false}
             connectNulls={false}
-            activeDot={{ r: 3, fill: "#ffffff" }}
+            activeDot={{ r: 3, fill: "var(--foreground)" }}
           />
           {showEffectiveEigenkapital && (
             <Line
@@ -269,11 +269,11 @@ export function EKRenditeChart({
           yAxisId="left"
           type="monotone"
           dataKey="ekRendite"
-          stroke="#ffffff"
+          stroke="var(--foreground)"
           strokeWidth={2}
           dot={false}
           connectNulls={false}
-          activeDot={{ r: 3, fill: "#ffffff" }}
+          activeDot={{ r: 3, fill: "var(--foreground)" }}
         />
         {showEffectiveEigenkapital && (
           <Line
