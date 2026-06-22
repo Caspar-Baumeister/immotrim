@@ -20,6 +20,12 @@ export type ExtractedFields = {
   notarGrundbuchPct?: ExtractedField<number>;
   maklerprovisionPct?: ExtractedField<number>;
   sonstigePct?: ExtractedField<number>;
+  // Financing terms (from a Darlehens-/Finanzierungsvertrag).
+  eigenanteil?: ExtractedField<number>;
+  zins?: ExtractedField<number>;
+  tilgung?: ExtractedField<number>;
+  zinsbindung?: ExtractedField<number>;
+  loanStartDate?: ExtractedField<string>;
   kaltmiete?: ExtractedField<number>;
   nichtUmlagefaehig?: ExtractedField<number>;
   ruecklagen?: ExtractedField<number>;
@@ -31,6 +37,7 @@ export type ExtractedFields = {
   baujahr?: ExtractedField<number>;
   kaufdatum?: ExtractedField<string>;
   hausgeld?: ExtractedField<number>;
+  marktwert?: ExtractedField<number>;
 };
 
 // Identifies a single applyable field for the review panel + apply logic.

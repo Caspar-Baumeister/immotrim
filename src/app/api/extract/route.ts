@@ -42,6 +42,32 @@ function fieldSchema(
   };
 }
 
+const PROPERTY_FIELD_ORDER = [
+  "name",
+  "address",
+  "objekttyp",
+  "stadt",
+  "wohnflaeche",
+  "zimmer",
+  "baujahr",
+  "kaufpreis",
+  "kaufdatum",
+  "grunderwerbsteuerPct",
+  "notarGrundbuchPct",
+  "maklerprovisionPct",
+  "sonstigePct",
+  "eigenanteil",
+  "zins",
+  "tilgung",
+  "zinsbindung",
+  "loanStartDate",
+  "kaltmiete",
+  "hausgeld",
+  "nichtUmlagefaehig",
+  "ruecklagen",
+  "marktwert",
+];
+
 const PROPERTY_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -50,51 +76,76 @@ const PROPERTY_SCHEMA = {
       properties: {
         name: fieldSchema(Type.STRING),
         address: fieldSchema(Type.STRING),
-        kaufpreis: fieldSchema(Type.NUMBER),
-        grunderwerbsteuerPct: fieldSchema(Type.NUMBER),
-        notarGrundbuchPct: fieldSchema(Type.NUMBER),
-        maklerprovisionPct: fieldSchema(Type.NUMBER),
-        sonstigePct: fieldSchema(Type.NUMBER),
-        kaltmiete: fieldSchema(Type.NUMBER),
-        nichtUmlagefaehig: fieldSchema(Type.NUMBER),
-        ruecklagen: fieldSchema(Type.NUMBER),
         objekttyp: fieldSchema(Type.STRING),
         stadt: fieldSchema(Type.STRING),
         wohnflaeche: fieldSchema(Type.NUMBER),
         zimmer: fieldSchema(Type.NUMBER),
         baujahr: fieldSchema(Type.NUMBER),
+        kaufpreis: fieldSchema(Type.NUMBER),
         kaufdatum: fieldSchema(Type.STRING),
+        grunderwerbsteuerPct: fieldSchema(Type.NUMBER),
+        notarGrundbuchPct: fieldSchema(Type.NUMBER),
+        maklerprovisionPct: fieldSchema(Type.NUMBER),
+        sonstigePct: fieldSchema(Type.NUMBER),
+        eigenanteil: fieldSchema(Type.NUMBER),
+        zins: fieldSchema(Type.NUMBER),
+        tilgung: fieldSchema(Type.NUMBER),
+        zinsbindung: fieldSchema(Type.NUMBER),
+        loanStartDate: fieldSchema(Type.STRING),
+        kaltmiete: fieldSchema(Type.NUMBER),
         hausgeld: fieldSchema(Type.NUMBER),
+        nichtUmlagefaehig: fieldSchema(Type.NUMBER),
+        ruecklagen: fieldSchema(Type.NUMBER),
+        marktwert: fieldSchema(Type.NUMBER),
       },
+      propertyOrdering: PROPERTY_FIELD_ORDER,
     },
   },
   required: ["fields"],
 };
 
-const PROPERTY_PROMPT = `Du bist ein Assistent, der deutsche Immobilienunterlagen auswertet, um eine Immobilien-Analyse vorauszufüllen.
-Du erhältst ein oder mehrere Dokumente: typischerweise Kaufvertrag, Mietvertrag, Wohngeldabrechnung/Hausgeldabrechnung, Grundbuchauszug oder Energieausweis.
+const PROPERTY_PROMPT = `Du bist ein Assistent, der deutsche Immobilienunterlagen auswertet, um eine Immobilien-Analyse für ein bestehendes Portfolio-Objekt vorauszufüllen.
+Du erhältst ein oder mehrere Dokumente: typischerweise Kaufvertrag, Mietvertrag, Wohngeld-/Hausgeldabrechnung, Darlehens-/Finanzierungsvertrag oder Finanzierungsangebot, Grundbuchauszug, Energieausweis oder Wertgutachten.
 
-Extrahiere NUR Felder, die du tatsächlich im Dokument findest. Erfinde nichts. Lass ein Feld weg, wenn es nicht eindeutig belegt ist.
+WICHTIG: Lies ALLE Seiten JEDES Dokuments vollständig und sorgfältig. Extrahiere so viele Felder aus dem Schema wie möglich. Es ist deutlich besser, ein Feld mit einem unsicheren Wert (und entsprechend niedriger confidence) auszufüllen, als es leer zu lassen — das Ziel ist, das Formular möglichst vollständig vorzubefüllen; der Nutzer prüft jeden Wert anschließend selbst.
+Gib daher auch Werte zurück, bei denen du dir nicht völlig sicher bist (z.B. confidence 0.5–0.8), solange es eine plausible Grundlage im Dokument gibt. Lass ein Feld NUR dann weg, wenn es im Dokument wirklich keinerlei Anhaltspunkt dafür gibt. Frei erfundene Werte ohne jede Grundlage sind aber nicht erlaubt.
+Wenn Angaben über mehrere Dokumente verteilt sind oder sich aus dem Kontext eindeutig ableiten lassen (z.B. Betrag → Prozentsatz, Jahresbetrag → Monatsbetrag), kombiniere bzw. rechne sie um.
+
+Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. Beispiele: "349.900,00 €" -> 349900, "81,13 m²" -> 81.13, "3,45 %" -> 3.45.
 
 Feld-Hinweise:
 - name: kurze Bezeichnung der Immobilie (z.B. Straße + Ort), falls ableitbar.
-- address: vollständige Adresse.
-- kaufpreis: Kaufpreis in Euro (reine Zahl, ohne Tausenderpunkte/€) — meist aus dem Kaufvertrag.
-- grunderwerbsteuerPct, notarGrundbuchPct, maklerprovisionPct, sonstigePct: Kaufnebenkosten als Prozentsatz des Kaufpreises (Zahl, z.B. 6 für 6%). Nur wenn im Dokument als Prozent oder als Betrag (dann umrechnen) angegeben.
-- kaltmiete: monatliche Kaltmiete in Euro — meist aus dem Mietvertrag.
-- nichtUmlagefaehig: monatliche nicht umlagefähige Kosten in Euro (Verwaltung, Instandhaltung) — z.B. aus der Hausgeld-/Wohngeldabrechnung.
-- ruecklagen: monatliche Instandhaltungsrücklage in Euro — aus der Wohngeld-/Hausgeldabrechnung (Jahresbetrag durch 12 teilen, falls jährlich angegeben).
-
-Beschreibende Objektdetails (nur für den Bericht, ohne Einfluss auf Berechnungen — nur ausfüllen, wenn eindeutig belegt):
+- address: vollständige Adresse (Straße, Hausnummer, PLZ, Ort) — meist aus Kaufvertrag, Mietvertrag oder Grundbuch.
 - objekttyp: Immobilientyp, z.B. "Eigentumswohnung", "Mehrfamilienhaus", "Einfamilienhaus", "Reihenhaus".
 - stadt: Stadt bzw. Stadtteil/Bezirk (z.B. "Berlin-Kreuzberg").
-- wohnflaeche: Wohnfläche in m² (reine Zahl).
+- wohnflaeche: Wohnfläche in m² (reine Zahl) — aus Kaufvertrag, Mietvertrag, Teilungserklärung oder Energieausweis.
 - zimmer: Anzahl der Zimmer (ggf. mit Nachkommastelle).
-- baujahr: vierstellige Baujahr-Zahl.
-- kaufdatum: Kaufdatum aus dem Kaufvertrag im Format YYYY-MM-DD.
-- hausgeld: monatliches Hausgeld / Wohngeld in Euro (Jahresbetrag durch 12 teilen, falls jährlich angegeben).
+- baujahr: vierstellige Baujahr-Zahl — oft im Energieausweis oder Kaufvertrag.
 
-Für jedes Feld: value (Zahl bzw. Text), sourceDoc (der Dokumenttyp oder Dateiname, woraus der Wert stammt), confidence (0 bis 1).
+Kauf:
+- kaufpreis: Kaufpreis in Euro — meist aus dem Kaufvertrag ("Kaufpreis", "Gesamtkaufpreis").
+- kaufdatum: Datum des Kaufvertrags / der Beurkundung im Format YYYY-MM-DD.
+- grunderwerbsteuerPct, notarGrundbuchPct, maklerprovisionPct, sonstigePct: Kaufnebenkosten als Prozentsatz des Kaufpreises (Zahl, z.B. 6 für 6%). Wenn im Dokument nur ein Euro-Betrag steht, rechne ihn ins Verhältnis zum Kaufpreis um. Grunderwerbsteuer ist oft bundeslandabhängig (3,5–6,5%) und im Kaufvertrag genannt.
+
+Finanzierung (aus Darlehensvertrag / Finanzierungsangebot / Annuitätendarlehen):
+- eigenanteil: eingesetztes Eigenkapital in Euro (Kaufpreis + Nebenkosten minus Darlehenssumme, falls nicht direkt genannt).
+- zins: Sollzins / gebundener Sollzinssatz p.a. in Prozent (Zahl, z.B. 3.45). Nicht den Effektivzins, falls beide genannt sind.
+- tilgung: anfänglicher Tilgungssatz p.a. in Prozent (z.B. 2.0).
+- zinsbindung: Dauer der Sollzinsbindung in Jahren (z.B. 10).
+- loanStartDate: Beginn/Auszahlung des Darlehens im Format YYYY-MM.
+
+Miete:
+- kaltmiete: monatliche Kaltmiete / Nettokaltmiete in Euro — meist aus dem Mietvertrag (NICHT die Warmmiete; Betriebskosten-/Heizkostenvorauszahlung nicht mitrechnen).
+
+Laufende Kosten:
+- hausgeld: monatliches Hausgeld / Wohngeld in Euro (Jahresbetrag durch 12 teilen, falls jährlich angegeben).
+- nichtUmlagefaehig: monatliche nicht umlagefähige Kosten in Euro (Verwaltervergütung, Instandhaltung) — aus der Hausgeld-/Wohngeldabrechnung; bei Jahresbeträgen durch 12 teilen.
+- ruecklagen: monatliche Zuführung zur Instandhaltungsrücklage in Euro — aus der Wohngeld-/Hausgeldabrechnung (Jahresbetrag durch 12 teilen, falls jährlich angegeben).
+
+Wert:
+- marktwert: geschätzter aktueller Verkehrs-/Marktwert in Euro — aus einem Wertgutachten/Verkehrswertgutachten, falls vorhanden.
+
+Für jedes Feld: value (Zahl bzw. Text), sourceDoc (der Dokumenttyp oder Dateiname, woraus der Wert stammt), confidence (0 bis 1, ehrlich eingeschätzt).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
 const WISHLIST_FIELD_ORDER = [

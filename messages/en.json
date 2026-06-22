@@ -401,6 +401,11 @@
       "notarGrundbuchPct": "Notary & land registry",
       "maklerprovisionPct": "Agent commission",
       "sonstigePct": "Other closing costs",
+      "eigenanteil": "Equity",
+      "zins": "Interest rate",
+      "tilgung": "Repayment rate",
+      "zinsbindung": "Fixed-rate period (years)",
+      "loanStartDate": "Loan start",
       "kaltmiete": "Cold rent (monthly)",
       "nichtUmlagefaehig": "Non-allocable (monthly)",
       "ruecklagen": "Reserves (monthly)",
@@ -410,7 +415,8 @@
       "zimmer": "Rooms",
       "baujahr": "Year built",
       "kaufdatum": "Purchase date",
-      "hausgeld": "HOA fee (monthly)"
+      "hausgeld": "HOA fee (monthly)",
+      "marktwert": "Market value"
     },
     "extractBusy": "The extraction service is busy right now. Please try again in a moment.",
     "extractLimit": "You've reached your monthly limit of {limit} AI document extractions. It resets at the start of next month."

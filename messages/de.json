@@ -401,6 +401,11 @@
       "notarGrundbuchPct": "Notar & Grundbuch",
       "maklerprovisionPct": "Maklerprovision",
       "sonstigePct": "Sonstige Nebenkosten",
+      "eigenanteil": "Eigenkapital",
+      "zins": "Sollzins",
+      "tilgung": "Tilgung",
+      "zinsbindung": "Zinsbindung (Jahre)",
+      "loanStartDate": "Darlehensbeginn",
       "kaltmiete": "Kaltmiete (mtl.)",
       "nichtUmlagefaehig": "Nicht umlagefähig (mtl.)",
       "ruecklagen": "Rücklagen (mtl.)",
@@ -410,7 +415,8 @@
       "zimmer": "Zimmer",
       "baujahr": "Baujahr",
       "kaufdatum": "Kaufdatum",
-      "hausgeld": "Hausgeld (mtl.)"
+      "hausgeld": "Hausgeld (mtl.)",
+      "marktwert": "Marktwert"
     },
     "extractBusy": "Der Auslese-Dienst ist gerade ausgelastet. Bitte versuche es gleich noch einmal.",
     "extractLimit": "Du hast dein monatliches Limit von {limit} KI-Dokumentenauswertungen erreicht. Es wird zum Monatsanfang zurückgesetzt."

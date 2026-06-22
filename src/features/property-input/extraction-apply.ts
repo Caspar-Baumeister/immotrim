@@ -23,6 +23,11 @@ export const FIELD_KIND: Record<ExtractedFieldKey, FieldKind> = {
   notarGrundbuchPct: "percent",
   maklerprovisionPct: "percent",
   sonstigePct: "percent",
+  eigenanteil: "euro",
+  zins: "percent",
+  tilgung: "percent",
+  zinsbindung: "number",
+  loanStartDate: "text",
   kaltmiete: "euro",
   nichtUmlagefaehig: "euro",
   ruecklagen: "euro",
@@ -34,6 +39,7 @@ export const FIELD_KIND: Record<ExtractedFieldKey, FieldKind> = {
   baujahr: "year",
   kaufdatum: "text",
   hausgeld: "euro",
+  marktwert: "euro",
 };
 
 export const FIELD_ORDER = Object.keys(FIELD_KIND) as ExtractedFieldKey[];
@@ -54,6 +60,7 @@ const REPORT_KEYS = [
   "baujahr",
   "kaufdatum",
   "hausgeld",
+  "marktwert",
 ] as const satisfies readonly ExtractedFieldKey[];
 
 type ReportKey = (typeof REPORT_KEYS)[number] & keyof ReportDetails;
@@ -72,6 +79,16 @@ export function currentValueFor(
       return snap.address;
     case "kaufpreis":
       return snap.inputs.kaufpreis;
+    case "eigenanteil":
+      return snap.inputs.eigenanteil;
+    case "zins":
+      return snap.inputs.zins;
+    case "tilgung":
+      return snap.inputs.tilgung;
+    case "zinsbindung":
+      return snap.inputs.zinsbindung;
+    case "loanStartDate":
+      return snap.inputs.loanStartDate;
     case "kaltmiete":
       return snap.inputs.kaltmiete;
     case "nichtUmlagefaehig":
@@ -126,6 +143,11 @@ export function buildPatch(
     if (key === "name") patch.name = value as string;
     else if (key === "address") patch.address = value as string;
     else if (key === "kaufpreis") inputs.kaufpreis = value as number;
+    else if (key === "eigenanteil") inputs.eigenanteil = value as number;
+    else if (key === "zins") inputs.zins = value as number;
+    else if (key === "tilgung") inputs.tilgung = value as number;
+    else if (key === "zinsbindung") inputs.zinsbindung = value as number;
+    else if (key === "loanStartDate") inputs.loanStartDate = value as string;
     else if (key === "kaltmiete") inputs.kaltmiete = value as number;
     else if (key === "nichtUmlagefaehig") inputs.nichtUmlagefaehig = value as number;
     else if (key === "ruecklagen") inputs.ruecklagen = value as number;
