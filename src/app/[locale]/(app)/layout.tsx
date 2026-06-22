@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { verifySession, getActiveSubscription } from "@/lib/dal";
+import { TrialBanner } from "@/components/layout/TrialBanner";
 
 type Props = {
   children: React.ReactNode;
@@ -15,5 +16,10 @@ export default async function AppLayout({ children, params }: Props) {
   const user = await verifySession(locale);
   const sub = await getActiveSubscription(user.id);
   if (!sub) redirect(`/${locale}/pricing`);
-  return <>{children}</>;
+  return (
+    <>
+      <TrialBanner locale={locale} status={sub.status} currentPeriodEnd={sub.current_period_end} />
+      {children}
+    </>
+  );
 }

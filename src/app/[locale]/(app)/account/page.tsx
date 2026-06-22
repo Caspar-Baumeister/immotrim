@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { verifySession, getSubscription } from "@/lib/dal";
 import { startPortalAction } from "@/app/[locale]/billing/actions";
@@ -12,10 +13,20 @@ export default async function AccountPage({ params }: Props) {
   const sub = await getSubscription(user.id);
   const t = await getTranslations("account");
 
-  const plan = sub?.plan_interval === "year" ? t("yearly") : t("monthly");
+  const isTrial = sub?.status === "trialing";
+  const plan = isTrial
+    ? t("trialPlan")
+    : sub?.plan_interval === "year"
+    ? t("yearly")
+    : t("monthly");
   const periodEnd = sub?.current_period_end
     ? new Date(sub.current_period_end).toLocaleDateString(locale)
     : null;
+  const periodEndLabel = isTrial
+    ? t("trialEndsOn")
+    : sub?.cancel_at_period_end
+    ? t("endsOn")
+    : t("renewsOn");
 
   return (
     <>
@@ -36,9 +47,7 @@ export default async function AccountPage({ params }: Props) {
               <dd className="capitalize">{sub.status}</dd>
               {periodEnd && (
                 <>
-                  <dt className="text-muted-foreground">
-                    {sub.cancel_at_period_end ? t("endsOn") : t("renewsOn")}
-                  </dt>
+                  <dt className="text-muted-foreground">{periodEndLabel}</dt>
                   <dd>{periodEnd}</dd>
                 </>
               )}
@@ -47,15 +56,25 @@ export default async function AccountPage({ params }: Props) {
             <p className="text-sm text-muted-foreground">{t("noSubscription")}</p>
           )}
 
-          <form action={startPortalAction}>
-            <input type="hidden" name="locale" value={locale} />
-            <button
-              type="submit"
-              className="rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-medium px-4 py-2 transition-colors"
+          {isTrial ? (
+            // Trial users have no Stripe customer yet — send them to pricing to convert.
+            <Link
+              href={`/${locale}/pricing`}
+              className="inline-block rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-medium px-4 py-2 transition-colors"
             >
-              {t("managePortal")}
-            </button>
-          </form>
+              {t("upgrade")}
+            </Link>
+          ) : (
+            <form action={startPortalAction}>
+              <input type="hidden" name="locale" value={locale} />
+              <button
+                type="submit"
+                className="rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-medium px-4 py-2 transition-colors"
+              >
+                {t("managePortal")}
+              </button>
+            </form>
+          )}
         </section>
 
         <section>

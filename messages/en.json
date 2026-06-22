@@ -163,19 +163,19 @@
     "loginTitle": "Welcome back",
     "loginSubtitle": "Sign in to your Immotrim account.",
     "signupTitle": "Create your account",
-    "signupSubtitle": "Start analyzing properties in minutes.",
+    "signupSubtitle": "14-day free trial. No credit card required.",
     "email": "Email",
     "password": "Password",
     "passwordHint": "At least 8 characters",
     "submitLogin": "Sign in",
-    "submitSignup": "Create account & continue to payment",
+    "submitSignup": "Start your 14-day free trial",
     "submitting": "Please wait…",
     "noAccount": "No account?",
     "haveAccount": "Already have an account?",
     "signupLink": "Sign up",
     "loginLink": "Sign in",
     "checkEmailTitle": "Check your inbox",
-    "checkEmailDesc": "We've sent you a confirmation link. Click it to activate your account and continue to payment.",
+    "checkEmailDesc": "We've sent you a confirmation link. Click it to activate your account and start your free trial.",
     "forgotPassword": "Forgot password?",
     "forgotTitle": "Reset your password",
     "forgotSubtitle": "Enter your email and we'll send you a reset link.",
@@ -201,7 +201,10 @@
     "yearly": "Yearly",
     "noSubscription": "No active subscription.",
     "managePortal": "Manage subscription",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "trialPlan": "Free trial",
+    "trialEndsOn": "Trial ends on",
+    "upgrade": "Upgrade now"
   },
   "wishlist": {
     "title": "Property Analysis",
@@ -431,5 +434,9 @@
     "agb": {
       "title": "Terms of Service"
     }
+  },
+  "trial": {
+    "banner": "{days, plural, =0 {Last day of your free trial} one {# day left in your free trial} other {# days left in your free trial}}",
+    "upgrade": "Upgrade"
   }
 }

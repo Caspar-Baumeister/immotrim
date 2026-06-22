@@ -25,11 +25,21 @@ async function getOrCreateStripeCustomer(userId: string, email: string): Promise
     metadata: { user_id: userId },
   });
 
-  await admin.from("subscriptions").upsert({
-    user_id: userId,
-    stripe_customer_id: customer.id,
-    status: "incomplete",
-  }, { onConflict: "user_id" });
+  if (existing) {
+    // The user already has a row (e.g. an active free trial). Attach the customer id
+    // without touching status/current_period_end, so abandoning Checkout doesn't end
+    // the trial early — the webhook flips the row to active when payment completes.
+    await admin
+      .from("subscriptions")
+      .update({ stripe_customer_id: customer.id })
+      .eq("user_id", userId);
+  } else {
+    await admin.from("subscriptions").insert({
+      user_id: userId,
+      stripe_customer_id: customer.id,
+      status: "incomplete",
+    });
+  }
 
   return customer.id;
 }

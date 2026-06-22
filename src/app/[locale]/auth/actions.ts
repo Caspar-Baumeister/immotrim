@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getBaseUrl } from "@/lib/url";
+import { grantTrialIfNew } from "@/lib/trial";
 
 const credentialsSchema = z.object({
   email: z.email("Please enter a valid email."),
@@ -11,7 +12,6 @@ const credentialsSchema = z.object({
 });
 
 const emailSchema = z.email("Please enter a valid email.");
-const planSchema = z.enum(["monthly", "yearly"]).optional();
 const localeSchema = z.enum(["en", "de"]).default("en");
 
 export type AuthFormState = {
@@ -30,13 +30,12 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
   }
 
   const locale = localeSchema.parse(formData.get("locale") ?? "en");
-  const plan = planSchema.parse(formData.get("plan") ?? undefined) ?? "monthly";
 
-  // After the user confirms via email, land them on /pricing (with their plan
-  // preselected) where the (app) gate sends them into Stripe Checkout. We do NOT
-  // create a Stripe customer here — that happens at checkout, so unconfirmed
-  // signups never create dangling Stripe customers.
-  const next = `/${locale}/pricing?plan=${plan}`;
+  // New signups get a 14-day no-card free trial, so they land straight in the app
+  // instead of on /pricing. We do NOT create a Stripe customer here — that happens
+  // at checkout when they convert, so unconfirmed signups never create dangling
+  // Stripe customers.
+  const next = `/${locale}/portfolio`;
   const sb = await createServerSupabase();
   const { data, error } = await sb.auth.signUp({
     email: parsed.data.email,
@@ -46,6 +45,11 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
     },
   });
   if (error) return { error: error.message };
+
+  // Grant the trial for genuinely new accounts only. When the email already exists,
+  // Supabase returns an obfuscated user with an empty `identities` array (signup
+  // enumeration protection) — skip those so we never touch an existing user's row.
+  if (data.user?.identities?.length) await grantTrialIfNew(data.user.id);
 
   // Email confirmation ON → no session yet; tell the user to check their inbox.
   // (If confirmation is disabled, a session exists and we go straight on.)

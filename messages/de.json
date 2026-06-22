@@ -163,19 +163,19 @@
     "loginTitle": "Willkommen zurück",
     "loginSubtitle": "Melde dich bei deinem Immotrim-Account an.",
     "signupTitle": "Account erstellen",
-    "signupSubtitle": "Starte in wenigen Minuten mit der Analyse.",
+    "signupSubtitle": "14 Tage kostenlos testen. Keine Kreditkarte erforderlich.",
     "email": "E-Mail",
     "password": "Passwort",
     "passwordHint": "Mindestens 8 Zeichen",
     "submitLogin": "Anmelden",
-    "submitSignup": "Account anlegen & zur Zahlung",
+    "submitSignup": "14 Tage kostenlos testen",
     "submitting": "Bitte warten…",
     "noAccount": "Noch kein Account?",
     "haveAccount": "Schon ein Account?",
     "signupLink": "Registrieren",
     "loginLink": "Anmelden",
     "checkEmailTitle": "Bitte E-Mails prüfen",
-    "checkEmailDesc": "Wir haben dir einen Bestätigungslink geschickt. Klicke ihn an, um dein Konto zu aktivieren und zur Zahlung fortzufahren.",
+    "checkEmailDesc": "Wir haben dir einen Bestätigungslink geschickt. Klicke ihn an, um dein Konto zu aktivieren und deine kostenlose Testphase zu starten.",
     "forgotPassword": "Passwort vergessen?",
     "forgotTitle": "Passwort zurücksetzen",
     "forgotSubtitle": "Gib deine E-Mail ein und wir senden dir einen Link zum Zurücksetzen.",
@@ -201,7 +201,10 @@
     "yearly": "Jährlich",
     "noSubscription": "Kein aktives Abonnement.",
     "managePortal": "Abonnement verwalten",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "trialPlan": "Kostenlose Testphase",
+    "trialEndsOn": "Testphase endet am",
+    "upgrade": "Jetzt upgraden"
   },
   "wishlist": {
     "title": "Objektanalyse",
@@ -431,5 +434,9 @@
     "agb": {
       "title": "AGB"
     }
+  },
+  "trial": {
+    "banner": "{days, plural, =0 {Letzter Tag deiner kostenlosen Testphase} one {Noch # Tag in deiner kostenlosen Testphase} other {Noch # Tage in deiner kostenlosen Testphase}}",
+    "upgrade": "Upgraden"
   }
 }
