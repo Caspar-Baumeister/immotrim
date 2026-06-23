@@ -73,7 +73,7 @@ export default async function LandingPage({ params }: Props) {
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 pt-20 pb-16 text-center space-y-6">
-        <p className="text-xs uppercase tracking-widest text-amber-400/80">
+        <p className="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400/80">
           {t("hero.eyebrow")}
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">

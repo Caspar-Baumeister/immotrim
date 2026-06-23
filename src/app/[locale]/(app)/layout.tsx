@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { verifySession, getActiveSubscription } from "@/lib/dal";
 import { TrialBanner } from "@/components/layout/TrialBanner";
+import { PortfolioChatLauncher } from "@/features/portfolio-chat/PortfolioChatLauncher";
 
 type Props = {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ export default async function AppLayout({ children, params }: Props) {
     <>
       <TrialBanner locale={locale} status={sub.status} currentPeriodEnd={sub.current_period_end} />
       {children}
+      <PortfolioChatLauncher />
     </>
   );
 }

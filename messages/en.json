@@ -438,5 +438,59 @@
   "trial": {
     "banner": "{days, plural, =0 {Last day of your free trial} one {# day left in your free trial} other {# days left in your free trial}}",
     "upgrade": "Upgrade"
+  },
+  "portfolioChat": {
+    "title": "Portfolio Assistant",
+    "launcher": "Assistant",
+    "close": "Close",
+    "send": "Send",
+    "placeholder": "Ask about your portfolio…",
+    "intro": {
+      "heading": "Your portfolio assistant",
+      "lead": "Ask anything about your properties — or tell me to change a value.",
+      "can1": "Explain KPIs & compare properties (cash flow, yield, wealth growth …)",
+      "can2": "Pull answers from your uploaded documents",
+      "can3": "Change values — you confirm every change before it's saved",
+      "beta": "Beta: conversations aren't saved and are gone once you close this panel."
+    },
+    "suggestions": {
+      "afa": "Increase the depreciation (AfA) of my most valuable property by 1%",
+      "wealth": "Which of my properties has the highest wealth gain per year?",
+      "missingData": "Is any of my properties missing data that's important for the charts?"
+    },
+    "errors": {
+      "limit": "You've reached this month's chat limit.",
+      "failed": "Something went wrong. Please try again.",
+      "busy": "The assistant is very busy right now — please try again in a moment."
+    },
+    "units": {
+      "years": "years"
+    },
+    "proposal": {
+      "title": "Proposed change",
+      "apply": "Apply",
+      "applying": "Applying…",
+      "cancel": "Cancel",
+      "applied": "Change applied",
+      "dismissed": "Dismissed",
+      "failed": "Could not apply the change."
+    },
+    "fields": {
+      "afaPct": "Depreciation rate (AfA)",
+      "steuersatz": "Marginal tax rate",
+      "gebaeudeanteilPct": "Building share",
+      "bemessungsgrundlage": "AfA assessment basis",
+      "zins": "Interest rate",
+      "tilgung": "Repayment rate",
+      "zinsbindung": "Fixed-interest period",
+      "kaufpreis": "Purchase price",
+      "eigenanteil": "Equity",
+      "kaltmiete": "Cold rent",
+      "nichtUmlagefaehig": "Non-allocable costs",
+      "ruecklagen": "Reserves",
+      "leerstand": "Vacancy rate",
+      "mietentwicklung": "Rent growth",
+      "wertentwicklung": "Value appreciation"
+    }
   }
 }

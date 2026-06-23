@@ -283,10 +283,28 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      ai_chat_usage: {
+        // Per-user monthly portfolio-chat counter. Mutated only via the
+        // consume_ai_chat RPC; users can read their own row.
+        Row: {
+          user_id: string;
+          period: string;
+          count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       consume_ai_extraction: {
+        Args: { p_limit: number };
+        Returns: { allowed: boolean; used: number }[];
+      };
+      consume_ai_chat: {
         Args: { p_limit: number };
         Returns: { allowed: boolean; used: number }[];
       };

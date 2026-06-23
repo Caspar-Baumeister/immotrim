@@ -404,7 +404,7 @@
       "notarGrundbuchPct": "Notar & Grundbuch",
       "maklerprovisionPct": "Maklerprovision",
       "sonstigePct": "Sonstige Nebenkosten",
-      "eigenanteil": "Eigenkapital",
+      "eigenanteil": "Eigenanteil",
       "zins": "Sollzins",
       "tilgung": "Tilgung",
       "zinsbindung": "Zinsbindung (Jahre)",
@@ -438,5 +438,59 @@
   "trial": {
     "banner": "{days, plural, =0 {Letzter Tag deiner kostenlosen Testphase} one {Noch # Tag in deiner kostenlosen Testphase} other {Noch # Tage in deiner kostenlosen Testphase}}",
     "upgrade": "Upgraden"
+  },
+  "portfolioChat": {
+    "title": "Portfolio-Assistent",
+    "launcher": "Assistent",
+    "close": "Schließen",
+    "send": "Senden",
+    "placeholder": "Frag etwas zu deinem Portfolio…",
+    "intro": {
+      "heading": "Dein Portfolio-Assistent",
+      "lead": "Frag alles zu deinen Immobilien — oder lass mich einen Wert ändern.",
+      "can1": "Kennzahlen erklären & Immobilien vergleichen (Cashflow, Rendite, Vermögensaufbau …)",
+      "can2": "Antworten aus deinen hochgeladenen Dokumenten ziehen",
+      "can3": "Werte ändern — du bestätigst jede Änderung, bevor sie gespeichert wird",
+      "beta": "Beta: Unterhaltungen werden nicht gespeichert und sind nach dem Schließen weg."
+    },
+    "suggestions": {
+      "afa": "Erhöhe die AfA meiner wertvollsten Immobilie um 1%",
+      "wealth": "Welche meiner Immobilien hat den größten Vermögensaufbau pro Jahr?",
+      "missingData": "Hat eine meiner Immobilien noch fehlende Daten, die für die Berechnung der Graphen wichtig sind?"
+    },
+    "errors": {
+      "limit": "Du hast dein Chat-Limit für diesen Monat erreicht.",
+      "failed": "Etwas ist schiefgelaufen. Bitte versuch es erneut.",
+      "busy": "Der Assistent ist gerade stark ausgelastet — bitte versuch es gleich noch einmal."
+    },
+    "units": {
+      "years": "Jahre"
+    },
+    "proposal": {
+      "title": "Vorgeschlagene Änderung",
+      "apply": "Übernehmen",
+      "applying": "Wird übernommen…",
+      "cancel": "Abbrechen",
+      "applied": "Änderung übernommen",
+      "dismissed": "Verworfen",
+      "failed": "Änderung konnte nicht übernommen werden."
+    },
+    "fields": {
+      "afaPct": "Abschreibung (AfA)",
+      "steuersatz": "Grenzsteuersatz",
+      "gebaeudeanteilPct": "Gebäudeanteil",
+      "bemessungsgrundlage": "AfA-Bemessungsgrundlage",
+      "zins": "Sollzins",
+      "tilgung": "Tilgung",
+      "zinsbindung": "Zinsbindung",
+      "kaufpreis": "Kaufpreis",
+      "eigenanteil": "Eigenanteil",
+      "kaltmiete": "Kaltmiete",
+      "nichtUmlagefaehig": "Nicht umlagefähige Kosten",
+      "ruecklagen": "Rücklagen",
+      "leerstand": "Leerstand",
+      "mietentwicklung": "Mietentwicklung",
+      "wertentwicklung": "Wertentwicklung"
+    }
   }
 }
