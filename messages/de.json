@@ -114,17 +114,19 @@
       "title": "Der Portfolio Manager für private Immobilieninvestoren",
       "subtitle": "Behalte Kaltmiete, Zinsen, Tilgung, Cashflow, AfA, Restschuld und Vermögensaufbau deines gesamten Immobilienportfolios im Blick.",
       "ctaPrimary": "Jetzt starten",
-      "ctaSecondary": "Anmelden"
+      "ctaSecondary": "Anmelden",
+      "trialNote": "14 Tage kostenlos testen — keine Kreditkarte nötig."
     },
-    "features": {
-      "title": "Von der PDF zur fertigen Analyse",
-      "subtitle": "Keine Excel, kein Abtippen. Lade deine Unterlagen hoch — den Rest erledigt Immotrim.",
-      "f1Title": "KI-Datenextraktion",
-      "f1Desc": "Lade Exposés, Kaufunterlagen oder Abrechnungen hoch. Unsere KI liest Kaufpreis, Miete, Wohnfläche, Nebenkosten und mehr automatisch aus — in Sekunden statt Stunden.",
-      "f2Title": "Du behältst die Kontrolle",
-      "f2Desc": "Alle erkannten Werte erscheinen übersichtlich zur Prüfung. Korrigiere einzelne Felder mit einem Klick, bevor die Berechnung startet — volle Transparenz, keine Blackbox.",
-      "f3Title": "Sofortige Renditeanalyse",
-      "f3Desc": "Cashflow, Tilgung, Mietrendite und Eigenkapitalrendite werden automatisch berechnet — verständlich aufbereitet und auf einen Blick visualisiert."
+    "steps": {
+      "title": "So funktioniert's",
+      "subtitle": "In drei Schritten von deinen Unterlagen zur bankfertigen Übersicht.",
+      "s1Title": "Unterlagen hochladen",
+      "s1Desc": "Lade Exposés, Kaufverträge oder Abrechnungen hoch — als PDF oder Bild. Die KI liest Kaufpreis, Miete, Wohnfläche und mehr automatisch aus.",
+      "s2Title": "Dashboard & KI-Szenarien",
+      "s2Desc": "Dein ganzes Portfolio in einem übersichtlichen Dashboard. Frag den KI-Assistenten, spiel Szenarien durch und sieh sofort, wie sich Cashflow und Rendite verändern.",
+      "s3Title": "Übersicht für die Bank herunterladen",
+      "s3Desc": "Exportiere eine saubere Selbstauskunft / Portfolio-Übersicht für deine Bank — fertig zum Versenden bei jeder Kreditanfrage.",
+      "s3Download": "Beispiel-PDF herunterladen"
     },
     "about": {
       "title": "Über mich",
@@ -132,7 +134,6 @@
       "imageAlt": "Caspar, Entwickler hinter Immotrim",
       "p1": "Seit ich in Immobilien investiere, hatte ich immer dasselbe Problem: Ich bin ein bisschen chaotisch. Mit jeder neuen Wohnung wurden mein Laptop und mein Postfach voller – und ich verlor den Überblick, was meine Objekte eigentlich wirklich abwerfen.",
       "p2": "Das war nicht nur für mich ein Problem, um zu sehen, ob sich etwas lohnt. Auch für die Banken war es jedes Mal ein Krampf: Bei jeder neuen Kreditanfrage durfte ich ihre Selbstauskunft von Hand ausfüllen – immer wieder aufs Neue.",
-      "p3": "Deshalb habe ich Immotrim zuerst für mich selbst gebaut: um endlich alles an einem Ort organisiert zu haben. Ich entwickle dieses Projekt allein – mit enormer Leidenschaft.",
       "signature": "— Caspar"
     },
     "pricing": {

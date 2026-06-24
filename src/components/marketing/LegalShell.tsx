@@ -17,7 +17,7 @@ export function LegalShell({
     <main className="min-h-screen flex flex-col">
       <nav className="border-b border-border bg-card/80 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
-          <Link href={`/${locale}`} className="flex items-center">
+          <Link href={`/${locale}`} className="flex items-center gap-2">
             <Image
               src="/logo_immotrim.png"
               alt="Immotrim"
@@ -26,6 +26,9 @@ export function LegalShell({
               className="h-7 w-auto object-contain"
               priority
             />
+            <span className="hidden sm:inline text-xl font-bold uppercase tracking-wide text-foreground">
+              IMMOTRIM
+            </span>
           </Link>
           <ThemeToggle />
         </div>

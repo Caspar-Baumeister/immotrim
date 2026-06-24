@@ -74,6 +74,9 @@ export function TopBar({ title, subtitle, stats, locale, userEmail: userEmailPro
           className="h-6 sm:h-7 w-auto object-contain"
           priority
         />
+        <span className="hidden sm:inline text-xl font-bold uppercase tracking-wide text-foreground">
+          IMMOTRIM
+        </span>
       </Link>
 
       {/* Nav separator */}

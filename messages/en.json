@@ -114,17 +114,19 @@
       "title": "The portfolio manager for private real estate investors",
       "subtitle": "Keep track of net rent, interest, principal repayment, cash flow, depreciation, remaining debt and wealth growth across your entire property portfolio.",
       "ctaPrimary": "Start now",
-      "ctaSecondary": "Sign in"
+      "ctaSecondary": "Sign in",
+      "trialNote": "14-day free trial — no credit card required."
     },
-    "features": {
-      "title": "From PDF to finished analysis",
-      "subtitle": "No spreadsheets, no retyping. Upload your documents — Immotrim does the rest.",
-      "f1Title": "AI data extraction",
-      "f1Desc": "Upload listings, purchase papers or statements. Our AI reads out purchase price, rent, living area, running costs and more automatically — in seconds, not hours.",
-      "f2Title": "You stay in control",
-      "f2Desc": "Every detected value appears in a clear review panel. Correct individual fields with a single click before the calculation runs — full transparency, no black box.",
-      "f3Title": "Instant return analysis",
-      "f3Desc": "Cash flow, amortization, rental yield and equity return are calculated automatically — clearly presented and visualized at a glance."
+    "steps": {
+      "title": "How it works",
+      "subtitle": "From your documents to a bank-ready overview in three steps.",
+      "s1Title": "Upload your documents",
+      "s1Desc": "Upload listings, purchase contracts or statements — as PDF or image. The AI reads out purchase price, rent, living area and more automatically.",
+      "s2Title": "Dashboard & AI scenarios",
+      "s2Desc": "Your whole portfolio in one clear dashboard. Ask the AI assistant, run scenarios and instantly see how cash flow and returns change.",
+      "s3Title": "Download your bank overview",
+      "s3Desc": "Export a clean financial-disclosure / portfolio overview for your bank — ready to send with every loan request.",
+      "s3Download": "Download example PDF"
     },
     "about": {
       "title": "About me",
@@ -132,7 +134,6 @@
       "imageAlt": "Caspar, the developer behind Immotrim",
       "p1": "Ever since I started investing in real estate, I had the same problem: I'm a bit messy. With every new property my laptop and inbox got more cluttered — and I lost track of what my properties were actually producing.",
       "p2": "That wasn't just a problem for me to judge whether something was working. It was a pain for the banks too: every new loan request meant filling out their financial-disclosure forms by hand, over and over again.",
-      "p3": "That's why I built Immotrim for myself first: to finally keep everything in one organised place. I develop this project alone — with immense passion.",
       "signature": "— Caspar"
     },
     "pricing": {

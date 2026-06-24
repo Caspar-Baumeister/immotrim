@@ -33,6 +33,9 @@ export function Sidebar({ locale }: Props) {
             className="h-8 w-auto object-contain"
             priority
           />
+          <span className="hidden sm:inline text-xl font-bold uppercase tracking-wide text-foreground">
+            IMMOTRIM
+          </span>
         </Link>
       </div>
 
