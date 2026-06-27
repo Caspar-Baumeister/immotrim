@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { alternates } from "@/lib/seo";
 import { LegalShell } from "@/components/marketing/LegalShell";
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "legal" });
+  return { title: t("impressum.title"), alternates: alternates(locale, "/impressum") };
+}
 
 // § 5 TMG requires this page. Provider is a sole proprietor (no company,
 // no USt-ID, no editorial content) — those sections are intentionally omitted.

@@ -1,10 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { alternates } from "@/lib/seo";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "landing.pricing" });
+  return { title: t("title"), alternates: alternates(locale, "/pricing") };
+}
 
 export default async function PricingPage({ params }: Props) {
   const { locale } = await params;

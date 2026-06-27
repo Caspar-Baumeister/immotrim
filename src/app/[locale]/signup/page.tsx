@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
@@ -5,6 +6,8 @@ import { SignupForm } from "./SignupForm";
 import { GoogleSignInButton } from "../auth/GoogleSignInButton";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+
+export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 type Props = {
   params: Promise<{ locale: string }>;

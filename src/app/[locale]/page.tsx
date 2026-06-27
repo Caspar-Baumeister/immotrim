@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image"; // used by top-nav logo
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -5,11 +6,18 @@ import { getTranslations } from "next-intl/server";
 import { Check, Download } from "lucide-react";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getActiveSubscription } from "@/lib/dal";
+import { getBaseUrl } from "@/lib/url";
+import { alternates } from "@/lib/seo";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: alternates(locale, "") };
+}
 
 export default async function LandingPage({ params }: Props) {
   const { locale } = await params;
@@ -23,6 +31,17 @@ export default async function LandingPage({ params }: Props) {
   }
 
   const t = await getTranslations("landing");
+  const tSeo = await getTranslations("seo");
+
+  const base = getBaseUrl();
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Immotrim",
+    url: `${base}/${locale}`,
+    logo: `${base}/logo_immotrim.png`,
+    description: tSeo("siteDescription"),
+  };
 
   const steps = [
     { title: t("steps.s1Title"), desc: t("steps.s1Desc"), image: "/step1.png" },
@@ -32,6 +51,10 @@ export default async function LandingPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Beta banner */}
       <div className="bg-amber-500/10 border-b border-amber-500/20 text-center text-xs sm:text-sm py-2 px-4 text-amber-700 dark:text-amber-300">
         {t("beta.banner")}

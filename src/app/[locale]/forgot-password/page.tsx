@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+
+export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 type Props = { params: Promise<{ locale: string }> };
 

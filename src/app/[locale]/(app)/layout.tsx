@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { verifySession, getActiveSubscription } from "@/lib/dal";
 import { TrialBanner } from "@/components/layout/TrialBanner";
 import { PortfolioChatLauncher } from "@/features/portfolio-chat/PortfolioChatLauncher";
+
+// Everything under (app)/ is gated, user-specific app UI — never index it.
+export const metadata: Metadata = { robots: { index: false } };
 
 type Props = {
   children: React.ReactNode;

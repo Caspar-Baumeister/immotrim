@@ -3,6 +3,10 @@
     "name": "Immotrim",
     "tagline": "Real Estate Analytics"
   },
+  "seo": {
+    "siteTitle": "Immotrim — Real estate portfolio manager",
+    "siteDescription": "Immotrim is the portfolio manager for private real estate investors: track net rent, interest, principal repayment, cash flow, depreciation, remaining debt and wealth growth across your whole portfolio."
+  },
   "nav": {
     "portfolio": "Portfolio",
     "wishlist": "Property Analysis",

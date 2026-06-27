@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { ReportPayload } from "@/features/report/report-types";
 import { ReportDocument } from "@/features/report/components/ReportDocument";
@@ -7,6 +8,9 @@ import "@/features/report/report.css";
 // short-lived token); it has no user session, so the job is loaded with the
 // service-role client and validated by the unguessable token + expiry.
 export const dynamic = "force-dynamic";
+
+// Public share links are crawlable but must never be indexed.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 type Props = { params: Promise<{ token: string; locale: string }> };
 

@@ -3,6 +3,10 @@
     "name": "Immotrim",
     "tagline": "Immobilienanalyse"
   },
+  "seo": {
+    "siteTitle": "Immotrim — Portfolio Manager für Immobilieninvestoren",
+    "siteDescription": "Immotrim ist der Portfolio Manager für private Immobilieninvestoren: Behalte Kaltmiete, Zinsen, Tilgung, Cashflow, AfA, Restschuld und Vermögensaufbau deines gesamten Portfolios im Blick."
+  },
   "nav": {
     "portfolio": "Portfolio",
     "wishlist": "Objektanalyse",
