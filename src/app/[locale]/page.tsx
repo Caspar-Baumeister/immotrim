@@ -155,14 +155,25 @@ export default async function LandingPage({ params }: Props) {
                 <h3 className="font-semibold">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                 {i === 2 && (
-                  <a
-                    href="/beispiel-selbstauskunft.pdf"
-                    download
-                    className="inline-flex items-center gap-2 mt-2 text-sm font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg px-3 py-2 transition-colors"
-                  >
-                    <Download className="h-4 w-4" />
-                    {t("steps.s3Download")}
-                  </a>
+                  <div className="mt-2 space-y-3">
+                    <a
+                      href="/beispiel-selbstauskunft.pdf"
+                      download
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg px-3 py-2 transition-colors"
+                    >
+                      <Download className="h-4 w-4" />
+                      {t("steps.s3Download")}
+                    </a>
+                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-2">
+                      <p className="text-sm font-medium text-foreground">{t("steps.s3CtaText")}</p>
+                      <Link
+                        href={`/${locale}/signup`}
+                        className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm px-3 py-2 rounded-lg transition-colors"
+                      >
+                        {t("steps.s3CtaButton")}
+                      </Link>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

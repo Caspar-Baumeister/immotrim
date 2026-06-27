@@ -113,7 +113,7 @@
       "eyebrow": "Smart property analysis for private investors",
       "title": "The portfolio manager for private real estate investors",
       "subtitle": "Keep track of net rent, interest, principal repayment, cash flow, depreciation, remaining debt and wealth growth across your entire property portfolio.",
-      "ctaPrimary": "Start now",
+      "ctaPrimary": "Get started free",
       "ctaSecondary": "Sign in",
       "trialNote": "14-day free trial — no credit card required."
     },
@@ -126,7 +126,9 @@
       "s2Desc": "Your whole portfolio in one clear dashboard. Ask the AI assistant, run scenarios and instantly see how cash flow and returns change.",
       "s3Title": "Download your bank overview",
       "s3Desc": "Export a clean financial-disclosure / portfolio overview for your bank — ready to send with every loan request.",
-      "s3Download": "Download example PDF"
+      "s3Download": "Download example PDF",
+      "s3CtaText": "Want an overview like this for your own portfolio? Create one in minutes — completely free.",
+      "s3CtaButton": "Create yours free"
     },
     "about": {
       "title": "About me",

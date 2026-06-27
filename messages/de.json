@@ -113,7 +113,7 @@
       "eyebrow": "Smarte Immobilienanalyse für private Investoren",
       "title": "Der Portfolio Manager für private Immobilieninvestoren",
       "subtitle": "Behalte Kaltmiete, Zinsen, Tilgung, Cashflow, AfA, Restschuld und Vermögensaufbau deines gesamten Immobilienportfolios im Blick.",
-      "ctaPrimary": "Jetzt starten",
+      "ctaPrimary": "Kostenlos loslegen",
       "ctaSecondary": "Anmelden",
       "trialNote": "14 Tage kostenlos testen — keine Kreditkarte nötig."
     },
@@ -126,7 +126,9 @@
       "s2Desc": "Dein ganzes Portfolio in einem übersichtlichen Dashboard. Frag den KI-Assistenten, spiel Szenarien durch und sieh sofort, wie sich Cashflow und Rendite verändern.",
       "s3Title": "Übersicht für die Bank herunterladen",
       "s3Desc": "Exportiere eine saubere Selbstauskunft / Portfolio-Übersicht für deine Bank — fertig zum Versenden bei jeder Kreditanfrage.",
-      "s3Download": "Beispiel-PDF herunterladen"
+      "s3Download": "Beispiel-PDF herunterladen",
+      "s3CtaText": "So eine Übersicht für dein eigenes Portfolio? Erstelle sie in wenigen Minuten – komplett kostenlos.",
+      "s3CtaButton": "Jetzt kostenlos erstellen"
     },
     "about": {
       "title": "Über mich",
