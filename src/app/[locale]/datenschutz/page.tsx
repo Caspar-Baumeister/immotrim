@@ -159,16 +159,6 @@ export default async function DatenschutzPage({ params }: Props) {
         gespeicherten Daten jederzeit über die Einstellungen Ihres Browsers löschen.
       </p>
 
-      <div className="not-prose rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
-        <strong>Hinweis – manuell zu prüfen:</strong> Die konkreten Speicherdauern der
-        Authentifizierungs- und Sprach-Cookies, die genauen Firmierungen/Anschriften der
-        eingesetzten Anbieter, das Bestehen und der Inhalt von Auftragsverarbeitungsverträgen
-        (Art.&nbsp;28 DSGVO), die herangezogenen Garantien für Drittlandübermittlungen sowie
-        die genannten Rechtsgrundlagen sind anhand der tatsächlichen Anbieterverträge und der
-        Projektkonfiguration zu verifizieren und ggf. rechtlich zu prüfen. Die obigen Angaben
-        wurden nicht erfunden, ersetzen aber keine Rechtsberatung.
-      </div>
-
       <h2>10. Speicherdauer</h2>
       <p>
         Wir speichern Ihre Daten, solange Ihr Konto besteht, und löschen sie nach
