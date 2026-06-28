@@ -13,6 +13,7 @@ export async function SiteFooter({ locale }: { locale: string }) {
         <nav className="flex items-center gap-4">
           <Link href={`/${locale}/impressum`} className="hover:text-foreground transition-colors">{tl("impressum.title")}</Link>
           <Link href={`/${locale}/datenschutz`} className="hover:text-foreground transition-colors">{tl("datenschutz.title")}</Link>
+          <Link href={`/${locale}/privacy-settings`} className="hover:text-foreground transition-colors">{tl("privacySettings.title")}</Link>
           <Link href={`/${locale}/agb`} className="hover:text-foreground transition-colors">{tl("agb.title")}</Link>
         </nav>
       </div>

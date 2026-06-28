@@ -115,7 +115,7 @@
     },
     "hero": {
       "eyebrow": "Smart property analysis for private investors",
-      "title": "The portfolio manager for private real estate investors",
+      "title": "The portfolio manager for private <mark>real estate investors</mark>",
       "subtitle": "Keep track of net rent, interest, principal repayment, cash flow, depreciation, remaining debt and wealth growth across your entire property portfolio.",
       "ctaPrimary": "Get started free",
       "ctaSecondary": "Sign in",
@@ -164,7 +164,33 @@
       "f4": "Cash-flow, yield & return analytics",
       "f5": "Multi-language (EN/DE)"
     },
-    "footer": "Immotrim"
+    "footer": "Immotrim",
+    "ai": {
+      "eyebrow": "AI assistant",
+      "title": "Ask your portfolio — and let the AI do the math.",
+      "subtitle": "Ask in plain language. The AI works with your real numbers and changes values on request — you confirm every change before it is saved.",
+      "cta": "Create yours for free",
+      "confirmNote": "You confirm every change before it is saved.",
+      "q1": "How much do I actually earn per day with my properties right now?",
+      "a1Lead": "Across your entire portfolio you currently build roughly",
+      "a1Total": "≈ €47 per day",
+      "a1Sub": "in wealth — here is how it breaks down:",
+      "a1Tilgung": "Principal",
+      "a1TilgungVal": "€14",
+      "a1Cashflow": "Cash flow",
+      "a1CashflowVal": "€6",
+      "a1Wert": "Value growth",
+      "a1WertVal": "€27",
+      "q2": "And what would raising depreciation (AfA) by 2% do to my after-tax cash flow?",
+      "a2": "Higher depreciation lowers your taxable income — so your after-tax cash flow rises accordingly. I can adjust this directly for you:",
+      "proposalProperty": "Stockholmer Straße 30, Berlin",
+      "proposalField": "Depreciation (AfA)",
+      "proposalOld": "2%",
+      "proposalNew": "4%",
+      "proposalTitle": "Suggested change",
+      "proposalApply": "Apply",
+      "proposalCancel": "Cancel"
+    }
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -438,9 +464,29 @@
     "datenschutz": {
       "title": "Privacy Policy"
     },
+    "privacySettings": {
+      "title": "Privacy Settings"
+    },
     "agb": {
       "title": "Terms of Service"
     }
+  },
+  "youtube": {
+    "posterAlt": "Preview image of the Immotrim demo video",
+    "notice": "By loading this video, you agree that data may be transferred to YouTube. More information is available in our <link>Privacy Policy</link>.",
+    "loadVideo": "Load YouTube video",
+    "openOnYouTube": "Open on YouTube",
+    "remember": "Remember my choice and load videos automatically in the future"
+  },
+  "privacySettings": {
+    "title": "Privacy Settings",
+    "intro": "Here you can review, change or reset your decision about loading external YouTube videos at any time. All other technologies used on this website are technically necessary.",
+    "youtubeTitle": "YouTube videos",
+    "youtubeDesc": "If you consent, embedded videos will load automatically via youtube-nocookie.com in the future. Data may be transferred to YouTube/Google in the process. Without consent, a local notice is shown before each video.",
+    "statusGranted": "Automatic loading enabled",
+    "statusNotGranted": "Not granted – videos are not loaded automatically",
+    "allow": "Load YouTube videos automatically",
+    "revoke": "Revoke consent"
   },
   "trial": {
     "banner": "{days, plural, =0 {Last day of your free trial} one {# day left in your free trial} other {# days left in your free trial}}",

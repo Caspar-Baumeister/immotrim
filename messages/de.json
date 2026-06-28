@@ -115,7 +115,7 @@
     },
     "hero": {
       "eyebrow": "Smarte Immobilienanalyse für private Investoren",
-      "title": "Der Portfolio Manager für private Immobilieninvestoren",
+      "title": "Der Portfolio Manager für private <mark>Immobilieninvestoren</mark>",
       "subtitle": "Behalte Kaltmiete, Zinsen, Tilgung, Cashflow, AfA, Restschuld und Vermögensaufbau deines gesamten Immobilienportfolios im Blick.",
       "ctaPrimary": "Kostenlos loslegen",
       "ctaSecondary": "Anmelden",
@@ -164,7 +164,33 @@
       "f4": "Cashflow-, Rendite- & Return-Analysen",
       "f5": "Mehrsprachig (DE/EN)"
     },
-    "footer": "Immotrim"
+    "footer": "Immotrim",
+    "ai": {
+      "eyebrow": "KI-Assistent",
+      "title": "Frag dein Portfolio — und lass die KI rechnen.",
+      "subtitle": "Stell ganz normale Fragen. Die KI rechnet mit deinen echten Zahlen und ändert Werte auf Wunsch direkt — du bestätigst jede Änderung, bevor sie gespeichert wird.",
+      "cta": "Jetzt kostenlos erstellen",
+      "confirmNote": "Du bestätigst jede Änderung, bevor sie gespeichert wird.",
+      "q1": "Wie viel verdiene ich aktuell eigentlich pro Tag mit meinen Immobilien?",
+      "a1Lead": "Über dein gesamtes Portfolio baust du aktuell rund",
+      "a1Total": "≈ 47 € pro Tag",
+      "a1Sub": "an Vermögen auf — so setzt sich das zusammen:",
+      "a1Tilgung": "Tilgung",
+      "a1TilgungVal": "14 €",
+      "a1Cashflow": "Cashflow",
+      "a1CashflowVal": "6 €",
+      "a1Wert": "Wertwachstum",
+      "a1WertVal": "27 €",
+      "q2": "Und was würde eine Erhöhung der AfA um 2 % mit meinem Cashflow nach Steuern machen?",
+      "a2": "Eine höhere AfA senkt dein zu versteuerndes Einkommen — dein Cashflow nach Steuern steigt entsprechend. Ich kann das direkt für dich anpassen:",
+      "proposalProperty": "Stockholmer Straße 30, Berlin",
+      "proposalField": "Abschreibung (AfA)",
+      "proposalOld": "2 %",
+      "proposalNew": "4 %",
+      "proposalTitle": "Vorgeschlagene Änderung",
+      "proposalApply": "Übernehmen",
+      "proposalCancel": "Abbrechen"
+    }
   },
   "auth": {
     "loginTitle": "Willkommen zurück",
@@ -438,9 +464,29 @@
     "datenschutz": {
       "title": "Datenschutzerklärung"
     },
+    "privacySettings": {
+      "title": "Datenschutz-Einstellungen"
+    },
     "agb": {
       "title": "AGB"
     }
+  },
+  "youtube": {
+    "posterAlt": "Vorschaubild des Immotrim-Demovideos",
+    "notice": "Durch das Laden des Videos erklären Sie sich damit einverstanden, dass Daten an YouTube übertragen werden können. Weitere Informationen finden Sie in unserer <link>Datenschutzerklärung</link>.",
+    "loadVideo": "YouTube-Video laden",
+    "openOnYouTube": "Auf YouTube öffnen",
+    "remember": "Meine Auswahl merken und Videos künftig automatisch laden"
+  },
+  "privacySettings": {
+    "title": "Datenschutz-Einstellungen",
+    "intro": "Hier können Sie Ihre Entscheidung zum Laden externer YouTube-Videos jederzeit überprüfen, ändern oder zurücksetzen. Alle anderen auf dieser Website genutzten Technologien sind technisch notwendig.",
+    "youtubeTitle": "YouTube-Videos",
+    "youtubeDesc": "Wenn Sie zustimmen, werden eingebettete Videos künftig automatisch über youtube-nocookie.com geladen. Dabei können Daten an YouTube/Google übertragen werden. Ohne Zustimmung wird vor jedem Video zunächst ein lokaler Hinweis angezeigt.",
+    "statusGranted": "Automatisches Laden aktiv",
+    "statusNotGranted": "Nicht zugestimmt – Videos werden nicht automatisch geladen",
+    "allow": "YouTube-Videos automatisch laden",
+    "revoke": "Zustimmung widerrufen"
   },
   "trial": {
     "banner": "{days, plural, =0 {Letzter Tag deiner kostenlosen Testphase} one {Noch # Tag in deiner kostenlosen Testphase} other {Noch # Tage in deiner kostenlosen Testphase}}",

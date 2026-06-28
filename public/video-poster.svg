@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-label="Immotrim Produkt-Demo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c0a09"/>
+      <stop offset="1" stop-color="#1c1917"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#f59e0b" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <text x="640" y="330" text-anchor="middle" font-family="'Space Grotesk', 'Segoe UI', system-ui, sans-serif" font-size="86" font-weight="700" letter-spacing="6" fill="#fafaf9">IMMOTRIM</text>
+  <text x="640" y="400" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="30" font-weight="500" fill="#a8a29e">Produkt-Demo · Product demo</text>
+</svg>

@@ -8,8 +8,10 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { getActiveSubscription } from "@/lib/dal";
 import { getBaseUrl } from "@/lib/url";
 import { alternates } from "@/lib/seo";
+import { AiShowcase } from "@/components/marketing/AiShowcase";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
+import { YouTubeEmbed } from "@/components/marketing/YouTubeEmbed";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -104,9 +106,15 @@ export default async function LandingPage({ params }: Props) {
         </p>
         <h1
           lang={locale}
-          className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight text-balance hyphens-auto break-words"
+          className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight text-balance hyphens-auto break-words"
         >
-          {t("hero.title")}
+          {t.rich("hero.title", {
+            mark: (chunks) => (
+              <span className="rounded-md bg-amber-500/15 px-1.5 text-amber-700 dark:text-amber-300">
+                {chunks}
+              </span>
+            ),
+          })}
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
           {t("hero.subtitle")}
@@ -131,51 +139,44 @@ export default async function LandingPage({ params }: Props) {
         </p>
       </section>
 
-      {/* Product demo video */}
+      {/* Product demo video — two-click consent embed (no Google/YouTube request until opt-in). */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
         <div className="rounded-2xl border border-border overflow-hidden aspect-[16/9]">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/Xsqcq9AA9OI"
-            title="Immotrim"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-            className="h-full w-full"
-          />
+          <YouTubeEmbed videoId="Xsqcq9AA9OI" locale={locale} />
         </div>
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-5xl px-6 py-20 space-y-12">
+      <section className="mx-auto max-w-6xl px-6 py-20 space-y-14">
         <div className="text-center space-y-3">
-          <h2 className="text-3xl font-bold tracking-tight">{t("steps.title")}</h2>
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight">{t("steps.title")}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t("steps.subtitle")}</p>
         </div>
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-3 gap-6 lg:gap-8">
           {steps.map(({ title, desc, image }, i) => (
-            <div key={title} className="relative rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
+            <div key={title} className="relative rounded-2xl border border-border bg-card flex flex-col">
               {i < steps.length - 1 && (
                 <span
                   aria-hidden
-                  className="hidden sm:flex absolute -right-4 top-[28%] -translate-y-1/2 z-10 h-7 w-7 items-center justify-center rounded-full border border-border bg-background text-amber-500"
+                  className="hidden sm:flex absolute -right-5 top-[30%] z-10 h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-amber-500"
                 >
                   →
                 </span>
               )}
-              <div className="relative aspect-[16/10] w-full bg-muted border-b border-border">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-2xl border-b border-border bg-gradient-to-b from-muted to-background">
                 <Image
                   src={image}
                   alt={title}
                   fill
                   sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-cover"
+                  className="object-cover object-top"
                 />
               </div>
-              <div className="p-6 space-y-3 flex-1">
-                <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center">
+              <div className="relative p-6 lg:p-8 pt-10 space-y-3 flex-1">
+                <div className="absolute -top-5 left-6 lg:left-8 w-10 h-10 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center shadow-md ring-4 ring-card">
                   {i + 1}
                 </div>
-                <h3 className="font-semibold">{title}</h3>
+                <h3 className="font-heading text-lg font-semibold">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                 {i === 2 && (
                   <div className="mt-2 space-y-3">
@@ -204,6 +205,9 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
+      {/* AI assistant showcase */}
+      <AiShowcase locale={locale} />
+
       {/* About me */}
       <section id="about" className="mx-auto max-w-5xl px-6 py-20">
         <div className="grid md:grid-cols-2 gap-10 lg:gap-14 items-center">
@@ -226,7 +230,7 @@ export default async function LandingPage({ params }: Props) {
                 className="h-12 w-12 rounded-full border border-border bg-card object-cover"
               />
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight">
                   {t("about.title")}
                 </h2>
                 <p className="text-sm text-muted-foreground">{t("about.subtitle")}</p>
@@ -242,7 +246,7 @@ export default async function LandingPage({ params }: Props) {
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-5xl px-6 py-20 space-y-10">
         <div className="text-center space-y-3">
-          <h2 className="text-3xl font-bold tracking-tight">{t("pricing.title")}</h2>
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight">{t("pricing.title")}</h2>
           <p className="text-muted-foreground">{t("pricing.subtitle")}</p>
         </div>
         <PricingCards locale={locale} />
