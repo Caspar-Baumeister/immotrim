@@ -182,6 +182,15 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ locale, config, investorName: trimmedName }),
       });
+      // Report creation now requires a PAID plan (not just the trial). Send
+      // trial users to pricing instead of failing silently.
+      if (response.status === 402) {
+        setError(
+          "Zum Erstellen des Berichts ist ein bezahlter Tarif nötig. Weiterleitung zu den Tarifen …"
+        );
+        window.location.assign(`/${locale}/pricing`);
+        return;
+      }
       if (!response.ok) {
         throw new Error(`Status ${response.status}`);
       }

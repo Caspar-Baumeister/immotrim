@@ -3,12 +3,14 @@ import Image from "next/image"; // used by top-nav logo
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Check, Download } from "lucide-react";
+import { Check } from "lucide-react";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getActiveSubscription } from "@/lib/dal";
 import { getBaseUrl } from "@/lib/url";
 import { alternates } from "@/lib/seo";
 import { AiShowcase } from "@/components/marketing/AiShowcase";
+import { ChartShowcase } from "@/components/marketing/ChartShowcase";
+import { SelbstauskunftTeaser } from "@/components/marketing/SelbstauskunftTeaser";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { YouTubeEmbed } from "@/components/marketing/YouTubeEmbed";
@@ -48,8 +50,22 @@ export default async function LandingPage({ params }: Props) {
   const steps = [
     { title: t("steps.s1Title"), desc: t("steps.s1Desc"), image: "/step1.png" },
     { title: t("steps.s2Title"), desc: t("steps.s2Desc"), image: "/step2.png" },
-    { title: t("steps.s3Title"), desc: t("steps.s3Desc"), image: "/step3.png" },
   ];
+
+  // Slides for the chart showcase — order must match the CHARTS array in
+  // ChartShowcase.tsx (Vermögensaufbau, Cashflow, Tilgungsplan, EK-Rendite,
+  // Immobilienwert vs. Schulden, Brutto-Mietrendite).
+  const showcaseSlides = [1, 2, 3, 4, 5, 6].map((n) => ({
+    title: t(`showcase.c${n}Title`),
+    what: t(`showcase.c${n}What`),
+    why: t(`showcase.c${n}Why`),
+  }));
+  const showcaseLabels = {
+    prev: t("showcase.prev"),
+    next: t("showcase.next"),
+    goto: t("showcase.goto"),
+    whyLabel: t("showcase.whyLabel"),
+  };
 
   return (
     <main className="min-h-screen">
@@ -139,6 +155,20 @@ export default async function LandingPage({ params }: Props) {
         </p>
       </section>
 
+      {/* Chart showcase — auto-scrolling slider of the real dashboard charts
+          (example data) so visitors immediately see what the product reveals. */}
+      <section className="mx-auto max-w-6xl px-6 pb-20 space-y-10">
+        <div className="text-center space-y-3">
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight">
+            {t("showcase.title")}
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            {t("showcase.subtitle")}
+          </p>
+        </div>
+        <ChartShowcase slides={showcaseSlides} labels={showcaseLabels} />
+      </section>
+
       {/* Product demo video — two-click consent embed (no Google/YouTube request until opt-in). */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
         <div className="rounded-2xl border border-border overflow-hidden aspect-[16/9]">
@@ -152,7 +182,7 @@ export default async function LandingPage({ params }: Props) {
           <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight">{t("steps.title")}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t("steps.subtitle")}</p>
         </div>
-        <div className="grid sm:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid sm:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
           {steps.map(({ title, desc, image }, i) => (
             <div key={title} className="relative rounded-2xl border border-border bg-card flex flex-col">
               {i < steps.length - 1 && (
@@ -178,32 +208,14 @@ export default async function LandingPage({ params }: Props) {
                 </div>
                 <h3 className="font-heading text-lg font-semibold">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-                {i === 2 && (
-                  <div className="mt-2 space-y-3">
-                    <a
-                      href="/beispiel-selbstauskunft.pdf"
-                      download
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg px-3 py-2 transition-colors"
-                    >
-                      <Download className="h-4 w-4" />
-                      {t("steps.s3Download")}
-                    </a>
-                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-2">
-                      <p className="text-sm font-medium text-foreground">{t("steps.s3CtaText")}</p>
-                      <Link
-                        href={`/${locale}/signup`}
-                        className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm px-3 py-2 rounded-lg transition-colors"
-                      >
-                        {t("steps.s3CtaButton")}
-                      </Link>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           ))}
         </div>
       </section>
+
+      {/* Bank report / Selbstauskunft funnel teaser */}
+      <SelbstauskunftTeaser locale={locale} />
 
       {/* AI assistant showcase */}
       <AiShowcase locale={locale} />

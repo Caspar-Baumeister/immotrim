@@ -42,6 +42,24 @@ export const getActiveSubscription = cache(async (
   return entitled ? data : null;
 });
 
+// Returns true only for a PAID, currently-active plan — a real subscription
+// (monthly/yearly) or a one-time lifetime purchase. Unlike getActiveSubscription
+// this deliberately EXCLUDES "trialing": creating a Selbstauskunft / bank report
+// requires a paid account, not just the free trial.
+export const hasPaidPlan = cache(async (userId: string): Promise<boolean> => {
+  const sb = await createServerSupabase();
+  const { data } = await sb
+    .from("subscriptions")
+    .select("status, current_period_end")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) return false;
+  return (
+    data.status === "active"
+    && (!data.current_period_end || new Date(data.current_period_end) > new Date())
+  );
+});
+
 // Returns the subscription row (or null) without entitlement filtering — useful for the
 // Account page to show "your subscription is past_due / canceled" copy.
 export const getSubscription = cache(async (userId: string) => {

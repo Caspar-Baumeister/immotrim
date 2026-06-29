@@ -53,6 +53,12 @@ export type PropertyInputs = {
   // Used ONLY for the bank report (Objektangaben on detail pages). All calculation
   // functions ignore these fields entirely — they have no effect on any KPI/chart.
   report?: ReportDetails;
+
+  // === Selbstauskunft funnel metadata (optional) ===
+  // AI document classification + cached completeness, set by the Selbstauskunft
+  // sort flow. Migration-free: stored here instead of a column on `documents`.
+  // Ignored by every KPI/chart calculation.
+  selbstauskunft?: import("@/lib/selbstauskunft/completeness").SaMeta;
 };
 
 // Descriptive object details shown on the bank report's individual property pages.

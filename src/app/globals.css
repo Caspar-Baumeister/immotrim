@@ -203,3 +203,33 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   opacity: 0.4;
 }
+
+/* ── Selbstauskunft teaser animation (landing) ──────────────────────────────
+   Looping "upload documents → AI processes → finished PDF" illustration. */
+@keyframes immotrim-progress {
+  0% { width: 0%; }
+  8% { width: 6%; }
+  55% { width: 72%; }
+  92%, 100% { width: 100%; }
+}
+@keyframes immotrim-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes immotrim-result-pop {
+  0%, 55% { opacity: 0.2; transform: scale(0.94); }
+  72% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes immotrim-flow-dot {
+  0% { transform: translateX(0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateX(56px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .immotrim-anim,
+  .immotrim-anim * {
+    animation: none !important;
+  }
+}
