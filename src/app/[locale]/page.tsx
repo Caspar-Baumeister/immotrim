@@ -10,6 +10,7 @@ import { getBaseUrl } from "@/lib/url";
 import { alternates } from "@/lib/seo";
 import { AiShowcase } from "@/components/marketing/AiShowcase";
 import { ChartShowcase } from "@/components/marketing/ChartShowcase";
+import { HowItWorksSteps } from "@/components/marketing/HowItWorksSteps";
 import { SelbstauskunftTeaser } from "@/components/marketing/SelbstauskunftTeaser";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
@@ -46,11 +47,6 @@ export default async function LandingPage({ params }: Props) {
     logo: `${base}/logo_immotrim.png`,
     description: tSeo("siteDescription"),
   };
-
-  const steps = [
-    { title: t("steps.s1Title"), desc: t("steps.s1Desc"), image: "/step1.png" },
-    { title: t("steps.s2Title"), desc: t("steps.s2Desc"), image: "/step2.png" },
-  ];
 
   // Slides for the chart showcase — order must match the CHARTS array in
   // ChartShowcase.tsx (Vermögensaufbau, Cashflow, Tilgungsplan, EK-Rendite,
@@ -177,42 +173,7 @@ export default async function LandingPage({ params }: Props) {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-6xl px-6 py-20 space-y-14">
-        <div className="text-center space-y-3">
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight">{t("steps.title")}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">{t("steps.subtitle")}</p>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
-          {steps.map(({ title, desc, image }, i) => (
-            <div key={title} className="relative rounded-2xl border border-border bg-card flex flex-col">
-              {i < steps.length - 1 && (
-                <span
-                  aria-hidden
-                  className="hidden sm:flex absolute -right-5 top-[30%] z-10 h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-amber-500"
-                >
-                  →
-                </span>
-              )}
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-2xl border-b border-border bg-gradient-to-b from-muted to-background">
-                <Image
-                  src={image}
-                  alt={title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-cover object-top"
-                />
-              </div>
-              <div className="relative p-6 lg:p-8 pt-10 space-y-3 flex-1">
-                <div className="absolute -top-5 left-6 lg:left-8 w-10 h-10 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center shadow-md ring-4 ring-card">
-                  {i + 1}
-                </div>
-                <h3 className="font-heading text-lg font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <HowItWorksSteps />
 
       {/* Bank report / Selbstauskunft funnel teaser */}
       <SelbstauskunftTeaser locale={locale} />
