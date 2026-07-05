@@ -181,6 +181,12 @@ type ReportJobRowShape = {
   expires_at: string;
 };
 
+type PortfolioShareRowShape = {
+  token: string;
+  user_id: string;
+  created_at: string;
+};
+
 type SubscriptionRowShape = {
   id: string;
   user_id: string;
@@ -263,6 +269,13 @@ export type Database = {
           expires_at?: string;
         };
         Update: Partial<Omit<ReportJobRowShape, "id" | "user_id" | "created_at">>;
+        Relationships: [];
+      };
+      portfolio_shares: {
+        Row: PortfolioShareRowShape;
+        // token defaults server-side; only user_id is required on insert.
+        Insert: { token?: string; user_id: string; created_at?: string };
+        Update: never;
         Relationships: [];
       };
       subscriptions: {

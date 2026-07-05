@@ -89,6 +89,23 @@
     "avgCapRate": "Avg. Gross Yield",
     "properties": "Properties"
   },
+  "share": {
+    "button": "Share",
+    "dialogTitle": "Share portfolio",
+    "dialogSubtitle": "Anyone with this link sees your total portfolio as a dashboard — with no access to individual properties.",
+    "loading": "Creating link…",
+    "copy": "Copy",
+    "copied": "Copied",
+    "error": "Could not create the link. Please try again.",
+    "privacyNote": "The link shows only aggregate figures and charts. Address, rooms, floor area and other property details are hidden, and nothing can be edited.",
+    "pageTitle": "Real estate portfolio",
+    "pageSubtitle": "Aggregate figures and the development of the entire portfolio. Individual property data is hidden.",
+    "objektLabel": "Property",
+    "empty": "This portfolio doesn't contain any properties yet.",
+    "cta": "Analyze your own portfolio",
+    "ctaTitle": "Analyze your own real estate portfolio",
+    "ctaSubtitle": "Upload your documents and keep track of cash flow, returns and wealth growth."
+  },
   "actions": {
     "viewInsights": "View Insights",
     "edit": "Edit",

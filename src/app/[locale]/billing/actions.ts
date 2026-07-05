@@ -68,7 +68,7 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
     ...(oneTime
       ? { payment_intent_data: { metadata: { user_id: user.id } } }
       : { subscription_data: { metadata: { user_id: user.id } } }),
-    success_url: `${baseUrl}/${locale}/portfolio`,
+    success_url: `${baseUrl}/api/billing/checkout-return?session_id={CHECKOUT_SESSION_ID}&locale=${locale}`,
     cancel_url: `${baseUrl}/${locale}/pricing`,
     allow_promotion_codes: true,
   });

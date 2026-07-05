@@ -89,6 +89,23 @@
     "avgCapRate": "Ø Brutto-Rendite",
     "properties": "Immobilien"
   },
+  "share": {
+    "button": "Teilen",
+    "dialogTitle": "Portfolio teilen",
+    "dialogSubtitle": "Jeder mit diesem Link sieht dein Gesamt-Portfolio als Dashboard – ohne Zugang zu einzelnen Objekten.",
+    "loading": "Link wird erstellt…",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "error": "Link konnte nicht erstellt werden. Bitte versuche es erneut.",
+    "privacyNote": "Der Link zeigt nur aggregierte Kennzahlen und Diagramme. Adresse, Zimmer, Wohnfläche und weitere Objektdetails werden nicht angezeigt, und es kann nichts bearbeitet werden.",
+    "pageTitle": "Immobilien-Portfolio",
+    "pageSubtitle": "Aggregierte Kennzahlen und Entwicklung des gesamten Portfolios. Einzelne Objektdaten sind ausgeblendet.",
+    "objektLabel": "Objekt",
+    "empty": "Dieses Portfolio enthält noch keine Immobilien.",
+    "cta": "Eigenes Portfolio analysieren",
+    "ctaTitle": "Analysiere dein eigenes Immobilien-Portfolio",
+    "ctaSubtitle": "Lade deine Unterlagen hoch und behalte Cashflow, Rendite und Vermögensaufbau im Blick."
+  },
   "actions": {
     "viewInsights": "Analyse anzeigen",
     "edit": "Bearbeiten",
