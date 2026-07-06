@@ -1,36 +1,10 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe, planFromPriceId } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { subscriptionToUpdate, syncSubscriptionFromCheckoutSession, type SubUpdate } from "@/lib/stripe-sync";
 
 export const runtime = "nodejs";
-
-type SubUpdate = {
-  status: string;
-  stripe_subscription_id?: string;
-  price_id?: string | null;
-  plan_interval?: string | null;
-  current_period_end?: string | null;
-  cancel_at_period_end?: boolean;
-  updated_at?: string;
-};
-
-function subscriptionToUpdate(sub: Stripe.Subscription): SubUpdate {
-  const item = sub.items.data[0];
-  const priceId = item?.price?.id ?? null;
-  const interval = item?.price?.recurring?.interval ?? null;
-  const periodEndSec = (item as unknown as { current_period_end?: number } | undefined)?.current_period_end
-    ?? (sub as unknown as { current_period_end?: number }).current_period_end;
-  return {
-    status: sub.status,
-    stripe_subscription_id: sub.id,
-    price_id: priceId,
-    plan_interval: planFromPriceId(priceId) ?? interval,
-    current_period_end: periodEndSec ? new Date(periodEndSec * 1000).toISOString() : null,
-    cancel_at_period_end: sub.cancel_at_period_end,
-    updated_at: new Date().toISOString(),
-  };
-}
 
 async function upsertSubscriptionByCustomer(customerId: string, update: SubUpdate) {
   const admin = getSupabaseAdmin();
@@ -60,38 +34,10 @@ export async function POST(req: Request) {
   try {
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.user_id;
-        const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
-        if (!userId || !customerId) break;
-        const admin = getSupabaseAdmin();
-
-        // One-time purchase (lifetime): no subscription object. A null current_period_end
-        // makes the entitlement gate in dal.ts grant access permanently.
-        if (session.mode === "payment") {
-          await admin.from("subscriptions").upsert({
-            user_id: userId,
-            stripe_customer_id: customerId,
-            status: "active",
-            stripe_subscription_id: null,
-            price_id: process.env.STRIPE_PRICE_LIFETIME ?? null,
-            plan_interval: "lifetime",
-            current_period_end: null,
-            cancel_at_period_end: false,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: "user_id" });
-          break;
-        }
-
-        const subId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
-        if (!subId) break;
-
-        const subscription = await stripe.subscriptions.retrieve(subId);
-        await admin.from("subscriptions").upsert({
-          user_id: userId,
-          stripe_customer_id: customerId,
-          ...subscriptionToUpdate(subscription),
-        }, { onConflict: "user_id" });
+        // Also performed synchronously by /api/billing/checkout-return when the
+        // user lands back from Checkout — this handler is the eventual-consistency
+        // backstop, so this is a harmless, idempotent re-write if that already ran.
+        await syncSubscriptionFromCheckoutSession(event.data.object as Stripe.Checkout.Session);
         break;
       }
 

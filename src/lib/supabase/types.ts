@@ -53,6 +53,12 @@ export type PropertyInputs = {
   // Used ONLY for the bank report (Objektangaben on detail pages). All calculation
   // functions ignore these fields entirely — they have no effect on any KPI/chart.
   report?: ReportDetails;
+
+  // === Selbstauskunft funnel metadata (optional) ===
+  // AI document classification + cached completeness, set by the Selbstauskunft
+  // sort flow. Migration-free: stored here instead of a column on `documents`.
+  // Ignored by every KPI/chart calculation.
+  selbstauskunft?: import("@/lib/selbstauskunft/completeness").SaMeta;
 };
 
 // Descriptive object details shown on the bank report's individual property pages.
@@ -175,6 +181,12 @@ type ReportJobRowShape = {
   expires_at: string;
 };
 
+type PortfolioShareRowShape = {
+  token: string;
+  user_id: string;
+  created_at: string;
+};
+
 type SubscriptionRowShape = {
   id: string;
   user_id: string;
@@ -257,6 +269,13 @@ export type Database = {
           expires_at?: string;
         };
         Update: Partial<Omit<ReportJobRowShape, "id" | "user_id" | "created_at">>;
+        Relationships: [];
+      };
+      portfolio_shares: {
+        Row: PortfolioShareRowShape;
+        // token defaults server-side; only user_id is required on insert.
+        Insert: { token?: string; user_id: string; created_at?: string };
+        Update: never;
         Relationships: [];
       };
       subscriptions: {

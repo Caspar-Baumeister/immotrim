@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { hasPaidPlan } from "@/lib/dal";
 import { launchBrowser } from "@/lib/pdf/chromium";
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
 import {
@@ -39,6 +40,13 @@ export async function POST(request: Request) {
   } = await sb.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  // Creating a Selbstauskunft / bank report requires a PAID account (not just the
+  // free trial). Gated here so it holds for every caller — the in-app report
+  // dialog and the Selbstauskunft funnel alike.
+  if (!(await hasPaidPlan(user.id))) {
+    return NextResponse.json({ error: "payment_required" }, { status: 402 });
   }
 
   // ── Parse request ──────────────────────────────────────────────────────────
