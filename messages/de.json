@@ -131,46 +131,19 @@
       "banner": "🚧 Immotrim befindet sich aktuell in der Beta – wir entwickeln ständig weiter. Dein Feedback ist herzlich willkommen!"
     },
     "hero": {
-      "eyebrow": "Portfolio-Überblick für private Immobilieninvestoren",
-      "title": "Behalte den vollen Überblick über dein <mark>Immobilienportfolio</mark>",
-      "subtitle": "Lade deine Unterlagen hoch und sieh auf einen Blick, was funktioniert und wo Schwachstellen stecken — Cashflow, Rendite, Tilgung und Vermögensaufbau deines gesamten Portfolios.",
+      "eyebrow": "Für Immobilien-Investoren — ohne Finanzierungsvermittler",
+      "title": "Immobilienfinanzierung direkt bei Banken vorbereiten — <mark>ohne Finanzierungsvermittler</mark>.",
+      "subtitle": "Immotrim prüft deine Unterlagen und arbeitet sie sauber auf — damit du selbst Beziehungen zu Banken aufbaust, statt sie einem Vermittler zu überlassen.",
       "ctaPrimary": "Kostenlos loslegen",
       "ctaSecondary": "Anmelden",
-      "trialNote": "14 Tage kostenlos testen — keine Kreditkarte nötig."
+      "trialNote": "14 Tage kostenlos testen — keine Kreditkarte nötig.",
+      "imageAlt": "Hand hält vorbereitete Finanzierungsunterlagen"
     },
-    "steps": {
-      "title": "So funktioniert's",
-      "subtitle": "In zwei Schritten von deinen Unterlagen zum übersichtlichen Portfolio.",
-      "s1Title": "Unterlagen hochladen",
-      "s1Desc": "Lade Exposés, Kaufverträge oder Abrechnungen hoch — als PDF oder Bild. Die KI liest Kaufpreis, Miete, Wohnfläche und mehr automatisch aus.",
-      "s2Title": "Dein Portfolio im Überblick",
-      "s2Desc": "Alle Objekte sauber in einem Dashboard. Erkenne sofort Schwachstellen, sieh was funktioniert und spiel mit dem KI-Assistenten Szenarien durch."
-    },
-    "showcase": {
-      "title": "Sieh sofort, was dein Portfolio macht",
-      "subtitle": "Jeder Graph deckt eine andere Seite deines Portfolios auf — Schwachstellen genauso wie das, was richtig läuft.",
-      "c1Title": "Vermögensaufbau pro Jahr",
-      "c1What": "Tilgung, Cashflow und Wertwachstum aller Objekte – Jahr für Jahr.",
-      "c1Why": "Zeigt, wie schnell dein Vermögen wirklich wächst und welcher Hebel am meisten beiträgt.",
-      "c2Title": "Cashflow",
-      "c2What": "Summe des jährlichen Netto-Cashflows aller Objekte.",
-      "c2Why": "Verrät sofort, ob dein Portfolio dich trägt – oder ob ein Objekt Geld frisst.",
-      "c3Title": "Tilgungsplan",
-      "c3What": "Tilgung, Zinsen und Restschuld über die gesamte Laufzeit.",
-      "c3Why": "Macht sichtbar, wann du schuldenfrei bist und wie viel Zins du noch zahlst.",
-      "c4Title": "Eigenkapitalrendite",
-      "c4What": "Rendite auf dein noch gebundenes Eigenkapital.",
-      "c4Why": "Die ehrlichste Kennzahl dafür, wie hart dein eingesetztes Geld arbeitet.",
-      "c5Title": "Immobilienwert vs. Schulden",
-      "c5What": "Wert, Restschuld und Nettovermögen aller Objekte im Zeitverlauf.",
-      "c5Why": "Zeigt deinen echten Vermögensaufbau – die Lücke zwischen Wert und Schulden.",
-      "c6Title": "Brutto-Mietrendite",
-      "c6What": "Kaltmiete im Verhältnis zum Kaufpreis (kaufpreisgewichtet).",
-      "c6Why": "Deckt auf, welche Objekte zu teuer eingekauft sind und welche überzeugen.",
-      "prev": "Vorheriger Graph",
-      "next": "Nächster Graph",
-      "goto": "Gehe zu Graph",
-      "whyLabel": "Warum wichtig"
+    "problem": {
+      "eyebrow": "Warum ohne Vermittler",
+      "title": "Wer Immobilien als Investment sieht, baut Beziehungen zu Banken auf.",
+      "body": "Wenn du Immobilien als Investment betrachtest statt als Eigenheim, solltest du keinen Finanzierungsvermittler nutzen — sondern eigene Beziehungen zu Banken aufbauen. Immotrim hilft dir dabei, deine Unterlagen zu prüfen und sauber aufzuarbeiten.",
+      "highlight": "Damit bist du anderen Investoren einen Schritt voraus."
     },
     "bankreport": {
       "eyebrow": "Selbstauskunft für die Bank",
@@ -185,14 +158,6 @@
       "doc1": "Kaufvertrag",
       "doc2": "Mietvertrag",
       "doc3": "Finanzierung"
-    },
-    "about": {
-      "title": "Über mich",
-      "subtitle": "Caspar – Entwickler hinter Immotrim",
-      "imageAlt": "Caspar, Entwickler hinter Immotrim",
-      "p1": "Seit ich in Immobilien investiere, hatte ich immer dasselbe Problem: Ich bin ein bisschen chaotisch. Mit jeder neuen Wohnung wurden mein Laptop und mein Postfach voller – und ich verlor den Überblick, was meine Objekte eigentlich wirklich abwerfen.",
-      "p2": "Das war nicht nur für mich ein Problem, um zu sehen, ob sich etwas lohnt. Auch für die Banken war es jedes Mal ein Krampf: Bei jeder neuen Kreditanfrage durfte ich ihre Selbstauskunft von Hand ausfüllen – immer wieder aufs Neue.",
-      "signature": "— Caspar"
     },
     "pricing": {
       "title": "Einfache Preise",

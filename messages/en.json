@@ -131,46 +131,19 @@
       "banner": "🚧 Immotrim is currently in beta – we're improving it constantly. Your feedback is very welcome!"
     },
     "hero": {
-      "eyebrow": "Portfolio overview for private real-estate investors",
-      "title": "Keep full control of your <mark>property portfolio</mark>",
-      "subtitle": "Upload your documents and see at a glance what's working and where the weak spots are — cash flow, yield, repayment and wealth growth across your entire portfolio.",
+      "eyebrow": "For real-estate investors — without a mortgage broker",
+      "title": "Prepare property financing directly with banks — <mark>without a mortgage broker</mark>.",
+      "subtitle": "Immotrim reviews your documents and puts them in clean, complete shape — so you build relationships with banks yourself instead of leaving them to a broker.",
       "ctaPrimary": "Get started free",
       "ctaSecondary": "Sign in",
-      "trialNote": "14-day free trial — no credit card required."
+      "trialNote": "14-day free trial — no credit card required.",
+      "imageAlt": "Hand holding prepared financing documents"
     },
-    "steps": {
-      "title": "How it works",
-      "subtitle": "From your documents to a clear portfolio in two steps.",
-      "s1Title": "Upload your documents",
-      "s1Desc": "Upload listings, purchase contracts or statements — as PDF or image. The AI reads out purchase price, rent, living area and more automatically.",
-      "s2Title": "Your portfolio at a glance",
-      "s2Desc": "All your properties in one clean dashboard. Spot weak spots instantly, see what's working and run scenarios with the AI assistant."
-    },
-    "showcase": {
-      "title": "See instantly what your portfolio is doing",
-      "subtitle": "Each chart reveals a different side of your portfolio — the weak spots as much as what's working.",
-      "c1Title": "Wealth build-up per year",
-      "c1What": "Principal, cash flow and value growth across all properties — year by year.",
-      "c1Why": "Shows how fast your wealth really grows and which lever contributes most.",
-      "c2Title": "Cash flow",
-      "c2What": "Sum of the annual net cash flow across all properties.",
-      "c2Why": "Instantly tells you whether your portfolio carries you — or a property is bleeding cash.",
-      "c3Title": "Amortization",
-      "c3What": "Principal, interest and remaining debt over the full term.",
-      "c3Why": "Makes clear when you'll be debt-free and how much interest you're still paying.",
-      "c4Title": "Return on equity",
-      "c4What": "Return on the equity still tied up in your portfolio.",
-      "c4Why": "The most honest measure of how hard your invested money is working.",
-      "c5Title": "Property value vs. debt",
-      "c5What": "Value, remaining debt and net worth across all properties over time.",
-      "c5Why": "Shows your real wealth build-up — the gap between value and debt.",
-      "c6Title": "Gross rent yield",
-      "c6What": "Cold rent relative to purchase price (purchase-price weighted).",
-      "c6Why": "Reveals which properties were bought too expensively and which deliver.",
-      "prev": "Previous chart",
-      "next": "Next chart",
-      "goto": "Go to chart",
-      "whyLabel": "Why it matters"
+    "problem": {
+      "eyebrow": "Why go without a broker",
+      "title": "Treat real estate as an investment, and you build relationships with banks.",
+      "body": "If you see real estate as an investment rather than a home, you shouldn't use a mortgage broker — you should build your own relationships with banks. Immotrim helps you review your documents and get them into clean shape.",
+      "highlight": "That puts you one step ahead of other investors."
     },
     "bankreport": {
       "eyebrow": "Financial disclosure for your bank",
@@ -185,14 +158,6 @@
       "doc1": "Purchase contract",
       "doc2": "Lease",
       "doc3": "Financing"
-    },
-    "about": {
-      "title": "About me",
-      "subtitle": "Caspar – the developer behind Immotrim",
-      "imageAlt": "Caspar, the developer behind Immotrim",
-      "p1": "Ever since I started investing in real estate, I had the same problem: I'm a bit messy. With every new property my laptop and inbox got more cluttered — and I lost track of what my properties were actually producing.",
-      "p2": "That wasn't just a problem for me to judge whether something was working. It was a pain for the banks too: every new loan request meant filling out their financial-disclosure forms by hand, over and over again.",
-      "signature": "— Caspar"
     },
     "pricing": {
       "title": "Simple pricing",
