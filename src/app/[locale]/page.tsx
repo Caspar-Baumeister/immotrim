@@ -9,8 +9,6 @@ import { getActiveSubscription } from "@/lib/dal";
 import { getBaseUrl } from "@/lib/url";
 import { alternates } from "@/lib/seo";
 import { AiShowcase } from "@/components/marketing/AiShowcase";
-import { ChartShowcase } from "@/components/marketing/ChartShowcase";
-import { HowItWorksSteps } from "@/components/marketing/HowItWorksSteps";
 import { SelbstauskunftTeaser } from "@/components/marketing/SelbstauskunftTeaser";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
@@ -46,21 +44,6 @@ export default async function LandingPage({ params }: Props) {
     url: `${base}/${locale}`,
     logo: `${base}/logo_immotrim.png`,
     description: tSeo("siteDescription"),
-  };
-
-  // Slides for the chart showcase — order must match the CHARTS array in
-  // ChartShowcase.tsx (Vermögensaufbau, Cashflow, Tilgungsplan, EK-Rendite,
-  // Immobilienwert vs. Schulden, Brutto-Mietrendite).
-  const showcaseSlides = [1, 2, 3, 4, 5, 6].map((n) => ({
-    title: t(`showcase.c${n}Title`),
-    what: t(`showcase.c${n}What`),
-    why: t(`showcase.c${n}Why`),
-  }));
-  const showcaseLabels = {
-    prev: t("showcase.prev"),
-    next: t("showcase.next"),
-    goto: t("showcase.goto"),
-    whyLabel: t("showcase.whyLabel"),
   };
 
   return (
@@ -111,59 +94,79 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="mx-auto max-w-4xl px-6 pt-20 pb-16 text-center space-y-6">
-        <p className="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400/80">
-          {t("hero.eyebrow")}
-        </p>
-        <h1
-          lang={locale}
-          className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight text-balance hyphens-auto break-words"
-        >
-          {t.rich("hero.title", {
-            mark: (chunks) => (
-              <span className="rounded-md bg-amber-500/15 px-1.5 text-amber-700 dark:text-amber-300">
-                {chunks}
-              </span>
-            ),
-          })}
-        </h1>
-        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-          {t("hero.subtitle")}
-        </p>
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <Link
-            href={`/${locale}/signup`}
-            className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2.5 rounded-lg transition-colors"
-          >
-            {t("hero.ctaPrimary")}
-          </Link>
-          <Link
-            href={`/${locale}/login`}
-            className="text-muted-foreground hover:text-foreground px-5 py-2.5 rounded-lg hover:bg-foreground/5 transition-colors"
-          >
-            {t("hero.ctaSecondary")}
-          </Link>
+      {/* Hero — two-column: positioning statement + hand-holding-documents image. */}
+      <section className="mx-auto max-w-6xl px-6 pt-16 pb-20 sm:pt-24 sm:pb-28">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="space-y-7 text-center lg:text-left">
+            <p className="text-xs font-medium uppercase tracking-widest text-amber-600 dark:text-amber-400/80">
+              {t("hero.eyebrow")}
+            </p>
+            <h1
+              lang={locale}
+              className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] text-balance hyphens-auto break-words"
+            >
+              {t.rich("hero.title", {
+                mark: (chunks) => (
+                  <span className="text-amber-600 dark:text-amber-400">{chunks}</span>
+                ),
+              })}
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              {t("hero.subtitle")}
+            </p>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-1">
+              <Link
+                href={`/${locale}/signup`}
+                className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-6 py-3 rounded-lg transition-colors"
+              >
+                {t("hero.ctaPrimary")}
+              </Link>
+              <Link
+                href={`/${locale}/login`}
+                className="text-muted-foreground hover:text-foreground px-6 py-3 rounded-lg hover:bg-foreground/5 transition-colors"
+              >
+                {t("hero.ctaSecondary")}
+              </Link>
+            </div>
+            <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+              <Check className="h-4 w-4 text-amber-500" />
+              {t("hero.trialNote")}
+            </p>
+          </div>
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+            <Image
+              src="/hero.jpg"
+              alt={t("hero.imageAlt")}
+              width={4479}
+              height={4479}
+              priority
+              sizes="(min-width: 1024px) 40vw, 90vw"
+              className="w-full aspect-square rounded-2xl border border-border object-cover shadow-xl"
+            />
+          </div>
         </div>
-        <p className="inline-flex max-w-full items-center gap-2 mx-auto text-center text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5">
-          <Check className="h-4 w-4" />
-          {t("hero.trialNote")}
-        </p>
       </section>
 
-      {/* Chart showcase — auto-scrolling slider of the real dashboard charts
-          (example data) so visitors immediately see what the product reveals. */}
-      <section className="mx-auto max-w-6xl px-6 pb-20 space-y-10">
-        <div className="text-center space-y-3">
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight">
-            {t("showcase.title")}
+      {/* Positioning — why prepare financing yourself instead of using a broker. */}
+      <section className="border-y border-border bg-muted/30">
+        <div className="mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
+          <p className="text-xs font-medium uppercase tracking-widest text-amber-600 dark:text-amber-400/80">
+            {t("problem.eyebrow")}
+          </p>
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-balance">
+            {t("problem.title")}
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {t("showcase.subtitle")}
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            {t("problem.body")}
+          </p>
+          <p className="text-lg font-semibold text-foreground pt-2">
+            {t("problem.highlight")}
           </p>
         </div>
-        <ChartShowcase slides={showcaseSlides} labels={showcaseLabels} />
       </section>
+
+      {/* Bank report / Selbstauskunft funnel teaser */}
+      <SelbstauskunftTeaser locale={locale} />
 
       {/* Product demo video — two-click consent embed (no Google/YouTube request until opt-in). */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
@@ -172,49 +175,8 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
-      {/* How it works */}
-      <HowItWorksSteps />
-
-      {/* Bank report / Selbstauskunft funnel teaser */}
-      <SelbstauskunftTeaser locale={locale} />
-
       {/* AI assistant showcase */}
       <AiShowcase locale={locale} />
-
-      {/* About me */}
-      <section id="about" className="mx-auto max-w-5xl px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-10 lg:gap-14 items-center">
-          <div className="mx-auto w-full max-w-sm">
-            <Image
-              src="/caspar_freundlich.JPG"
-              alt={t("about.imageAlt")}
-              width={768}
-              height={1024}
-              className="rounded-2xl border border-border object-cover w-full shadow-sm"
-            />
-          </div>
-          <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/caspar_square_transparent.png"
-                alt=""
-                width={48}
-                height={48}
-                className="h-12 w-12 rounded-full border border-border bg-card object-cover"
-              />
-              <div>
-                <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight">
-                  {t("about.title")}
-                </h2>
-                <p className="text-sm text-muted-foreground">{t("about.subtitle")}</p>
-              </div>
-            </div>
-            <p className="text-muted-foreground leading-relaxed">{t("about.p1")}</p>
-            <p className="text-muted-foreground leading-relaxed">{t("about.p2")}</p>
-            <p className="font-medium text-foreground">{t("about.signature")}</p>
-          </div>
-        </div>
-      </section>
 
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-5xl px-6 py-20 space-y-10">
