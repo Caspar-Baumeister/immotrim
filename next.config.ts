@@ -1,6 +1,5 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
-import { routing } from "./src/i18n/routing";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -14,6 +13,13 @@ const nextConfig: NextConfig = {
   // Keep the headless-Chromium deps out of the bundle; they ship native/binary
   // assets that must be required at runtime from node_modules.
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  // The logo is a first-party inline SVG icon (document + pen). next/image blocks
+  // SVGs by default; allow it, sandboxed via CSP since these are our own assets.
+  images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
   // @sparticuz/chromium loads its brotli-compressed binary from bin/*.br via a
   // computed path at runtime, so file-tracing can't detect it and drops it from
   // the serverless function (→ "input directory .../@sparticuz/chromium/bin does
@@ -22,14 +28,20 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/portfolio/report": ["./node_modules/@sparticuz/chromium/bin/**"],
   },
-  // The next-intl middleware (src/proxy.ts) normally redirects "/" to a locale.
-  // Keep a static fallback here so the bare domain never 404s if the proxy
-  // doesn't run. There is no un-prefixed root layout anymore.
+  // The app was previously served under a /[locale] prefix (/de, /en). It is now
+  // German-only with flat URLs, so redirect any legacy locale-prefixed URL
+  // (bookmarks, shared /de/report/... links, already-issued Stripe return URLs)
+  // to its flat equivalent.
   async redirects() {
     return [
       {
-        source: "/",
-        destination: `/${routing.defaultLocale}`,
+        source: "/:locale(de|en)/:path*",
+        destination: "/:path*",
+        permanent: false,
+      },
+      {
+        source: "/:locale(de|en)",
+        destination: "/",
         permanent: false,
       },
     ];

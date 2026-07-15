@@ -252,12 +252,133 @@ Feld-Hinweise (typische ImmoScout24-Labels in Klammern):
 Für jedes Feld: value (Zahl, Text bzw. Wahrheitswert), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
+// ── Stammdaten (personal master data) ────────────────────────────────────────
+const STAMMDATEN_FIELD_ORDER = [
+  "vorname",
+  "nachname",
+  "geburtsdatum",
+  "geburtsort",
+  "telefon",
+  "email",
+  "strasse",
+  "plzOrt",
+  "staatsangehoerigkeit",
+  "steuerId",
+  "arbeitgeber",
+  "beruf",
+  "beschaeftigtSeit",
+];
+
+const STAMMDATEN_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    fields: {
+      type: Type.OBJECT,
+      properties: {
+        vorname: fieldSchema(Type.STRING),
+        nachname: fieldSchema(Type.STRING),
+        geburtsdatum: fieldSchema(Type.STRING),
+        geburtsort: fieldSchema(Type.STRING),
+        telefon: fieldSchema(Type.STRING),
+        email: fieldSchema(Type.STRING),
+        strasse: fieldSchema(Type.STRING),
+        plzOrt: fieldSchema(Type.STRING),
+        staatsangehoerigkeit: fieldSchema(Type.STRING),
+        steuerId: fieldSchema(Type.STRING),
+        arbeitgeber: fieldSchema(Type.STRING),
+        beruf: fieldSchema(Type.STRING),
+        beschaeftigtSeit: fieldSchema(Type.STRING),
+      },
+      propertyOrdering: STAMMDATEN_FIELD_ORDER,
+    },
+  },
+  required: ["fields"],
+};
+
+const STAMMDATEN_PROMPT = `Du bist ein Assistent, der deutsche Personendokumente auswertet, um die persönlichen Stammdaten eines Kreditantragstellers vorauszufüllen.
+Du erhältst typischerweise: Personalausweis/Reisepass, Meldebescheinigung, Lohn-/Gehaltsabrechnung, Arbeitsvertrag oder einen Steuerbescheid.
+
+WICHTIG: Lies ALLE Dokumente vollständig. Extrahiere so viele Felder wie möglich. Lass ein Feld NUR weg, wenn es im Dokument keinerlei Anhaltspunkt gibt. Erfinde keine Werte.
+
+Feld-Hinweise:
+- vorname / nachname: vollständiger Vor- und Nachname (Personalausweis, Lohnabrechnung, Arbeitsvertrag).
+- geburtsdatum: im Format YYYY-MM-DD.
+- geburtsort: Geburtsort laut Ausweis.
+- telefon: Telefon-/Mobilnummer, falls angegeben.
+- email: E-Mail-Adresse, falls angegeben.
+- strasse: Straße und Hausnummer der Wohnanschrift.
+- plzOrt: Postleitzahl und Ort der Wohnanschrift (z.B. "14467 Potsdam").
+- staatsangehoerigkeit: Staatsangehörigkeit (z.B. "deutsch").
+- steuerId: 11-stellige steuerliche Identifikationsnummer (aus Lohnabrechnung/Steuerbescheid).
+- arbeitgeber: Name des Arbeitgebers (Lohnabrechnung/Arbeitsvertrag).
+- beruf: ausgeübter Beruf / Tätigkeit.
+- beschaeftigtSeit: Eintrittsdatum beim Arbeitgeber im Format YYYY-MM.
+
+Für jedes Feld: value (Text), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
+Gib ausschließlich JSON gemäß Schema zurück.`;
+
+// ── Haushaltsrechnung (household budget) ──────────────────────────────────────
+const HAUSHALT_FIELD_ORDER = [
+  "nettoeinkommen",
+  "anzahlGehaelter",
+  "mietausgaben",
+  "bankSparguthaben",
+  "wertpapiere",
+  "ratenkredite",
+  "sonstigeVerbindlichkeiten",
+];
+
+const HAUSHALT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    fields: {
+      type: Type.OBJECT,
+      properties: {
+        nettoeinkommen: fieldSchema(Type.NUMBER),
+        anzahlGehaelter: fieldSchema(Type.NUMBER),
+        mietausgaben: fieldSchema(Type.NUMBER),
+        bankSparguthaben: fieldSchema(Type.NUMBER),
+        wertpapiere: fieldSchema(Type.NUMBER),
+        ratenkredite: fieldSchema(Type.NUMBER),
+        sonstigeVerbindlichkeiten: fieldSchema(Type.NUMBER),
+      },
+      propertyOrdering: HAUSHALT_FIELD_ORDER,
+    },
+  },
+  required: ["fields"],
+};
+
+const HAUSHALT_PROMPT = `Du bist ein Assistent, der deutsche Finanzunterlagen auswertet, um die Haushaltsrechnung eines Kreditantragstellers vorauszufüllen.
+Du erhältst typischerweise: Lohn-/Gehaltsabrechnung, Kontoauszüge, Depot-/Vermögensübersicht oder Kreditverträge.
+
+WICHTIG: Lies ALLE Dokumente vollständig. Extrahiere so viele Felder wie möglich. Lass ein Feld NUR weg, wenn es keinerlei Anhaltspunkt gibt. Erfinde keine Werte.
+
+Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. "3.450,00 €" -> 3450.
+
+Feld-Hinweise (alle Beträge in Euro):
+- nettoeinkommen: monatliches Nettoeinkommen / Auszahlungsbetrag laut Gehaltsabrechnung.
+- anzahlGehaelter: Anzahl der Gehälter pro Jahr (12, 13 oder 14), falls erkennbar.
+- mietausgaben: eigene monatliche Warmmiete / Wohnkosten (aus Kontoauszug als wiederkehrende Mietzahlung).
+- bankSparguthaben: Summe der Bank-/Sparguthaben (Kontostände, Tagesgeld, Festgeld).
+- wertpapiere: Wert von Wertpapieren / Aktien / Fonds (Depotübersicht).
+- ratenkredite: monatliche Rate laufender Ratenkredite (aus Kreditvertrag/Kontoauszug).
+- sonstigeVerbindlichkeiten: Gesamthöhe sonstiger Verbindlichkeiten (ohne Immobiliendarlehen).
+
+Für jedes Feld: value (Zahl), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
+Gib ausschließlich JSON gemäß Schema zurück.`;
+
 const MODES = {
   property: { schema: PROPERTY_SCHEMA, prompt: PROPERTY_PROMPT },
   wishlist: { schema: WISHLIST_SCHEMA, prompt: WISHLIST_PROMPT },
+  stammdaten: { schema: STAMMDATEN_SCHEMA, prompt: STAMMDATEN_PROMPT },
+  haushalt: { schema: HAUSHALT_SCHEMA, prompt: HAUSHALT_PROMPT },
 } as const;
 
 type Mode = keyof typeof MODES;
+
+function isMode(v: unknown): v is Mode {
+  return typeof v === "string" && v in MODES;
+}
 
 export async function POST(request: Request) {
   const sb = await createServerSupabase();
@@ -286,7 +407,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     docs = Array.isArray(body?.docs) ? body.docs : [];
-    if (body?.mode === "wishlist") mode = "wishlist";
+    if (isMode(body?.mode)) mode = body.mode;
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }

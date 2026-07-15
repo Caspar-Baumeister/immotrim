@@ -38,7 +38,7 @@ function ToggleSwitch({
       <div
         className={cn(
           "relative w-8 h-4.5 rounded-full transition-colors duration-200",
-          checked ? "bg-amber-500" : "bg-muted-foreground/30"
+          checked ? "bg-[#6c5ce7]" : "bg-muted-foreground/30"
         )}
       >
         <div
@@ -241,7 +241,7 @@ export function PropertyForm() {
             <div className="flex items-center justify-between py-1">
               <span className="text-sm text-muted-foreground">Nebenkosten</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-amber-400 font-semibold tabular-nums">
+                <span className="text-xs text-[#6c5ce7] font-semibold tabular-nums">
                   {formatPercent(totalNebenkostenPct, 2)} ={" "}
                   {formatCurrency(totalNebenkostenEur, "de-DE", true)}
                 </span>
@@ -359,7 +359,7 @@ export function PropertyForm() {
               type="month"
               value={inputs.loanStartDate}
               onChange={(e) => setInput("loanStartDate", e.target.value)}
-              className="bg-muted/50 border border-border rounded-md px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500 [color-scheme:dark]"
+              className="bg-muted/50 border border-border rounded-md px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#6c5ce7] [color-scheme:dark]"
             />
           </div>
 
@@ -373,7 +373,7 @@ export function PropertyForm() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Monatliche Rate</span>
-              <span className="font-semibold tabular-nums text-amber-400">
+              <span className="font-semibold tabular-nums text-[#6c5ce7]">
                 {formatCurrency(monthlyPayment)}
               </span>
             </div>
@@ -648,7 +648,7 @@ export function PropertyForm() {
               onChange={(e) => setReportField("notizen", e.target.value)}
               placeholder="z.B. Anschlussfinanzierung 2028, Dachsanierung 2022 …"
               rows={3}
-              className="bg-card border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-amber-500 resize-y"
+              className="bg-card border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-[#6c5ce7] resize-y"
             />
           </div>
         </div>

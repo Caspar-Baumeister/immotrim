@@ -34,7 +34,7 @@ export function SortableHeader({
         className={cn(
           "inline-flex items-center gap-1 transition-colors",
           align === "right" && "flex-row-reverse",
-          active ? "text-amber-400" : "text-muted-foreground hover:text-foreground"
+          active ? "text-[#6c5ce7]" : "text-muted-foreground hover:text-foreground"
         )}
       >
         <span>{label}</span>

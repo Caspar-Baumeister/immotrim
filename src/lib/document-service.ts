@@ -18,7 +18,12 @@ function safeName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
 }
 
-type Target = { draftId: string } | { propertyId: string };
+// A document belongs to exactly one of: a property, a pre-save draft, or a
+// per-user profile category (Haushalt/Stammdaten/Strategie — no property FK).
+type Target =
+  | { draftId: string }
+  | { propertyId: string }
+  | { category: string };
 
 export async function uploadDocument(
   file: File,
@@ -27,7 +32,12 @@ export async function uploadDocument(
   const supabase = getSupabaseBrowserClient();
   const userId = await requireUserId();
 
-  const group = "draftId" in target ? target.draftId : target.propertyId;
+  const group =
+    "draftId" in target
+      ? target.draftId
+      : "propertyId" in target
+        ? target.propertyId
+        : target.category;
   const path = `${userId}/${group}/${uuidv4()}-${safeName(file.name)}`;
 
   const { error: uploadError } = await supabase.storage
@@ -41,6 +51,7 @@ export async function uploadDocument(
       user_id: userId,
       property_id: "propertyId" in target ? target.propertyId : null,
       draft_id: "draftId" in target ? target.draftId : null,
+      category: "category" in target ? target.category : null,
       file_name: file.name,
       file_path: path,
       mime_type: file.type || null,
@@ -64,10 +75,52 @@ export async function listDocuments(target: Target): Promise<PropertyDocument[]>
   const { data, error } =
     "propertyId" in target
       ? await query.eq("property_id", target.propertyId)
-      : await query.eq("draft_id", target.draftId);
+      : "draftId" in target
+        ? await query.eq("draft_id", target.draftId)
+        : await query.eq("category", target.category).is("property_id", null);
 
   if (error || !data) return [];
   return data as unknown as PropertyDocument[];
+}
+
+// All borrower/personal documents: user-level uploads not tied to a property or
+// a pre-save draft (i.e. the Stammdaten/Haushalt/Strategie/Checklist categories).
+// This is what the Unterlagen-Checkliste aggregates across sections.
+export async function listBorrowerDocuments(): Promise<PropertyDocument[]> {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase
+    .from("documents")
+    .select("*")
+    .is("property_id", null)
+    .is("draft_id", null)
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  return data as unknown as PropertyDocument[];
+}
+
+export type ChecklistClassification = { id: string; docType: string; fileName: string };
+
+// Ask the AI to classify the given docs into checklist types and rename them.
+// The route persists doc_type + file_name server-side; we return the applied
+// results so the caller can merge them into local state. Throws on non-OK
+// responses so the caller can distinguish limit/busy from generic failure.
+export async function classifyDocuments(
+  docs: { id: string; path: string; name: string }[],
+): Promise<ChecklistClassification[]> {
+  const res = await fetch("/api/checklist/classify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ docs }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string; limit?: number } | null;
+    const err = new Error(body?.error ?? "classify_failed") as Error & { status?: number; limit?: number };
+    err.status = res.status;
+    err.limit = body?.limit;
+    throw err;
+  }
+  const data = (await res.json()) as { results?: ChecklistClassification[] };
+  return data.results ?? [];
 }
 
 export async function getDownloadUrl(filePath: string): Promise<string | null> {

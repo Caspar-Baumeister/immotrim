@@ -65,7 +65,7 @@ export function FactColumn({ title, facts }: { title: string; facts: Fact[] }) {
                 "text-xs font-semibold tabular-nums",
                 fact.highlight && fact.positive === true && "text-emerald-400",
                 fact.highlight && fact.positive === false && "text-red-400",
-                fact.highlight && fact.positive === undefined && "text-amber-400",
+                fact.highlight && fact.positive === undefined && "text-[#6c5ce7]",
                 fact.negative && !fact.highlight && "text-red-400/80",
                 fact.muted && "text-muted-foreground",
                 !fact.highlight && !fact.negative && !fact.muted && "text-foreground"

@@ -18,11 +18,9 @@ import { useYouTubeConsent, setYouTubeConsent } from "./youtube-consent";
 // the video. The choice is revocable on the /privacy-settings page.
 export function YouTubeEmbed({
   videoId,
-  locale,
   poster = "/video-poster.svg",
 }: {
   videoId: string;
-  locale: string;
   poster?: string;
 }) {
   const t = useTranslations("youtube");
@@ -75,7 +73,7 @@ export function YouTubeEmbed({
           type="button"
           onClick={loadVideo}
           aria-label={t("loadVideo")}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500 text-black shadow-lg transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-500/40"
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-[#6c5ce7] text-white shadow-lg transition-colors hover:bg-[#5b4bd6] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#6c5ce7]/40"
         >
           <Play className="h-7 w-7 translate-x-0.5 fill-current" />
         </button>
@@ -84,8 +82,8 @@ export function YouTubeEmbed({
           {t.rich("notice", {
             link: (chunks) => (
               <Link
-                href={`/${locale}/datenschutz`}
-                className="font-medium text-amber-300 underline underline-offset-4 hover:text-amber-200"
+                href={`/datenschutz`}
+                className="font-medium text-[#6c5ce7] underline underline-offset-4 hover:text-[#6c5ce7]"
               >
                 {chunks}
               </Link>
@@ -97,7 +95,7 @@ export function YouTubeEmbed({
           <button
             type="button"
             onClick={loadVideo}
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-amber-400"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#6c5ce7] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5b4bd6]"
           >
             <Play className="h-4 w-4 fill-current" />
             {t("loadVideo")}
@@ -118,7 +116,7 @@ export function YouTubeEmbed({
             type="checkbox"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
-            className="h-3.5 w-3.5 accent-amber-500"
+            className="h-3.5 w-3.5 accent-[#6c5ce7]"
           />
           {t("remember")}
         </label>

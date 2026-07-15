@@ -1,62 +1,80 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Building2, PlusCircle } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
+import { CompletionBar } from "@/components/shared/CompletionBar";
+import type { ProfileCompletion } from "@/features/profile/completeness";
+import { NAV_ITEMS, type NavItemDef } from "./nav-items";
 
-type Props = {
-  locale: string;
-};
-
-export function Sidebar({ locale }: Props) {
+// Persistent left navigation for the (app) shell. Renders the six menu points;
+// the four "Unterlagen" points show a completion bar fed by `completion`.
+export function Sidebar({ completion }: { completion: ProfileCompletion }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
-  const isActive = (path: string) => pathname.includes(path);
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
+
+  const top = NAV_ITEMS.filter((i) => !i.group);
+  const dashboard = top.find((i) => i.href === "/dashboard");
+  const banken = top.find((i) => i.href === "/banken");
+  const unterlagen = NAV_ITEMS.filter((i) => i.group === "unterlagen");
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col h-screen sticky top-0">
+    <aside className="hidden md:flex w-60 flex-shrink-0 bg-sidebar border-r border-sidebar-border flex-col h-screen sticky top-0">
       {/* Logo */}
-      <div className="px-4 py-5 border-b border-sidebar-border">
-        <Link
-          href={`/${locale}/portfolio`}
-          className="flex items-center gap-2.5"
-        >
+      <div className="px-5 py-5 border-b border-sidebar-border">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
           <Image
-            src="/logo_immotrim.png"
+            src="/logo_immotrim.svg"
             alt="Immotrim"
-            width={120}
+            width={32}
             height={32}
             className="h-8 w-auto object-contain"
             priority
           />
-          <span className="hidden sm:inline text-xl font-bold uppercase tracking-wide text-foreground">
+          <span className="text-xl font-bold uppercase tracking-wide text-foreground font-heading">
             IMMOTRIM
           </span>
         </Link>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
-        <NavItem
-          href={`/${locale}/portfolio`}
-          icon={<Building2 className="h-4 w-4" />}
-          label={t("portfolio")}
-          active={isActive("/portfolio")}
-        />
-        <NavItem
-          href={`/${locale}/property/new`}
-          icon={<PlusCircle className="h-4 w-4" />}
-          label={t("newProperty")}
-          active={isActive("/property/new")}
-        />
+        {dashboard && (
+          <NavItem
+            item={dashboard}
+            label={t(dashboard.labelKey)}
+            active={isActive(dashboard.href)}
+          />
+        )}
+
+        <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          {t("unterlagen")}
+        </p>
+        {unterlagen.map((item) => (
+          <NavItem
+            key={item.href}
+            item={item}
+            label={t(item.labelKey)}
+            active={isActive(item.href)}
+            completion={item.section ? completion[item.section] : undefined}
+          />
+        ))}
+
+        <div className="my-3 h-px bg-sidebar-border" />
+        {banken && (
+          <NavItem
+            item={banken}
+            label={t(banken.labelKey)}
+            active={isActive(banken.href)}
+          />
+        )}
       </nav>
 
-      {/* Footer */}
-      <div className="px-4 py-3 border-t border-sidebar-border">
+      <div className="px-5 py-3 border-t border-sidebar-border">
         <p className="text-[10px] text-muted-foreground/50">Immotrim v1.0</p>
       </div>
     </aside>
@@ -64,28 +82,37 @@ export function Sidebar({ locale }: Props) {
 }
 
 function NavItem({
-  href,
-  icon,
+  item,
   label,
   active,
+  completion,
 }: {
-  href: string;
-  icon: React.ReactNode;
+  item: NavItemDef;
   label: string;
   active: boolean;
+  completion?: number;
 }) {
+  const Icon = item.icon;
   return (
     <Link
-      href={href}
+      href={item.href}
       className={cn(
-        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+        "flex flex-col gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors",
         active
           ? "bg-sidebar-accent text-foreground font-medium"
-          : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
+          : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
       )}
     >
-      {icon}
-      {label}
+      <span className="flex items-center gap-2.5">
+        <Icon className="h-4 w-4 flex-shrink-0" />
+        <span className="flex-1 truncate">{label}</span>
+        {completion !== undefined && (
+          <span className="text-[10px] tabular-nums text-muted-foreground">
+            {Math.round(completion)}%
+          </span>
+        )}
+      </span>
+      {completion !== undefined && <CompletionBar value={completion} height="h-1" />}
     </Link>
   );
 }

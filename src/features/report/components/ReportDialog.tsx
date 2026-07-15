@@ -33,7 +33,6 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   properties: Property[];
-  locale: string;
 };
 
 // Small inline switch, matching the property form's toggle look.
@@ -46,7 +45,7 @@ function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       className={cn(
         "relative w-8 h-4.5 rounded-full transition-colors duration-200 shrink-0",
-        checked ? "bg-amber-500" : "bg-muted-foreground/30"
+        checked ? "bg-[#6c5ce7]" : "bg-muted-foreground/30"
       )}
     >
       <span
@@ -81,7 +80,7 @@ function ToggleRow({
   );
 }
 
-export function ReportDialog({ open, onOpenChange, properties, locale }: Props) {
+export function ReportDialog({ open, onOpenChange, properties }: Props) {
   const portfolioProps: PortfolioProperty[] = useMemo(
     () =>
       properties.map((p) => ({
@@ -180,7 +179,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
       const response = await fetch(`/api/portfolio/report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ locale, config, investorName: trimmedName }),
+        body: JSON.stringify({ config, investorName: trimmedName }),
       });
       // Report creation now requires a PAID plan (not just the trial). Send
       // trial users to pricing instead of failing silently.
@@ -188,7 +187,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
         setError(
           "Zum Erstellen des Berichts ist ein bezahlter Tarif nötig. Weiterleitung zu den Tarifen …"
         );
-        window.location.assign(`/${locale}/pricing`);
+        window.location.assign(`/pricing`);
         return;
       }
       if (!response.ok) {
@@ -220,7 +219,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
       <DialogContent className="sm:max-w-lg max-h-[88vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-amber-500" />
+            <FileText className="h-4 w-4 text-[#6c5ce7]" />
             Bankbericht erstellen
           </DialogTitle>
           <DialogDescription>
@@ -242,7 +241,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
               className="bg-card border-border focus-visible:ring-1"
             />
             {!trimmedName && (
-              <p className="text-[11px] text-amber-600/90 dark:text-amber-500/80">
+              <p className="text-[11px] text-[#6c5ce7]/90">
                 Bitte gib deinen Namen an — er erscheint auf dem Deckblatt des Berichts.
               </p>
             )}
@@ -317,8 +316,8 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
             </div>
 
             {overLimit && (
-              <div className="flex items-start gap-2 rounded-lg bg-amber-500/10 border border-amber-500/25 px-3 py-2">
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-2 rounded-lg bg-[#6c5ce7]/10 border border-[#6c5ce7]/25 px-3 py-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-[#6c5ce7] mt-0.5 shrink-0" />
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
                   Die Portfolioübersicht und die Grafiken enthalten immer alle{" "}
                   {properties.length} Objekte. Für die ausführlichen Einzelseiten
@@ -326,7 +325,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
                   <button
                     type="button"
                     onClick={suggestTop}
-                    className="ml-1 inline-flex items-center gap-1 text-amber-500 hover:text-amber-400 font-medium"
+                    className="ml-1 inline-flex items-center gap-1 text-[#6c5ce7] hover:text-[#6c5ce7] font-medium"
                   >
                     <Sparkles className="h-3 w-3" />
                     Top {MAX_DETAIL_PROPERTIES} vorschlagen
@@ -352,7 +351,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
                       disabled={disabled}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 text-left transition-colors min-w-0 w-full",
-                        isSelected ? "bg-amber-500/[0.05]" : "hover:bg-muted/30",
+                        isSelected ? "bg-[#6c5ce7]/[0.05]" : "hover:bg-muted/30",
                         disabled && "opacity-40 cursor-not-allowed"
                       )}
                     >
@@ -360,7 +359,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
                         className={cn(
                           "flex h-4 w-4 shrink-0 items-center justify-center rounded border",
                           isSelected
-                            ? "bg-amber-500 border-amber-500 text-black"
+                            ? "bg-[#6c5ce7] border-[#6c5ce7] text-white"
                             : "border-border bg-background"
                         )}
                       >
@@ -369,7 +368,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
                       <div className="min-w-0 flex-1">
                         <p className="text-sm text-foreground truncate">{p.name}</p>
                         {missing.length > 0 && (
-                          <p className="text-[10px] text-amber-600/90 dark:text-amber-500/80 truncate">
+                          <p className="text-[10px] text-[#6c5ce7]/90 truncate">
                             Objektdetails unvollständig: {missing.join(", ")}
                           </p>
                         )}
@@ -405,7 +404,7 @@ export function ReportDialog({ open, onOpenChange, properties, locale }: Props) 
           <Button
             onClick={handleGenerate}
             disabled={generating || properties.length === 0 || !trimmedName}
-            className="bg-amber-500 hover:bg-amber-400 text-black font-semibold gap-1.5"
+            className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold gap-1.5"
           >
             {generating ? (
               <Loader2 className="h-4 w-4 animate-spin" />

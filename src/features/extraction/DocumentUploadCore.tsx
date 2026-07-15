@@ -17,15 +17,18 @@ import { ExtractionReviewPanel, type ExtractedLike } from "./ExtractionReviewPan
 const ACCEPTED = ["application/pdf", "image/png", "image/jpeg", "image/webp"];
 const MAX_BYTES = 50 * 1024 * 1024;
 
-type Target = { draftId: string } | { propertyId: string };
+type Target =
+  | { draftId: string }
+  | { propertyId: string }
+  | { category: string };
 
 // Bag of extracted fields keyed by field name, as returned by /api/extract.
 export type ExtractedBag = Record<string, ExtractedLike | undefined>;
 
-// Feature-specific glue so the same upload+extract+review UI serves both the
-// property and the Objektanalyse flows.
+// Feature-specific glue so the same upload+extract+review UI serves the property,
+// Objektanalyse and profile-section (Stammdaten/Haushalt) flows.
 export type ExtractionAdapter = {
-  mode: "property" | "wishlist";
+  mode: "property" | "wishlist" | "stammdaten" | "haushalt";
   fieldOrder: string[];
   isPresent: (fields: ExtractedBag, key: string) => boolean;
   fieldFor: (fields: ExtractedBag, key: string) => ExtractedLike;
@@ -49,7 +52,12 @@ export function DocumentUploadCore({ target, adapter }: Props) {
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const targetKey = "draftId" in target ? target.draftId : target.propertyId;
+  const targetKey =
+    "draftId" in target
+      ? target.draftId
+      : "propertyId" in target
+        ? target.propertyId
+        : target.category;
 
   useEffect(() => {
     listDocuments(target).then(setDocs);
@@ -145,10 +153,10 @@ export function DocumentUploadCore({ target, adapter }: Props) {
           e.preventDefault();
           handleFiles(e.dataTransfer.files);
         }}
-        className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-muted/10 px-4 py-6 text-center cursor-pointer hover:border-amber-500/40 hover:bg-amber-500/[0.03] transition-colors"
+        className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-muted/10 px-4 py-6 text-center cursor-pointer hover:border-[#6c5ce7]/40 hover:bg-[#6c5ce7]/[0.03] transition-colors"
       >
         {uploading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-amber-400" />
+          <Loader2 className="h-5 w-5 animate-spin text-[#6c5ce7]" />
         ) : (
           <Upload className="h-5 w-5 text-muted-foreground" />
         )}
@@ -204,7 +212,7 @@ export function DocumentUploadCore({ target, adapter }: Props) {
           {extracting ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+            <Sparkles className="h-3.5 w-3.5 text-[#6c5ce7]" />
           )}
           {extracting ? t("extracting") : t("extract")}
         </Button>

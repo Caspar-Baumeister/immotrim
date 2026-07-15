@@ -11,7 +11,15 @@
     "portfolio": "Portfolio",
     "wishlist": "Objektanalyse",
     "newProperty": "Neue Immobilie",
-    "insights": "Analyse"
+    "insights": "Analyse",
+    "dashboard": "Dashboard",
+    "haushalt": "Haushaltsrechnung",
+    "stammdaten": "Stammdaten",
+    "immobilien": "Immobilien",
+    "strategie": "Strategie",
+    "checklist": "Checkliste",
+    "banken": "Banken",
+    "unterlagen": "Unterlagen"
   },
   "property": {
     "new": "Neue Immobilie",
@@ -126,14 +134,10 @@
   "livePreview": "Live-Vorschau",
   "deleteConfirm": "Möchten Sie diese Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
   "landing": {
-    "beta": {
-      "badge": "Beta",
-      "banner": "🚧 Immotrim befindet sich aktuell in der Beta – wir entwickeln ständig weiter. Dein Feedback ist herzlich willkommen!"
-    },
     "hero": {
       "eyebrow": "Für Immobilien-Investoren — ohne Finanzierungsvermittler",
       "title": "Immobilienfinanzierung direkt bei Banken vorbereiten — <mark>ohne Finanzierungsvermittler</mark>.",
-      "subtitle": "Immotrim prüft deine Unterlagen und arbeitet sie sauber auf — damit du selbst Beziehungen zu Banken aufbaust, statt sie einem Vermittler zu überlassen.",
+      "subtitle": "Lade deine Unterlagen hoch und Immotrim zeigt dir, welche Banken passen, was ihnen noch fehlt und wie sie rechnen — inklusive fertiger Selbstauskunft auf Knopfdruck.",
       "ctaPrimary": "Kostenlos loslegen",
       "ctaSecondary": "Anmelden",
       "trialNote": "14 Tage kostenlos testen — keine Kreditkarte nötig.",

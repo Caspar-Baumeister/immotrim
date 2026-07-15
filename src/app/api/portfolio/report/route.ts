@@ -50,12 +50,12 @@ export async function POST(request: Request) {
   }
 
   // ── Parse request ──────────────────────────────────────────────────────────
-  let locale = "de";
+  // German-only app: reports are always rendered in German.
+  const locale = "de";
   let config: ReportConfig;
   let requestedName: string | undefined;
   try {
     const body = await request.json();
-    if (typeof body?.locale === "string") locale = body.locale;
     if (typeof body?.investorName === "string") requestedName = body.investorName;
     config = body.config as ReportConfig;
     if (!config || typeof config !== "object") throw new Error("bad config");
@@ -147,7 +147,7 @@ export async function POST(request: Request) {
 
   // ── Render to PDF with headless Chromium ─────────────────────────────────────
   const origin = process.env.REPORT_BASE_URL || new URL(request.url).origin;
-  const reportUrl = `${origin}/${locale}/report/${token}`;
+  const reportUrl = `${origin}/report/${token}`;
 
   let pdf: Uint8Array;
   try {

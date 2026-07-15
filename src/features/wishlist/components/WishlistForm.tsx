@@ -31,7 +31,7 @@ function ToggleSwitch({
       <div
         className={cn(
           "relative w-8 h-4.5 rounded-full transition-colors duration-200",
-          checked ? "bg-amber-500" : "bg-muted-foreground/30"
+          checked ? "bg-[#6c5ce7]" : "bg-muted-foreground/30"
         )}
       >
         <div
@@ -161,7 +161,7 @@ export function WishlistForm() {
       {/* Kaufnebenkosten */}
       <InputSection title={t("sections.nebenkosten")} defaultOpen={false}>
         <div className="flex items-center justify-between -mb-1">
-          <span className="text-xs text-amber-400 font-semibold tabular-nums">
+          <span className="text-xs text-[#6c5ce7] font-semibold tabular-nums">
             {formatPercent(nkTotalPct, 2)} = {formatCurrency(nkTotalEur, "de-DE", true)}
           </span>
           <div className="flex items-center gap-2">

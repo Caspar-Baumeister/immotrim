@@ -15,7 +15,7 @@ export function PrivacySettings() {
   return (
     <div className="rounded-xl border border-border bg-card p-5 not-prose">
       <div className="flex items-start gap-3">
-        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#6c5ce7]" />
         <div className="space-y-1">
           <h3 className="text-base font-semibold text-foreground">{t("youtubeTitle")}</h3>
           <p className="text-sm text-muted-foreground">{t("youtubeDesc")}</p>
@@ -26,7 +26,7 @@ export function PrivacySettings() {
         <span
           className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
             granted
-              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              ? "bg-emerald-500/10 text-emerald-600"
               : "bg-muted text-muted-foreground"
           }`}
         >

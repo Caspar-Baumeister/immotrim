@@ -92,6 +92,7 @@ export type PropertyDocument = {
   user_id: string;
   property_id: string | null;
   draft_id: string | null;
+  category: string | null;
   file_name: string;
   file_path: string;
   mime_type: string | null;
@@ -156,11 +157,28 @@ type DocumentRowShape = {
   user_id: string;
   property_id: string | null;
   draft_id: string | null;
+  // null = property-scoped upload; otherwise a profile section
+  // ("haushalt" | "stammdaten" | "strategie" | "checklist").
+  category: string | null;
+  // AI-classified checklist doc type for borrower/personal docs (property_id and
+  // draft_id both null). See src/lib/checklist/requirements.ts. Null until sorted.
+  doc_type: string | null;
   file_name: string;
   file_path: string;
   mime_type: string | null;
   size_bytes: number | null;
   created_at: string;
+};
+
+// One row per user (mirrors subscriptions). Each section is jsonb; see
+// src/features/profile/types.ts for the parsed shape.
+type ProfileRowShape = {
+  user_id: string;
+  stammdaten: Json;
+  haushalt: Json;
+  strategie: Json;
+  created_at: string;
+  updated_at: string;
 };
 
 type ReportImageRowShape = {
@@ -245,11 +263,24 @@ export type Database = {
       };
       documents: {
         Row: DocumentRowShape;
-        Insert: Omit<DocumentRowShape, "id" | "created_at"> & {
+        Insert: Omit<DocumentRowShape, "id" | "created_at" | "category" | "doc_type"> & {
           id?: string;
+          category?: string | null;
+          doc_type?: string | null;
           created_at?: string;
         };
         Update: Partial<Omit<DocumentRowShape, "id" | "user_id" | "created_at">>;
+        Relationships: [];
+      };
+      profiles: {
+        Row: ProfileRowShape;
+        // Only user_id is required; each section defaults to '{}' server-side.
+        Insert: { user_id: string } & Partial<
+          Omit<ProfileRowShape, "user_id" | "created_at" | "updated_at">
+        > & { created_at?: string; updated_at?: string };
+        Update: Partial<
+          Omit<ProfileRowShape, "user_id" | "created_at">
+        >;
         Relationships: [];
       };
       report_images: {

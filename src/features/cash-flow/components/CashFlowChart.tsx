@@ -43,7 +43,7 @@ const CustomTooltipYearly = ({ active, payload, label }: any) => {
       </p>
       <p
         className={`font-semibold border-t border-border pt-0.5 mt-0.5 ${
-          entry.cashFlow >= 0 ? "text-amber-400" : "text-red-400"
+          entry.cashFlow >= 0 ? "text-[#6c5ce7]" : "text-red-400"
         }`}
       >
         Cashflow: {formatCurrency(entry.cashFlow, "de-DE")}
@@ -73,7 +73,7 @@ const CustomTooltipMonthly = ({ active, payload }: any) => {
       </p>
       <p
         className={`font-semibold border-t border-border pt-0.5 mt-0.5 ${
-          entry.cashFlow >= 0 ? "text-amber-400" : "text-red-400"
+          entry.cashFlow >= 0 ? "text-[#6c5ce7]" : "text-red-400"
         }`}
       >
         Cashflow: {formatCurrency(entry.cashFlow, "de-DE")}

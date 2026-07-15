@@ -1,9 +1,7 @@
 import { Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { startCheckoutAction } from "@/app/[locale]/billing/actions";
+import { startCheckoutAction } from "@/app/billing/actions";
 import { getStripe } from "@/lib/stripe";
-
-type Props = { locale: string };
 
 async function fetchPriceAmount(priceId: string): Promise<string> {
   try {
@@ -20,7 +18,7 @@ async function fetchPriceAmount(priceId: string): Promise<string> {
   }
 }
 
-export async function PricingCards({ locale }: Props) {
+export async function PricingCards() {
   const t = await getTranslations("landing.pricing");
   const [monthlyAmount, yearlyAmount, lifetimeAmount] = await Promise.all([
     fetchPriceAmount(process.env.STRIPE_PRICE_MONTHLY!),
@@ -39,7 +37,6 @@ export async function PricingCards({ locale }: Props) {
         desc={t("monthlyDesc")}
         ctaLabel={t("cta")}
         plan="monthly"
-        locale={locale}
         features={features}
         includesLabel={t("includes")}
       />
@@ -50,7 +47,6 @@ export async function PricingCards({ locale }: Props) {
         desc={t("yearlyDesc")}
         ctaLabel={t("cta")}
         plan="yearly"
-        locale={locale}
         features={features}
         includesLabel={t("includes")}
       />
@@ -61,7 +57,6 @@ export async function PricingCards({ locale }: Props) {
         desc={t("lifetimeDesc")}
         ctaLabel={t("lifetimeCta")}
         plan="lifetime"
-        locale={locale}
         features={features}
         includesLabel={t("includes")}
         badge={t("lifetimeBadge")}
@@ -78,7 +73,6 @@ function PlanCard({
   desc,
   ctaLabel,
   plan,
-  locale,
   features,
   includesLabel,
   badge,
@@ -90,7 +84,6 @@ function PlanCard({
   desc: string;
   ctaLabel: string;
   plan: "monthly" | "yearly" | "lifetime";
-  locale: string;
   features: string[];
   includesLabel: string;
   badge?: string;
@@ -99,11 +92,11 @@ function PlanCard({
   return (
     <div
       className={`relative rounded-2xl border bg-card p-6 flex flex-col gap-5 ${
-        highlight ? "border-amber-500/40 ring-1 ring-amber-500/20" : "border-border"
+        highlight ? "border-[#6c5ce7]/40 ring-1 ring-[#6c5ce7]/20" : "border-border"
       }`}
     >
       {badge && (
-        <span className="absolute -top-3 left-6 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-black">
+        <span className="absolute -top-3 left-6 rounded-full bg-[#6c5ce7] px-3 py-1 text-xs font-semibold text-white">
           {badge}
         </span>
       )}
@@ -118,12 +111,11 @@ function PlanCard({
 
       <form action={startCheckoutAction}>
         <input type="hidden" name="plan" value={plan} />
-        <input type="hidden" name="locale" value={locale} />
         <button
           type="submit"
           className={`w-full rounded-lg text-sm font-semibold px-4 py-2.5 transition-colors ${
             highlight
-              ? "bg-amber-500 hover:bg-amber-400 text-black"
+              ? "bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white"
               : "bg-foreground/10 hover:bg-foreground/15 text-foreground"
           }`}
         >

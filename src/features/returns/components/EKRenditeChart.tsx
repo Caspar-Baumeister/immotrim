@@ -40,7 +40,7 @@ const CustomTooltipYearly = ({
   return (
     <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">Jahr {label}</p>
-      <p className="text-amber-400">
+      <p className="text-[#6c5ce7]">
         Cashflow: {formatCurrency(entry.cashFlow, "de-DE")}
       </p>
       {includeTilgung && (
@@ -79,7 +79,7 @@ const CustomTooltipMonthly = ({
   return (
     <div className="bg-popover border border-border rounded-lg px-3 py-2 text-xs shadow-xl space-y-0.5">
       <p className="text-muted-foreground mb-1">{monthName} {entry.calendarYear}</p>
-      <p className="text-amber-400">
+      <p className="text-[#6c5ce7]">
         Cashflow: {formatCurrency(entry.cashFlow, "de-DE")}
       </p>
       {includeTilgung && (

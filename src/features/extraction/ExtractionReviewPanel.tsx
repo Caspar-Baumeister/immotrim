@@ -69,10 +69,10 @@ export function ExtractionReviewPanel({
     });
 
   return (
-    <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.03] overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-amber-500/20 bg-amber-500/[0.06]">
-        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-        <span className="text-xs font-semibold text-amber-300">
+    <div className="rounded-xl border border-[#6c5ce7]/30 bg-[#6c5ce7]/[0.03] overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#6c5ce7]/20 bg-[#6c5ce7]/[0.06]">
+        <Sparkles className="h-3.5 w-3.5 text-[#6c5ce7]" />
+        <span className="text-xs font-semibold text-[#6c5ce7]">
           {t("review.title", { count: keys.length })}
         </span>
         <span className="text-[10px] text-muted-foreground ml-auto">
@@ -93,7 +93,7 @@ export function ExtractionReviewPanel({
               onClick={() => toggle(key)}
               className={cn(
                 "flex items-center gap-3 px-4 py-2.5 text-left transition-colors",
-                isSelected ? "bg-amber-500/[0.05]" : "hover:bg-muted/30",
+                isSelected ? "bg-[#6c5ce7]/[0.05]" : "hover:bg-muted/30",
                 !changed && "opacity-60",
               )}
             >
@@ -101,7 +101,7 @@ export function ExtractionReviewPanel({
                 className={cn(
                   "flex h-4 w-4 shrink-0 items-center justify-center rounded border",
                   isSelected
-                    ? "bg-amber-500 border-amber-500 text-black"
+                    ? "bg-[#6c5ce7] border-[#6c5ce7] text-white"
                     : "border-border bg-background",
                 )}
               >
@@ -132,7 +132,7 @@ export function ExtractionReviewPanel({
                     field.confidence >= 0.75
                       ? "text-emerald-400 bg-emerald-500/10"
                       : field.confidence >= 0.4
-                        ? "text-amber-400 bg-amber-500/10"
+                        ? "text-[#6c5ce7] bg-[#6c5ce7]/10"
                         : "text-red-400 bg-red-500/10",
                   )}
                 >
@@ -144,12 +144,12 @@ export function ExtractionReviewPanel({
         })}
       </div>
 
-      <div className="flex items-center gap-2 px-4 py-2.5 border-t border-amber-500/20">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-t border-[#6c5ce7]/20">
         <Button
           size="sm"
           onClick={() => onApply([...selected])}
           disabled={selected.size === 0}
-          className="bg-amber-500 hover:bg-amber-400 text-black"
+          className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white"
         >
           {t("review.apply", { count: selected.size })}
         </Button>
