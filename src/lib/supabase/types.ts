@@ -93,6 +93,8 @@ export type PropertyDocument = {
   property_id: string | null;
   draft_id: string | null;
   category: string | null;
+  // AI-classified checklist doc type for borrower/personal docs. Null until sorted.
+  doc_type: string | null;
   file_name: string;
   file_path: string;
   mime_type: string | null;
