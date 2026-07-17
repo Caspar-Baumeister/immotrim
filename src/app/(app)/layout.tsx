@@ -9,6 +9,7 @@ import { TrialBanner } from "@/components/layout/TrialBanner";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { PortfolioChatLauncher } from "@/features/portfolio-chat/PortfolioChatLauncher";
+import { CompletionProvider } from "@/features/profile/completion-context";
 
 // Everything under (app)/ is gated, user-specific app UI — never index it.
 export const metadata: Metadata = { robots: { index: false } };
@@ -28,14 +29,16 @@ export default async function AppLayout({ children }: Props) {
   if (!sub) redirect(`/pricing`);
   const completion = await getProfileCompletion(user.id);
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar completion={completion} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TrialBanner status={sub.status} currentPeriodEnd={sub.current_period_end} />
-        <MobileNav />
-        {children}
-        <PortfolioChatLauncher />
+    <CompletionProvider initial={completion}>
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-w-0">
+          <TrialBanner status={sub.status} currentPeriodEnd={sub.current_period_end} />
+          <MobileNav />
+          {children}
+          <PortfolioChatLauncher />
+        </div>
       </div>
-    </div>
+    </CompletionProvider>
   );
 }

@@ -42,6 +42,46 @@ function fieldSchema(
   };
 }
 
+// Like fieldSchema, but constrains value decoding to the form's select options.
+function enumFieldSchema(values: string[]) {
+  return {
+    type: Type.OBJECT,
+    properties: {
+      value: { type: Type.STRING, enum: values },
+      sourceDoc: { type: Type.STRING },
+      confidence: { type: Type.NUMBER },
+    },
+    required: ["value", "sourceDoc", "confidence"],
+  };
+}
+
+// Despite prompt instructions, constrained JSON decoding sometimes makes the model
+// emit placeholder entries (value null/"null"/"", confidence 0) for fields it did
+// not find. Strip those so the review UI only ever sees real extractions.
+const NULLISH_TOKENS = new Set(["null", "none", "n/a", "unbekannt", "-", "—"]);
+
+type RawField = { value?: unknown; sourceDoc?: string; confidence?: number };
+
+function sanitizeFields(
+  fields: Record<string, RawField | undefined>,
+): Record<string, RawField> {
+  const out: Record<string, RawField> = {};
+  for (const [key, field] of Object.entries(fields)) {
+    if (!field) continue;
+    const v = field.value;
+    if (v === null || v === undefined) continue;
+    if (typeof v === "number" && !Number.isFinite(v)) continue;
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (!s || NULLISH_TOKENS.has(s.toLowerCase())) continue;
+    }
+    // confidence 0 = the model admits it has no basis; low-but-positive is kept.
+    if (!(typeof field.confidence === "number" && field.confidence > 0)) continue;
+    out[key] = field;
+  }
+  return out;
+}
+
 const PROPERTY_FIELD_ORDER = [
   "name",
   "address",
@@ -109,6 +149,7 @@ Du erhältst ein oder mehrere Dokumente: typischerweise Kaufvertrag, Mietvertrag
 
 WICHTIG: Lies ALLE Seiten JEDES Dokuments vollständig und sorgfältig. Extrahiere so viele Felder aus dem Schema wie möglich. Es ist deutlich besser, ein Feld mit einem unsicheren Wert (und entsprechend niedriger confidence) auszufüllen, als es leer zu lassen — das Ziel ist, das Formular möglichst vollständig vorzubefüllen; der Nutzer prüft jeden Wert anschließend selbst.
 Gib daher auch Werte zurück, bei denen du dir nicht völlig sicher bist (z.B. confidence 0.5–0.8), solange es eine plausible Grundlage im Dokument gibt. Lass ein Feld NUR dann weg, wenn es im Dokument wirklich keinerlei Anhaltspunkt dafür gibt. Frei erfundene Werte ohne jede Grundlage sind aber nicht erlaubt.
+Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
 Wenn Angaben über mehrere Dokumente verteilt sind oder sich aus dem Kontext eindeutig ableiten lassen (z.B. Betrag → Prozentsatz, Jahresbetrag → Monatsbetrag), kombiniere bzw. rechne sie um.
 
 Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. Beispiele: "349.900,00 €" -> 349900, "81,13 m²" -> 81.13, "3,45 %" -> 3.45.
@@ -220,6 +261,7 @@ const WISHLIST_PROMPT = `Du bist ein Assistent, der deutsche Immobilien-Exposés
 Du erhältst ein oder mehrere Dokumente: typischerweise ein Verkaufs-Exposé (z.B. von ImmoScout24 oder einem Makler), als PDF oder Screenshot.
 
 WICHTIG: Lies das GESAMTE Dokument (alle Seiten) sorgfältig und extrahiere ALLE im Dokument vorhandenen Felder aus dem Schema. Gib für jedes Feld, das du im Dokument findest, einen Wert zurück – auch wenn es nur an einer Stelle steht. Lass ein Feld NUR dann weg, wenn die Information wirklich nicht im Dokument vorkommt. Erfinde keine Werte und schätze nicht.
+Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
 
 Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. Beispiele: "349.900 €" -> 349900, "81,13 m²" -> 81.13, "92,2 kWh/(m²*a)" -> 92.2.
 
@@ -254,19 +296,28 @@ Gib ausschließlich JSON gemäß Schema zurück.`;
 
 // ── Stammdaten (personal master data) ────────────────────────────────────────
 const STAMMDATEN_FIELD_ORDER = [
+  "anrede",
   "vorname",
   "nachname",
   "geburtsdatum",
   "geburtsort",
+  "familienstand",
   "telefon",
   "email",
   "strasse",
   "plzOrt",
+  "wohnhaftSeit",
+  "anzahlKinder",
   "staatsangehoerigkeit",
   "steuerId",
+  "beschaeftigung",
   "arbeitgeber",
   "beruf",
   "beschaeftigtSeit",
+  "kontoinhaber",
+  "kreditinstitut",
+  "iban",
+  "bic",
 ];
 
 const STAMMDATEN_SCHEMA = {
@@ -275,19 +326,33 @@ const STAMMDATEN_SCHEMA = {
     fields: {
       type: Type.OBJECT,
       properties: {
+        anrede: enumFieldSchema(["herr", "frau"]),
         vorname: fieldSchema(Type.STRING),
         nachname: fieldSchema(Type.STRING),
         geburtsdatum: fieldSchema(Type.STRING),
         geburtsort: fieldSchema(Type.STRING),
+        familienstand: enumFieldSchema(["ledig", "verheiratet", "geschieden", "verwitwet"]),
         telefon: fieldSchema(Type.STRING),
         email: fieldSchema(Type.STRING),
         strasse: fieldSchema(Type.STRING),
         plzOrt: fieldSchema(Type.STRING),
+        wohnhaftSeit: fieldSchema(Type.STRING),
+        anzahlKinder: fieldSchema(Type.NUMBER),
         staatsangehoerigkeit: fieldSchema(Type.STRING),
         steuerId: fieldSchema(Type.STRING),
+        beschaeftigung: enumFieldSchema([
+          "angestellter",
+          "beamter",
+          "selbstaendiger",
+          "rentner",
+        ]),
         arbeitgeber: fieldSchema(Type.STRING),
         beruf: fieldSchema(Type.STRING),
         beschaeftigtSeit: fieldSchema(Type.STRING),
+        kontoinhaber: fieldSchema(Type.STRING),
+        kreditinstitut: fieldSchema(Type.STRING),
+        iban: fieldSchema(Type.STRING),
+        bic: fieldSchema(Type.STRING),
       },
       propertyOrdering: STAMMDATEN_FIELD_ORDER,
     },
@@ -296,35 +361,54 @@ const STAMMDATEN_SCHEMA = {
 };
 
 const STAMMDATEN_PROMPT = `Du bist ein Assistent, der deutsche Personendokumente auswertet, um die persönlichen Stammdaten eines Kreditantragstellers vorauszufüllen.
-Du erhältst typischerweise: Personalausweis/Reisepass, Meldebescheinigung, Lohn-/Gehaltsabrechnung, Arbeitsvertrag oder einen Steuerbescheid.
+Du erhältst typischerweise: Personalausweis/Reisepass, Meldebescheinigung, Lohn-/Gehaltsabrechnung, Arbeitsvertrag, Steuerbescheid, Kontoauszug, Bankkarte oder ein SEPA-Mandat.
 
 WICHTIG: Lies ALLE Dokumente vollständig. Extrahiere so viele Felder wie möglich. Lass ein Feld NUR weg, wenn es im Dokument keinerlei Anhaltspunkt gibt. Erfinde keine Werte.
+Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
 
 Feld-Hinweise:
+- anrede: "herr" oder "frau" (exakt diese Werte) — aus Anrede/Titel im Dokument ableitbar.
 - vorname / nachname: vollständiger Vor- und Nachname (Personalausweis, Lohnabrechnung, Arbeitsvertrag).
 - geburtsdatum: im Format YYYY-MM-DD.
 - geburtsort: Geburtsort laut Ausweis.
+- familienstand: exakt einer dieser Werte: "ledig", "verheiratet", "geschieden", "verwitwet" (aus Steuerbescheid/Lohnabrechnung, z.B. Steuerklasse, oder Meldebescheinigung).
 - telefon: Telefon-/Mobilnummer, falls angegeben.
 - email: E-Mail-Adresse, falls angegeben.
 - strasse: Straße und Hausnummer der Wohnanschrift.
 - plzOrt: Postleitzahl und Ort der Wohnanschrift (z.B. "14467 Potsdam").
+- wohnhaftSeit: Einzugsdatum an der aktuellen Adresse im Format YYYY-MM (aus Meldebescheinigung "wohnhaft seit"/"Einzugsdatum").
+- anzahlKinder: Anzahl unterhaltspflichtiger Kinder (aus Lohnabrechnung Kinderfreibeträge oder Kindergeld-Unterlagen).
 - staatsangehoerigkeit: Staatsangehörigkeit (z.B. "deutsch").
 - steuerId: 11-stellige steuerliche Identifikationsnummer (aus Lohnabrechnung/Steuerbescheid).
+- beschaeftigung: exakt einer dieser Werte: "angestellter", "beamter", "selbstaendiger", "rentner" (aus Arbeitsvertrag, Lohnabrechnung, BWA/Steuerbescheid oder Rentenbescheid ableitbar).
 - arbeitgeber: Name des Arbeitgebers (Lohnabrechnung/Arbeitsvertrag).
 - beruf: ausgeübter Beruf / Tätigkeit.
 - beschaeftigtSeit: Eintrittsdatum beim Arbeitgeber im Format YYYY-MM.
 
-Für jedes Feld: value (Text), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
+Kontoverbindung (aus Kontoauszug, Bankkarte, SEPA-Mandat oder Überweisungsträger):
+- kontoinhaber: Name des Kontoinhabers.
+- kreditinstitut: Name der Bank (z.B. "Sparkasse Berlin", "ING").
+- iban: IBAN ohne Leerzeichen (deutsches Format: DE + 20 Zeichen).
+- bic: BIC/SWIFT-Code (8 oder 11 Zeichen).
+
+Für jedes Feld: value (Text bzw. Zahl), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
 // ── Haushaltsrechnung (household budget) ──────────────────────────────────────
 const HAUSHALT_FIELD_ORDER = [
   "nettoeinkommen",
   "anzahlGehaelter",
+  "kindergeld",
+  "weitereEinkuenfte",
   "mietausgaben",
+  "lebenshaltung",
+  "krankenversicherung",
+  "versicherungen",
+  "ratenkredite",
+  "sonstigeAusgaben",
   "bankSparguthaben",
   "wertpapiere",
-  "ratenkredite",
+  "sonstigesVermoegen",
   "sonstigeVerbindlichkeiten",
 ];
 
@@ -336,10 +420,17 @@ const HAUSHALT_SCHEMA = {
       properties: {
         nettoeinkommen: fieldSchema(Type.NUMBER),
         anzahlGehaelter: fieldSchema(Type.NUMBER),
+        kindergeld: fieldSchema(Type.NUMBER),
+        weitereEinkuenfte: fieldSchema(Type.NUMBER),
         mietausgaben: fieldSchema(Type.NUMBER),
+        lebenshaltung: fieldSchema(Type.NUMBER),
+        krankenversicherung: fieldSchema(Type.NUMBER),
+        versicherungen: fieldSchema(Type.NUMBER),
+        ratenkredite: fieldSchema(Type.NUMBER),
+        sonstigeAusgaben: fieldSchema(Type.NUMBER),
         bankSparguthaben: fieldSchema(Type.NUMBER),
         wertpapiere: fieldSchema(Type.NUMBER),
-        ratenkredite: fieldSchema(Type.NUMBER),
+        sonstigesVermoegen: fieldSchema(Type.NUMBER),
         sonstigeVerbindlichkeiten: fieldSchema(Type.NUMBER),
       },
       propertyOrdering: HAUSHALT_FIELD_ORDER,
@@ -352,17 +443,25 @@ const HAUSHALT_PROMPT = `Du bist ein Assistent, der deutsche Finanzunterlagen au
 Du erhältst typischerweise: Lohn-/Gehaltsabrechnung, Kontoauszüge, Depot-/Vermögensübersicht oder Kreditverträge.
 
 WICHTIG: Lies ALLE Dokumente vollständig. Extrahiere so viele Felder wie möglich. Lass ein Feld NUR weg, wenn es keinerlei Anhaltspunkt gibt. Erfinde keine Werte.
+Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
 
 Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. "3.450,00 €" -> 3450.
 
 Feld-Hinweise (alle Beträge in Euro):
 - nettoeinkommen: monatliches Nettoeinkommen / Auszahlungsbetrag laut Gehaltsabrechnung.
 - anzahlGehaelter: Anzahl der Gehälter pro Jahr (12, 13 oder 14), falls erkennbar.
+- kindergeld: monatliches Kindergeld (aus Kontoauszug oder Kindergeldbescheid).
+- weitereEinkuenfte: regelmäßige monatliche Zusatzeinnahmen (Unterhalt, Nebentätigkeit, Renten) — OHNE Mieteinnahmen aus Immobilien.
 - mietausgaben: eigene monatliche Warmmiete / Wohnkosten (aus Kontoauszug als wiederkehrende Mietzahlung).
+- lebenshaltung: monatliche private Lebenshaltungskosten (Essen, Mobilität, Freizeit), falls beziffert.
+- krankenversicherung: monatlicher selbst gezahlter Krankenversicherungsbeitrag (nur bei privater oder freiwillig gesetzlicher Versicherung — bei gesetzlich Versicherten ist er bereits vom Netto abgezogen, dann weglassen).
+- versicherungen: monatliche Summe weiterer Versicherungsbeiträge (Haftpflicht, Hausrat, BU, Leben, Kfz) — ohne Krankenversicherung.
+- ratenkredite: monatliche Rate laufender Ratenkredite (aus Kreditvertrag/Kontoauszug) — ohne Immobiliendarlehen.
+- sonstigeAusgaben: sonstige regelmäßige monatliche Ausgaben (Unterhaltszahlungen, Sparpläne, Abos).
 - bankSparguthaben: Summe der Bank-/Sparguthaben (Kontostände, Tagesgeld, Festgeld).
 - wertpapiere: Wert von Wertpapieren / Aktien / Fonds (Depotübersicht).
-- ratenkredite: monatliche Rate laufender Ratenkredite (aus Kreditvertrag/Kontoauszug).
-- sonstigeVerbindlichkeiten: Gesamthöhe sonstiger Verbindlichkeiten (ohne Immobiliendarlehen).
+- sonstigesVermoegen: weitere Vermögenswerte (Bausparverträge, Rückkaufswert von Lebensversicherungen, Edelmetalle) — ohne Immobilien.
+- sonstigeVerbindlichkeiten: Gesamthöhe sonstiger Verbindlichkeiten / Restschuld von Konsumkrediten (ohne Immobiliendarlehen, nicht die Monatsrate).
 
 Für jedes Feld: value (Zahl), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;
@@ -458,10 +557,12 @@ export async function POST(request: Request) {
     if (!text) {
       return NextResponse.json({ fields: {} } satisfies ExtractResponse);
     }
-    const parsed = JSON.parse(text) as ExtractResponse;
+    const parsed = JSON.parse(text) as { fields?: Record<string, RawField> };
     // Count this successful extraction against the monthly quota (atomic, capped).
     await consumeMonthlyUsage(sb);
-    return NextResponse.json({ fields: parsed.fields ?? {} } satisfies ExtractResponse);
+    return NextResponse.json({
+      fields: sanitizeFields(parsed.fields ?? {}),
+    } as ExtractResponse);
   } catch (e) {
     console.error("Gemini extraction failed:", e);
     // Surface transient model overload distinctly so the client can prompt a retry.

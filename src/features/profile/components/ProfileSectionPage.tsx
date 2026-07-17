@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Loader2, Save } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { SectionHeader } from "./SectionHeader";
 import { ProfileForm, type ProfileFieldGroup } from "./ProfileForm";
 import { makeSectionAdapter } from "../section-config";
 import { stammdatenCompletion, haushaltCompletion } from "../completeness";
+import { useSetSectionCompletion } from "../completion-context";
 import type { Stammdaten, Haushalt } from "../types";
 
 type Values = Record<string, string | number | undefined>;
@@ -34,6 +36,7 @@ export function ProfileSectionPage({
   uploadTitle: string;
   uploadHint: string;
 }) {
+  const router = useRouter();
   const [values, setValues] = useState<Values>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -67,6 +70,9 @@ export function ProfileSectionPage({
         clean as unknown as Stammdaten & Haushalt,
       );
       setSaved(true);
+      // Re-render the server layout so the sidebar completion bars pick up the
+      // just-saved values (they're computed server-side and won't update on their own).
+      router.refresh();
     } finally {
       setSaving(false);
     }
@@ -76,6 +82,13 @@ export function ProfileSectionPage({
     section === "stammdaten"
       ? stammdatenCompletion(values as Stammdaten)
       : haushaltCompletion(values as Haushalt);
+
+  // Push the live completion into the sidebar so its bar rises as the user types,
+  // not only after saving.
+  const setSectionCompletion = useSetSectionCompletion(section);
+  useEffect(() => {
+    if (!loading) setSectionCompletion(completion);
+  }, [completion, loading, setSectionCompletion]);
 
   const adapter = makeSectionAdapter({
     mode: section,

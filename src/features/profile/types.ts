@@ -54,6 +54,7 @@ export type Haushalt = {
   // Einnahmen (monatlich)
   nettoeinkommen?: number; // Einkommen Netto (monatlich)
   anzahlGehaelter?: number; // Anzahl der Gehälter im Jahr (default 12)
+  kindergeld?: number; // Kindergeld monatlich (0 = bezieht keins)
   weitereEinkuenfte?: number; // sonstige Einkünfte monatlich (ohne Immobilien)
   // Ausgaben (monatlich)
   mietausgaben?: number; // Mietausgaben (monatlich) — eigene Warmmiete

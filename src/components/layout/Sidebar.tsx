@@ -6,14 +6,16 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { CompletionBar } from "@/components/shared/CompletionBar";
-import type { ProfileCompletion } from "@/features/profile/completeness";
+import { useCompletion } from "@/features/profile/completion-context";
 import { NAV_ITEMS, type NavItemDef } from "./nav-items";
 
 // Persistent left navigation for the (app) shell. Renders the six menu points;
-// the four "Unterlagen" points show a completion bar fed by `completion`.
-export function Sidebar({ completion }: { completion: ProfileCompletion }) {
+// the four "Unterlagen" points show a completion bar fed by the live completion
+// context (seeded server-side, updated as the user edits a section form).
+export function Sidebar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
+  const completion = useCompletion();
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);

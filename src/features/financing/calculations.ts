@@ -52,7 +52,11 @@ export function estimateFinancing(
   haushalt: Haushalt,
   monthlyCashFlow: number,
 ): FinancingEstimate {
-  const haushaltEinnahmen = sum(haushalt.nettoeinkommen, haushalt.weitereEinkuenfte);
+  const haushaltEinnahmen = sum(
+    haushalt.nettoeinkommen,
+    haushalt.kindergeld,
+    haushalt.weitereEinkuenfte,
+  );
   const haushaltAusgaben = sum(
     haushalt.mietausgaben,
     haushalt.lebenshaltung,

@@ -1,10 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export type ProfileFieldOption = {
@@ -20,10 +26,17 @@ export type ProfileFieldConfig = {
   label: string;
   type: "text" | "number" | "date" | "month" | "select";
   options?: ProfileFieldOption[];
+  /**
+   * For `number` fields: common values offered as quick-pick cards, with an
+   * "Andere" card to type any other value.
+   */
+  presets?: number[];
   placeholder?: string;
   suffix?: string;
   /** Helper text shown under the label to explain what the bank wants here. */
   description?: string;
+  /** Longer clarification revealed by an (i) icon next to the label. */
+  info?: string;
   /**
    * For `select` fields: render as a row of choice cards (default) or a native
    * dropdown. Cards are the friendlier default for small option sets.
@@ -31,6 +44,22 @@ export type ProfileFieldConfig = {
   variant?: "cards" | "dropdown";
   /** Force the field onto its own full-width row. */
   fullWidth?: boolean;
+  /**
+   * Renders a special widget instead of a plain input. `benefit` = a yes/no
+   * toggle that reveals count cards which multiply a per-unit amount (e.g.
+   * Kindergeld = number of children × the statutory rate), with a manual
+   * override. Stores the resulting monthly € amount.
+   */
+  widget?: "benefit";
+  /** benefit widget: statutory amount per unit (e.g. € per child). */
+  perUnit?: number;
+  /** benefit widget: quick-pick unit counts (e.g. [1, 2, 3, 4]). */
+  unitPresets?: number[];
+  /** benefit widget: label on the enable toggle ("Ich beziehe Kindergeld"). */
+  enableLabel?: string;
+  /** benefit widget: unit noun, singular / plural ("Kind" / "Kinder"). */
+  unitSingular?: string;
+  unitPlural?: string;
 };
 
 export type ProfileFieldGroup = {
@@ -76,9 +105,12 @@ export function ProfileForm({
   const isLast = active === groups.length - 1;
 
   const rendersAsCards = (f: ProfileFieldConfig) =>
-    f.type === "select" && f.variant !== "dropdown" && !!f.options;
+    f.widget === "benefit" ||
+    (f.type === "select" && f.variant !== "dropdown" && !!f.options) ||
+    (f.type === "number" && f.variant !== "dropdown" && !!f.presets);
 
   return (
+    <TooltipProvider>
     <div className="flex flex-col">
       {/* Tab bar */}
       <div className="flex gap-1.5 overflow-x-auto pb-3 -mx-1 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -170,6 +202,7 @@ export function ProfileForm({
         )}
       </div>
     </div>
+    </TooltipProvider>
   );
 }
 
@@ -197,6 +230,25 @@ function TabIndicator({
   );
 }
 
+// Small (i) affordance next to a field label. Hover or keyboard-focus reveals a
+// longer clarification the always-visible `description` line is too short for.
+function InfoHint({ text }: { text: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        type="button"
+        aria-label="Mehr Informationen"
+        className="text-muted-foreground/60 transition-colors hover:text-[#6c5ce7] focus-visible:text-[#6c5ce7] focus-visible:outline-none"
+      >
+        <Info className="h-3.5 w-3.5" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs text-left leading-relaxed">
+        {text}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
 function FieldInput({
   config,
   value,
@@ -209,24 +261,49 @@ function FieldInput({
   className?: string;
 }) {
   const id = `field-${config.key}`;
-  const asCards =
+  const asOptionCards =
     config.type === "select" && config.variant !== "dropdown" && config.options;
+  const asNumberCards =
+    config.type === "number" && config.variant !== "dropdown" && config.presets;
+  const asBenefit = config.widget === "benefit";
+  const labelless = asOptionCards || asNumberCards || asBenefit;
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <Label
-        htmlFor={asCards ? undefined : id}
-        className="text-sm font-medium text-foreground"
-      >
-        {config.label}
-      </Label>
+      <div className="flex items-center gap-1.5">
+        <Label
+          htmlFor={labelless ? undefined : id}
+          className="text-sm font-medium text-foreground"
+        >
+          {config.label}
+        </Label>
+        {config.info && <InfoHint text={config.info} />}
+      </div>
       {config.description && (
         <p className="text-xs text-muted-foreground leading-snug">
           {config.description}
         </p>
       )}
 
-      {asCards ? (
+      {asBenefit ? (
+        <BenefitField
+          value={value as number | undefined}
+          onChange={onChange}
+          perUnit={config.perUnit ?? 0}
+          unitPresets={config.unitPresets ?? [1, 2, 3, 4]}
+          enableLabel={config.enableLabel ?? "Ja, ich beziehe das"}
+          unitSingular={config.unitSingular ?? "Einheit"}
+          unitPlural={config.unitPlural ?? "Einheiten"}
+          suffix={config.suffix}
+        />
+      ) : asNumberCards ? (
+        <NumberChoiceCards
+          presets={config.presets!}
+          value={value as number | undefined}
+          onChange={onChange}
+          suffix={config.suffix}
+        />
+      ) : asOptionCards ? (
         <OptionCards
           options={config.options!}
           value={value as string | undefined}
@@ -287,6 +364,95 @@ function FieldInput({
   );
 }
 
+const eur = new Intl.NumberFormat("de-DE");
+
+// One radio-style card. Shared by every card-based widget so they look identical.
+function ChoiceCard({
+  selected,
+  label,
+  description,
+  icon: Icon,
+  onClick,
+}: {
+  selected: boolean;
+  label: string;
+  description?: string;
+  icon?: LucideIcon;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      onClick={onClick}
+      className={cn(
+        "flex flex-1 min-w-32 flex-col items-center justify-center gap-1.5 rounded-xl border px-4 py-3.5 text-center transition-all",
+        selected
+          ? "border-[#6c5ce7] bg-[#6c5ce7]/5 ring-1 ring-[#6c5ce7]"
+          : "border-border bg-card hover:border-[#6c5ce7]/40 hover:bg-muted/40",
+      )}
+    >
+      {Icon && (
+        <Icon
+          className={cn(
+            "h-5 w-5",
+            selected ? "text-[#6c5ce7]" : "text-muted-foreground",
+          )}
+        />
+      )}
+      <span
+        className={cn(
+          "text-sm font-medium",
+          selected ? "text-[#6c5ce7]" : "text-foreground",
+        )}
+      >
+        {label}
+      </span>
+      {description && (
+        <span className="text-[11px] leading-tight text-muted-foreground">
+          {description}
+        </span>
+      )}
+    </button>
+  );
+}
+
+// A small € input with the suffix pinned inside — reused by the custom-value
+// escape hatches below.
+function AmountInput({
+  value,
+  placeholder,
+  suffix,
+  onChange,
+}: {
+  value: number | undefined;
+  placeholder?: string;
+  suffix?: string;
+  onChange: (value: number | undefined) => void;
+}) {
+  return (
+    <div className="relative flex items-center max-w-48">
+      <Input
+        type="number"
+        autoFocus
+        value={value ?? ""}
+        placeholder={placeholder}
+        onChange={(e) => {
+          const raw = e.target.value;
+          onChange(raw === "" ? undefined : Number(raw));
+        }}
+        className={cn("h-10 px-3", suffix && "pr-8")}
+      />
+      {suffix && (
+        <span className="absolute right-3 text-sm text-muted-foreground pointer-events-none">
+          {suffix}
+        </span>
+      )}
+    </div>
+  );
+}
+
 // Radio-style choice cards — the friendly alternative to a dropdown for a small
 // set of options. Clicking the selected card again clears it (fields optional).
 function OptionCards({
@@ -300,47 +466,156 @@ function OptionCards({
 }) {
   return (
     <div className="flex flex-wrap gap-2.5 mt-0.5">
-      {options.map((o) => {
-        const selected = value === o.value;
-        const Icon = o.icon;
-        return (
-          <button
-            key={o.value}
-            type="button"
-            role="radio"
-            aria-checked={selected}
-            onClick={() => onChange(selected ? undefined : o.value)}
-            className={cn(
-              "flex flex-1 min-w-32 flex-col items-center justify-center gap-1.5 rounded-xl border px-4 py-3.5 text-center transition-all",
-              selected
-                ? "border-[#6c5ce7] bg-[#6c5ce7]/5 ring-1 ring-[#6c5ce7]"
-                : "border-border bg-card hover:border-[#6c5ce7]/40 hover:bg-muted/40",
-            )}
-          >
-            {Icon && (
-              <Icon
-                className={cn(
-                  "h-5 w-5",
-                  selected ? "text-[#6c5ce7]" : "text-muted-foreground",
-                )}
+      {options.map((o) => (
+        <ChoiceCard
+          key={o.value}
+          selected={value === o.value}
+          label={o.label}
+          description={o.description}
+          icon={o.icon}
+          onClick={() => onChange(value === o.value ? undefined : o.value)}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Number field as quick-pick cards (e.g. 12 / 13 Gehälter) plus an "Andere"
+// card that reveals a free-entry field for any other value.
+function NumberChoiceCards({
+  presets,
+  value,
+  onChange,
+  suffix,
+}: {
+  presets: number[];
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+  suffix?: string;
+}) {
+  const inPreset = value !== undefined && presets.includes(Number(value));
+  const [customOpen, setCustomOpen] = useState(false);
+  const showCustom = customOpen || (value !== undefined && !inPreset);
+
+  return (
+    <div className="flex flex-col gap-2.5 mt-0.5">
+      <div className="flex flex-wrap gap-2.5">
+        {presets.map((n) => (
+          <ChoiceCard
+            key={n}
+            selected={!showCustom && Number(value) === n}
+            label={String(n)}
+            onClick={() => {
+              setCustomOpen(false);
+              onChange(Number(value) === n ? undefined : n);
+            }}
+          />
+        ))}
+        <ChoiceCard
+          selected={showCustom}
+          label="Andere"
+          onClick={() => setCustomOpen(true)}
+        />
+      </div>
+      {showCustom && (
+        <AmountInput
+          value={value}
+          placeholder="z. B. 14"
+          suffix={suffix}
+          onChange={onChange}
+        />
+      )}
+    </div>
+  );
+}
+
+// Benefit widget (e.g. Kindergeld): a Nein / Ja toggle, then count cards that
+// multiply the statutory per-unit rate into a monthly amount, with a free-entry
+// override. Stores the € amount: undefined = unanswered, 0 = explicitly "Nein".
+function BenefitField({
+  value,
+  onChange,
+  perUnit,
+  unitPresets,
+  enableLabel,
+  unitSingular,
+  unitPlural,
+  suffix,
+}: {
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+  perUnit: number;
+  unitPresets: number[];
+  enableLabel: string;
+  unitSingular: string;
+  unitPlural: string;
+  suffix?: string;
+}) {
+  const receiving = value !== undefined && Number(value) > 0;
+  const count =
+    receiving && perUnit > 0 && Number(value) % perUnit === 0
+      ? Number(value) / perUnit
+      : null;
+  const isPresetCount = count !== null && unitPresets.includes(count);
+  const [customOpen, setCustomOpen] = useState(false);
+  const showCustom = receiving && (customOpen || !isPresetCount);
+
+  return (
+    <div className="flex flex-col gap-3 mt-0.5">
+      <div className="flex flex-wrap gap-2.5">
+        <ChoiceCard
+          selected={value === 0}
+          label="Nein"
+          onClick={() => {
+            setCustomOpen(false);
+            onChange(0);
+          }}
+        />
+        <ChoiceCard
+          selected={receiving}
+          label={enableLabel}
+          onClick={() => {
+            setCustomOpen(false);
+            if (!receiving) onChange(perUnit * (unitPresets[0] ?? 1));
+          }}
+        />
+      </div>
+
+      {receiving && (
+        <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/30 p-4">
+          <p className="text-xs text-muted-foreground">
+            Wie viele Kinder? Wir rechnen mit {eur.format(perUnit)} € pro Kind
+            (Stand 2026) — du kannst den Betrag aber auch selbst eintragen.
+          </p>
+          <div className="flex flex-wrap gap-2.5">
+            {unitPresets.map((n) => (
+              <ChoiceCard
+                key={n}
+                selected={!showCustom && count === n}
+                label={`${n} ${n === 1 ? unitSingular : unitPlural}`}
+                description={`${eur.format(n * perUnit)} €`}
+                onClick={() => {
+                  setCustomOpen(false);
+                  onChange(n * perUnit);
+                }}
               />
-            )}
-            <span
-              className={cn(
-                "text-sm font-medium",
-                selected ? "text-[#6c5ce7]" : "text-foreground",
-              )}
-            >
-              {o.label}
-            </span>
-            {o.description && (
-              <span className="text-[11px] leading-tight text-muted-foreground">
-                {o.description}
-              </span>
-            )}
-          </button>
-        );
-      })}
+            ))}
+            <ChoiceCard
+              selected={showCustom}
+              label="Andere Höhe"
+              onClick={() => setCustomOpen(true)}
+            />
+          </div>
+          {showCustom && (
+            <AmountInput
+              value={value}
+              placeholder="Betrag mtl."
+              suffix={suffix}
+              onChange={(v) => onChange(v)}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

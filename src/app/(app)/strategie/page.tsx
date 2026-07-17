@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Image as ImageIcon, Loader2, Save, Trash2, Upload } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,13 @@ import { SectionHeader } from "@/features/profile/components/SectionHeader";
 import { getProfile, saveProfileSection } from "@/lib/profile-service";
 import { uploadDocument, getDownloadUrl } from "@/lib/document-service";
 import { strategieCompletion } from "@/features/profile/completeness";
+import { useSetSectionCompletion } from "@/features/profile/completion-context";
 import type { Strategie } from "@/features/profile/types";
 
 const ACCEPTED_IMAGE = ["image/png", "image/jpeg", "image/webp"];
 
 export default function StrategiePage() {
+  const router = useRouter();
   const [data, setData] = useState<Strategie>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,12 +60,21 @@ export default function StrategiePage() {
     try {
       await saveProfileSection("strategie", data);
       setSaved(true);
+      // Re-render the server layout so the sidebar completion bar reflects the save.
+      router.refresh();
     } finally {
       setSaving(false);
     }
   };
 
   const completion = strategieCompletion(data);
+
+  // Push the live completion into the sidebar so its bar rises as the user edits,
+  // not only after saving.
+  const setSectionCompletion = useSetSectionCompletion("strategie");
+  useEffect(() => {
+    if (!loading) setSectionCompletion(completion);
+  }, [completion, loading, setSectionCompletion]);
 
   return (
     <div className="flex flex-col min-h-screen">
