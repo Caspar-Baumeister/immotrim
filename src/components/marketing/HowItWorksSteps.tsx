@@ -29,7 +29,7 @@ export async function HowItWorksSteps() {
             {i < steps.length - 1 && (
               <span
                 aria-hidden
-                className="hidden sm:flex absolute -right-5 top-[30%] z-10 h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-amber-500"
+                className="hidden sm:flex absolute -right-5 top-[30%] z-10 h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-[#6c5ce7]"
               >
                 →
               </span>
@@ -38,12 +38,12 @@ export async function HowItWorksSteps() {
             {i === 0 ? (
               /* Step 1 — files rising into an upload dropzone */
               <div className="immotrim-anim relative flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-t-2xl border-b border-border bg-gradient-to-b from-muted to-background">
-                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-dashed border-amber-500/40 bg-amber-500/10">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-dashed border-[#6c5ce7]/40 bg-[#6c5ce7]/10">
                   <span
                     aria-hidden
-                    className="absolute inset-0 rounded-2xl border-2 border-amber-500/30 [animation:immotrim-pulse-ring_2.4s_ease-out_infinite]"
+                    className="absolute inset-0 rounded-2xl border-2 border-[#6c5ce7]/30 [animation:immotrim-pulse-ring_2.4s_ease-out_infinite]"
                   />
-                  <Upload className="h-5 w-5 text-amber-500" />
+                  <Upload className="h-5 w-5 text-[#6c5ce7]" />
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   {docs.map((doc, j) => (
@@ -52,7 +52,7 @@ export async function HowItWorksSteps() {
                       className="flex items-center gap-1.5 rounded-lg border border-border bg-background/70 px-2 py-1 text-[10px] text-muted-foreground [animation:immotrim-upload-chip_2.4s_ease-in-out_infinite]"
                       style={{ animationDelay: `${j * 0.5}s` }}
                     >
-                      <FileText className="h-3 w-3 text-amber-500 shrink-0" />
+                      <FileText className="h-3 w-3 text-[#6c5ce7] shrink-0" />
                       <span className="whitespace-nowrap">{doc}</span>
                     </div>
                   ))}
@@ -65,7 +65,7 @@ export async function HowItWorksSteps() {
                   {bars.map((h, j) => (
                     <div
                       key={j}
-                      className="w-3 flex-1 origin-bottom rounded-t-sm bg-amber-500/70 [animation:immotrim-bar-grow_2.6s_ease-in-out_infinite]"
+                      className="w-3 flex-1 origin-bottom rounded-t-sm bg-[#6c5ce7]/70 [animation:immotrim-bar-grow_2.6s_ease-in-out_infinite]"
                       style={{ height: `${h}%`, animationDelay: `${j * 0.15}s` }}
                     />
                   ))}
@@ -94,14 +94,14 @@ export async function HowItWorksSteps() {
                     style={{ animationDelay: "0.6s" }}
                   >
                     <div className="text-[9px] uppercase text-muted-foreground">Rendite</div>
-                    <div className="text-sm font-semibold tabular-nums text-amber-500">4.8%</div>
+                    <div className="text-sm font-semibold tabular-nums text-[#6c5ce7]">4.8%</div>
                   </div>
                 </div>
               </div>
             )}
 
             <div className="relative p-6 lg:p-8 pt-10 space-y-3 flex-1">
-              <div className="absolute -top-5 left-6 lg:left-8 w-10 h-10 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center shadow-md ring-4 ring-card">
+              <div className="absolute -top-5 left-6 lg:left-8 w-10 h-10 rounded-full bg-[#6c5ce7] text-white font-bold flex items-center justify-center shadow-md ring-4 ring-card">
                 {i + 1}
               </div>
               <h3 className="font-heading text-lg font-semibold">{title}</h3>

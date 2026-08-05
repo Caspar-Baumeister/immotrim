@@ -13,8 +13,7 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const sessionId = searchParams.get("session_id");
-  const locale = searchParams.get("locale") === "de" ? "de" : "en";
-  const portfolio = new URL(`/${locale}/portfolio`, origin);
+  const portfolio = new URL(`/portfolio`, origin);
 
   if (!sessionId) {
     console.error("[checkout-return] missing session_id");
@@ -24,7 +23,7 @@ export async function GET(request: NextRequest) {
   const sb = await createServerSupabase();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) {
-    return NextResponse.redirect(new URL(`/${locale}/login`, origin));
+    return NextResponse.redirect(new URL(`/login`, origin));
   }
 
   try {

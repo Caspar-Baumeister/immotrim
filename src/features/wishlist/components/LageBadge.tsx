@@ -6,7 +6,7 @@ const TONE: Record<string, string> = {
   A: "bg-green-500/10 text-green-300 ring-green-500/25",
   "B+": "bg-blue-500/10 text-blue-300 ring-blue-500/25",
   B: "bg-sky-500/10 text-sky-300 ring-sky-500/25",
-  "B-": "bg-amber-500/10 text-amber-300 ring-amber-500/25",
+  "B-": "bg-[#6c5ce7]/10 text-[#6c5ce7] ring-[#6c5ce7]/25",
   "C+": "bg-orange-500/10 text-orange-300 ring-orange-500/25",
   C: "bg-orange-500/15 text-orange-300 ring-orange-500/30",
   D: "bg-red-500/10 text-red-300 ring-red-500/25",

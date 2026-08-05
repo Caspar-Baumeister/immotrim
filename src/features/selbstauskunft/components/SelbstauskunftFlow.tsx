@@ -60,7 +60,7 @@ function toFlowProperty(p: Property): FlowProperty {
   };
 }
 
-export function SelbstauskunftFlow({ locale }: { locale: string }) {
+export function SelbstauskunftFlow() {
   const t = useTranslations("selbstauskunft.flow");
   const router = useRouter();
 
@@ -178,8 +178,8 @@ export function SelbstauskunftFlow({ locale }: { locale: string }) {
 
   const handleSave = useCallback(() => {
     if (isAnonymous) setModal({ mode: "save" });
-    else router.push(`/${locale}/portfolio`);
-  }, [isAnonymous, locale, router]);
+    else router.push(`/portfolio`);
+  }, [isAnonymous, router]);
 
   const callReport = useCallback(async () => {
     setReportBusy(true);
@@ -188,10 +188,10 @@ export function SelbstauskunftFlow({ locale }: { locale: string }) {
       const res = await fetch("/api/portfolio/report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ locale, config: REPORT_CONFIG }),
+        body: JSON.stringify({ config: REPORT_CONFIG }),
       });
       if (res.status === 402) {
-        router.push(`/${locale}/pricing`);
+        router.push(`/pricing`);
         return;
       }
       if (!res.ok) {
@@ -212,7 +212,7 @@ export function SelbstauskunftFlow({ locale }: { locale: string }) {
     } finally {
       setReportBusy(false);
     }
-  }, [locale, router, t]);
+  }, [router, t]);
 
   const handleCreate = useCallback(() => {
     // Allow finishing with missing data, but confirm first.
@@ -270,7 +270,7 @@ export function SelbstauskunftFlow({ locale }: { locale: string }) {
   if (phase === "sorting") {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-32 text-center">
-        <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#6c5ce7]" />
         <p className="font-heading text-xl font-semibold">{t("sortingTitle")}</p>
         <p className="max-w-md text-sm text-muted-foreground">{t("sortingSubtitle")}</p>
       </div>
@@ -294,7 +294,6 @@ export function SelbstauskunftFlow({ locale }: { locale: string }) {
         {error && <p className="mt-4 text-center text-sm text-destructive">{error}</p>}
         {modal && (
           <ConversionForm
-            locale={locale}
             mode={modal.mode}
             onCancel={() => setModal(null)}
           />
@@ -326,12 +325,12 @@ export function SelbstauskunftFlow({ locale }: { locale: string }) {
           e.preventDefault();
           handleFiles(e.dataTransfer.files);
         }}
-        className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-card px-6 py-12 text-center transition-colors hover:border-amber-500/50"
+        className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-card px-6 py-12 text-center transition-colors hover:border-[#6c5ce7]/50"
       >
-        <UploadCloud className="h-8 w-8 text-amber-500" />
+        <UploadCloud className="h-8 w-8 text-[#6c5ce7]" />
         <p className="text-sm text-muted-foreground">
           {t("dropHint")}{" "}
-          <span className="font-semibold text-amber-600 dark:text-amber-400">
+          <span className="font-semibold text-[#6c5ce7]">
             {t("browse")}
           </span>
         </p>
@@ -390,7 +389,7 @@ export function SelbstauskunftFlow({ locale }: { locale: string }) {
           type="button"
           onClick={handleAnalyze}
           disabled={uploading || inbox.length === 0}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-400 px-6 py-3 text-sm font-semibold text-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] px-6 py-3 text-sm font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {t("analyze")}
           <ArrowRight className="h-4 w-4" />

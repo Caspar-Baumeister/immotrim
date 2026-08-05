@@ -62,7 +62,7 @@ export function PortfolioChatPanel({
         <Dialog.Popup className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[440px] flex-col bg-popover text-popover-foreground shadow-xl ring-1 ring-foreground/10 outline-none duration-150 data-open:animate-in data-open:slide-in-from-right data-closed:animate-out data-closed:slide-out-to-right">
           {/* Header */}
           <div className="flex items-center gap-2 border-b border-border px-4 h-14 shrink-0">
-            <Sparkles className="h-4 w-4 text-amber-400" />
+            <Sparkles className="h-4 w-4 text-[#6c5ce7]" />
             <Dialog.Title className="font-heading text-base font-medium">
               {t("title")}
             </Dialog.Title>
@@ -79,8 +79,8 @@ export function PortfolioChatPanel({
             {messages.length === 0 ? (
               <div className="m-auto flex max-w-[92%] flex-col gap-4 py-2">
                 <div className="flex flex-col items-center gap-1.5 text-center">
-                  <span className="flex size-9 items-center justify-center rounded-full bg-amber-500/10">
-                    <Sparkles className="h-4 w-4 text-amber-400" />
+                  <span className="flex size-9 items-center justify-center rounded-full bg-[#6c5ce7]/10">
+                    <Sparkles className="h-4 w-4 text-[#6c5ce7]" />
                   </span>
                   <h3 className="font-heading text-sm font-medium text-foreground">
                     {t("intro.heading")}
@@ -91,7 +91,7 @@ export function PortfolioChatPanel({
                 <ul className="flex flex-col gap-1.5 text-xs text-muted-foreground">
                   {[t("intro.can1"), t("intro.can2"), t("intro.can3")].map((c) => (
                     <li key={c} className="flex gap-2">
-                      <span className="text-amber-400">•</span>
+                      <span className="text-[#6c5ce7]">•</span>
                       <span className="text-left">{c}</span>
                     </li>
                   ))}

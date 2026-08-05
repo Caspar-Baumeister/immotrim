@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- document body -->
+  <path d="M11 7.5A2.5 2.5 0 0 1 13.5 5H28l9 9v24.5A2.5 2.5 0 0 1 34.5 41h-21A2.5 2.5 0 0 1 11 38.5v-31Z" fill="#ffffff" stroke="#6c5ce7" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- folded corner -->
+  <path d="M28 5l9 9h-6.5A2.5 2.5 0 0 1 28 11.5V5Z" fill="#c4b5fd"/>
+  <!-- text lines -->
+  <path d="M16 20h12M16 25.5h15" stroke="#c4b5fd" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- signature stroke -->
+  <path d="M15.5 32.6c2.2-3.4 3.4 2.9 5.2.5 1.6-2.2 3-2.5 4.4.2 1 1.9 2.4 1.5 4-.6" stroke="#6c5ce7" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+  <!-- pen -->
+  <g transform="rotate(45 33 33)">
+    <rect x="30.5" y="13" width="5" height="18" rx="2.5" fill="#6c5ce7"/>
+    <rect x="30.5" y="13" width="5" height="5" rx="2.5" fill="#5b4bd6"/>
+    <path d="M30.5 31h5l-2.5 5.5-2.5-5.5Z" fill="#1e2235"/>
+  </g>
+</svg>

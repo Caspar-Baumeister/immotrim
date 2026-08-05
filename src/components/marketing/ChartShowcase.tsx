@@ -95,7 +95,7 @@ export function ChartShowcase({ slides, labels }: Props) {
                   <p className="text-xs text-muted-foreground">{slide.what}</p>
                 </header>
                 <div>{charts[i]}</div>
-                <p className="mt-auto pt-4 flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-700 dark:text-amber-300">
+                <p className="mt-auto pt-4 flex items-start gap-2 rounded-lg border border-[#6c5ce7]/20 bg-[#6c5ce7]/5 px-3 py-2 text-xs leading-relaxed text-[#6c5ce7]">
                   <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   <span>
                     <span className="sr-only">{labels.whyLabel}: </span>
@@ -138,7 +138,7 @@ export function ChartShowcase({ slides, labels }: Props) {
             className={cn(
               "h-2 rounded-full transition-all",
               i === selected
-                ? "w-6 bg-amber-500"
+                ? "w-6 bg-[#6c5ce7]"
                 : "w-2 bg-foreground/20 hover:bg-foreground/40"
             )}
           />

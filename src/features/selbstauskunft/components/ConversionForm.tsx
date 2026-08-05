@@ -7,16 +7,15 @@ import { ArrowRight, Check, X } from "lucide-react";
 import {
   convertAnonymousAccountAction,
   type ConvertState,
-} from "@/app/[locale]/selbstauskunft/actions";
+} from "@/app/selbstauskunft/actions";
 
 type Props = {
-  locale: string;
   /** "save" → land in portfolio; "create" → must pick a paid plan next. */
   mode: "save" | "create";
   onCancel: () => void;
 };
 
-export function ConversionForm({ locale, mode, onCancel }: Props) {
+export function ConversionForm({ mode, onCancel }: Props) {
   const t = useTranslations("selbstauskunft.conv");
   const [state, formAction, pending] = useActionState<ConvertState, FormData>(
     convertAnonymousAccountAction,
@@ -45,13 +44,13 @@ export function ConversionForm({ locale, mode, onCancel }: Props) {
         {success ? (
           mode === "save" ? (
             <div className="space-y-4">
-              <p className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+              <p className="flex items-center gap-2 text-sm text-emerald-600">
                 <Check className="h-4 w-4" />
                 {t("successDesc")}
               </p>
               <Link
-                href={`/${locale}/portfolio`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-sm font-semibold text-black transition-colors"
+                href={`/portfolio`}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] px-4 py-2.5 text-sm font-semibold text-white transition-colors"
               >
                 {t("goPortfolio")}
                 <ArrowRight className="h-4 w-4" />
@@ -63,8 +62,8 @@ export function ConversionForm({ locale, mode, onCancel }: Props) {
               <p className="text-sm font-medium">{t("paidTitle")}</p>
               <p className="text-sm text-muted-foreground">{t("paidDesc")}</p>
               <Link
-                href={`/${locale}/pricing`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-sm font-semibold text-black transition-colors"
+                href={`/pricing`}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] px-4 py-2.5 text-sm font-semibold text-white transition-colors"
               >
                 {t("goPricing")}
                 <ArrowRight className="h-4 w-4" />
@@ -85,7 +84,7 @@ export function ConversionForm({ locale, mode, onCancel }: Props) {
                 type="email"
                 autoComplete="email"
                 required
-                className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm outline-none focus:border-amber-500/60"
+                className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm outline-none focus:border-[#6c5ce7]/60"
               />
               {state?.fieldErrors?.email?.map((e) => (
                 <p key={e} className="text-xs text-destructive">{e}</p>
@@ -103,7 +102,7 @@ export function ConversionForm({ locale, mode, onCancel }: Props) {
                 autoComplete="new-password"
                 minLength={8}
                 required
-                className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm outline-none focus:border-amber-500/60"
+                className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm outline-none focus:border-[#6c5ce7]/60"
               />
               <p className="text-xs text-muted-foreground">{t("passwordHint")}</p>
               {state?.fieldErrors?.password?.map((e) => (
@@ -116,7 +115,7 @@ export function ConversionForm({ locale, mode, onCancel }: Props) {
             <button
               type="submit"
               disabled={pending}
-              className="w-full rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-black text-sm font-semibold px-4 py-2.5 transition-colors"
+              className="w-full rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 transition-colors"
             >
               {pending ? t("submitting") : t("submit")}
             </button>

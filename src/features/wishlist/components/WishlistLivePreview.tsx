@@ -31,7 +31,7 @@ function MetricRow({
           "text-xs font-semibold tabular-nums",
           highlight && positive === true && "text-emerald-400",
           highlight && positive === false && "text-red-400",
-          highlight && positive === null && "text-amber-400",
+          highlight && positive === null && "text-[#6c5ce7]",
           !highlight && "text-foreground"
         )}
       >

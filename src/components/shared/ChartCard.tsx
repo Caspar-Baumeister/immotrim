@@ -47,7 +47,7 @@ export function ChartCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             {badge && (
-              <span className="text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20 rounded px-1.5 py-0.5 uppercase tracking-wider flex-shrink-0">
+              <span className="text-[10px] font-bold bg-[#6c5ce7]/15 text-[#6c5ce7] border border-[#6c5ce7]/20 rounded px-1.5 py-0.5 uppercase tracking-wider flex-shrink-0">
                 {badge}
               </span>
             )}

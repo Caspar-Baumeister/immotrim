@@ -132,7 +132,7 @@ export function ManualFillModal({ property, onClose, onSaved }: Props) {
                   inputMode="decimal"
                   value={vals[k]}
                   onChange={(e) => setVals((v) => ({ ...v, [k]: e.target.value }))}
-                  className="w-full rounded-lg bg-background border border-border px-2.5 py-1.5 text-sm outline-none focus:border-amber-500/60"
+                  className="w-full rounded-lg bg-background border border-border px-2.5 py-1.5 text-sm outline-none focus:border-[#6c5ce7]/60"
                 />
               </div>
             ))}
@@ -153,7 +153,7 @@ export function ManualFillModal({ property, onClose, onSaved }: Props) {
                       type="checkbox"
                       checked={manualSet.has(r.docType)}
                       onChange={() => toggle(r.docType)}
-                      className="mt-1 h-4 w-4 accent-amber-500"
+                      className="mt-1 h-4 w-4 accent-[#6c5ce7]"
                     />
                     <span className="flex items-start gap-2">
                       <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", LEVEL_DOT[r.level])} />
@@ -181,7 +181,7 @@ export function ManualFillModal({ property, onClose, onSaved }: Props) {
             type="button"
             onClick={save}
             disabled={saving}
-            className="rounded-lg bg-amber-500 hover:bg-amber-400 px-4 py-2 text-sm font-semibold text-black disabled:opacity-60 transition-colors"
+            className="rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 transition-colors"
           >
             {saving ? t("saving") : t("save")}
           </button>

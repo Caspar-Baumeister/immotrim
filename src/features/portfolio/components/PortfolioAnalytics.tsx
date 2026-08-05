@@ -349,7 +349,7 @@ function ToggleChip({
       className={cn(
         "text-[10px] px-2 py-0.5 rounded-full border transition-colors",
         active
-          ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
+          ? "bg-[#6c5ce7]/15 border-[#6c5ce7]/40 text-[#6c5ce7]"
           : "bg-muted/30 border-border text-muted-foreground hover:border-muted-foreground/40"
       )}
     >

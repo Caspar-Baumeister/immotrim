@@ -1,15 +1,12 @@
 import { getRequestConfig } from "next-intl/server";
-import { routing } from "./routing";
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale;
+// Single-locale app (German only). next-intl is kept solely as the message loader —
+// there is no locale routing, so the locale is fixed here.
+export const LOCALE = "de";
 
-  if (!locale || !routing.locales.includes(locale as "en" | "de")) {
-    locale = routing.defaultLocale;
-  }
-
+export default getRequestConfig(async () => {
   return {
-    locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
+    locale: LOCALE,
+    messages: (await import(`../../messages/${LOCALE}.json`)).default,
   };
 });

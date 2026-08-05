@@ -19,11 +19,9 @@ import { getOrCreateShareToken } from "@/lib/share-service";
 export function SharePortfolioDialog({
   open,
   onOpenChange,
-  locale,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  locale: string;
 }) {
   const t = useTranslations("share");
   const [url, setUrl] = useState<string | null>(null);
@@ -36,7 +34,7 @@ export function SharePortfolioDialog({
     getOrCreateShareToken()
       .then((token) => {
         if (cancelled) return;
-        setUrl(`${window.location.origin}/${locale}/share/${token}`);
+        setUrl(`${window.location.origin}/share/${token}`);
         setError(false);
       })
       .catch(() => {
@@ -45,7 +43,7 @@ export function SharePortfolioDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, locale]);
+  }, [open]);
 
   const copy = async () => {
     if (!url) return;
@@ -87,7 +85,7 @@ export function SharePortfolioDialog({
             <Button
               size="sm"
               onClick={copy}
-              className="gap-1.5 flex-shrink-0 bg-amber-500 hover:bg-amber-400 text-black font-semibold"
+              className="gap-1.5 flex-shrink-0 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold"
             >
               {copied ? (
                 <Check className="h-3.5 w-3.5" />

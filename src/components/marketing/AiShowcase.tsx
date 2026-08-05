@@ -6,7 +6,7 @@ import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 // the visual language of src/features/portfolio-chat/* (chat bubbles + the amber
 // "Vorgeschlagene Änderung" card) but is intentionally hard-coded and always dark,
 // independent of the site theme, so it reads as a product screenshot.
-export async function AiShowcase({ locale }: { locale: string }) {
+export async function AiShowcase() {
   const t = await getTranslations("landing");
 
   const breakdown = [
@@ -20,7 +20,7 @@ export async function AiShowcase({ locale }: { locale: string }) {
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
         {/* Copy */}
         <div className="space-y-5">
-          <p className="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400/80">
+          <p className="text-xs uppercase tracking-widest text-[#6c5ce7]">
             {t("ai.eyebrow")}
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight">
@@ -31,13 +31,13 @@ export async function AiShowcase({ locale }: { locale: string }) {
           </p>
           <div className="flex flex-col gap-3 pt-1">
             <Link
-              href={`/${locale}/signup`}
-              className="inline-flex w-fit items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2.5 rounded-lg transition-colors"
+              href={`/signup`}
+              className="inline-flex w-fit items-center justify-center gap-2 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
             >
               {t("ai.cta")}
             </Link>
             <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-              <Check className="h-4 w-4 text-amber-500" />
+              <Check className="h-4 w-4 text-[#6c5ce7]" />
               {t("ai.confirmNote")}
             </p>
           </div>
@@ -47,7 +47,7 @@ export async function AiShowcase({ locale }: { locale: string }) {
         <div className="rounded-2xl border border-white/10 bg-[#0f0f0f] shadow-xl shadow-black/30 overflow-hidden">
           {/* Header */}
           <div className="flex items-center gap-2 h-12 px-4 border-b border-white/10">
-            <Sparkles className="h-4 w-4 text-amber-400" />
+            <Sparkles className="h-4 w-4 text-[#6c5ce7]" />
             <span className="font-heading text-sm font-medium text-zinc-100">
               Portfolio-Assistent
             </span>
@@ -89,10 +89,10 @@ export async function AiShowcase({ locale }: { locale: string }) {
               <p>{t("ai.a2")}</p>
 
               {/* Vorgeschlagene Änderung card (static replica of ChangeProposalCard) */}
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.03] overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-amber-500/20 bg-amber-500/[0.06]">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                  <span className="text-xs font-semibold text-amber-300">
+              <div className="rounded-xl border border-[#6c5ce7]/30 bg-[#6c5ce7]/[0.03] overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-[#6c5ce7]/20 bg-[#6c5ce7]/[0.06]">
+                  <Sparkles className="h-3.5 w-3.5 text-[#6c5ce7]" />
+                  <span className="text-xs font-semibold text-[#6c5ce7]">
                     {t("ai.proposalTitle")}
                   </span>
                 </div>
@@ -115,8 +115,8 @@ export async function AiShowcase({ locale }: { locale: string }) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 border-t border-amber-500/20">
-                  <span className="inline-flex items-center justify-center rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-black">
+                <div className="flex items-center gap-2 px-3 py-2 border-t border-[#6c5ce7]/20">
+                  <span className="inline-flex items-center justify-center rounded-md bg-[#6c5ce7] px-3 py-1.5 text-xs font-semibold text-white">
                     {t("ai.proposalApply")}
                   </span>
                   <span className="inline-flex items-center justify-center gap-1.5 rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium text-zinc-300">

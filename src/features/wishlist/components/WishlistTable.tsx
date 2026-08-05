@@ -44,7 +44,6 @@ type EnrichedRow = WishlistProperty & { kpis: WishlistRowKpis; rent: number };
 
 type Props = {
   rows: WishlistProperty[];
-  locale: string;
   onDelete: (id: string) => void;
   deletingId: string | null;
 };
@@ -79,7 +78,7 @@ function getSortValue(row: EnrichedRow, key: SortKey): number | string | null {
   }
 }
 
-export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
+export function WishlistTable({ rows, onDelete, deletingId }: Props) {
   const router = useRouter();
   const t = useTranslations("wishlist");
   const assumptions = useGlobalAssumptions();
@@ -180,7 +179,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
               <div className="flex items-start justify-between gap-2">
                 <button
                   type="button"
-                  onClick={() => router.push(`/${locale}/wishlist/${row.id}`)}
+                  onClick={() => router.push(`/wishlist/${row.id}`)}
                   className="min-w-0 flex-1 text-left"
                 >
                   <div className="flex items-center gap-2 min-w-0">
@@ -230,7 +229,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
                     row.kpis.monthlyCashFlow == null
                       ? "text-muted-foreground"
                       : cfPositive
-                      ? "text-amber-400"
+                      ? "text-[#6c5ce7]"
                       : "text-red-400"
                   )}
                 />
@@ -357,7 +356,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
               <Fragment key={row.id}>
               <TableRow
                 key={row.id}
-                onClick={() => router.push(`/${locale}/wishlist/${row.id}`)}
+                onClick={() => router.push(`/wishlist/${row.id}`)}
                 className="cursor-pointer"
               >
                 <TableCell
@@ -404,7 +403,7 @@ export function WishlistTable({ rows, locale, onDelete, deletingId }: Props) {
                     row.kpis.monthlyCashFlow == null
                       ? "text-muted-foreground"
                       : cfPositive
-                      ? "text-amber-400"
+                      ? "text-[#6c5ce7]"
                       : "text-red-400"
                   )}
                 >
@@ -570,7 +569,7 @@ function HeaderWithSettings({
           className={cn(
             "inline-flex items-center gap-1 transition-colors flex-row-reverse",
             activeKey === sortKey
-              ? "text-amber-400"
+              ? "text-[#6c5ce7]"
               : "text-muted-foreground hover:text-foreground"
           )}
         >

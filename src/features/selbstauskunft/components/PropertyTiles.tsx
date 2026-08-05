@@ -16,16 +16,16 @@ import type { SaLevel } from "@/lib/selbstauskunft/requirements";
 import type { FlowProperty } from "../types";
 
 const STATUS_STYLES: Record<SaStatus, { dot: string; text: string; ring: string }> = {
-  green: { dot: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400", ring: "border-emerald-500/30" },
-  red: { dot: "bg-red-500", text: "text-red-600 dark:text-red-400", ring: "border-red-500/30" },
-  orange: { dot: "bg-orange-500", text: "text-orange-600 dark:text-orange-400", ring: "border-orange-500/30" },
-  yellow: { dot: "bg-yellow-500", text: "text-yellow-600 dark:text-yellow-500", ring: "border-yellow-500/30" },
+  green: { dot: "bg-emerald-500", text: "text-emerald-600", ring: "border-emerald-500/30" },
+  red: { dot: "bg-red-500", text: "text-red-600", ring: "border-red-500/30" },
+  orange: { dot: "bg-orange-500", text: "text-orange-600", ring: "border-orange-500/30" },
+  yellow: { dot: "bg-yellow-500", text: "text-yellow-600", ring: "border-yellow-500/30" },
 };
 
 const LEVEL_TEXT: Record<SaLevel, string> = {
-  pflicht: "text-red-600 dark:text-red-400",
-  empfohlen: "text-orange-600 dark:text-orange-400",
-  optional: "text-yellow-600 dark:text-yellow-500",
+  pflicht: "text-red-600",
+  empfohlen: "text-orange-600",
+  optional: "text-yellow-600",
 };
 
 type Props = {
@@ -143,7 +143,7 @@ export function PropertyTiles({
                     type="button"
                     onClick={() => onManual(p.id)}
                     disabled={busy}
-                    className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 hover:underline disabled:opacity-50"
+                    className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#6c5ce7] hover:underline disabled:opacity-50"
                   >
                     <PencilLine className="h-3.5 w-3.5" />
                     {t("manualFill")}
@@ -151,7 +151,7 @@ export function PropertyTiles({
                 </div>
               ) : (
                 <div className="flex items-center justify-between gap-2 border-t border-border pt-3 text-xs">
-                  <span className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                  <span className="flex items-center gap-2 text-emerald-600">
                     <FileCheck2 className="h-4 w-4" />
                     {t("statusGreen")}
                   </span>
@@ -193,7 +193,7 @@ export function PropertyTiles({
             type="button"
             onClick={onSave}
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 disabled:opacity-60 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#6c5ce7]/30 bg-[#6c5ce7]/10 px-4 py-2.5 text-sm font-semibold text-[#6c5ce7] hover:bg-[#6c5ce7]/20 disabled:opacity-60 transition-colors"
           >
             <Save className="h-4 w-4" />
             {t("saveDocs")}
@@ -202,7 +202,7 @@ export function PropertyTiles({
             type="button"
             onClick={onCreate}
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-400 px-5 py-2.5 text-sm font-semibold text-black disabled:opacity-60 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60 transition-colors"
           >
             <FileCheck2 className="h-4 w-4" />
             {t("createSa")}

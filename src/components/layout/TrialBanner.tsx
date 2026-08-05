@@ -10,11 +10,9 @@ function daysLeft(currentPeriodEnd: string): number {
 // Thin banner shown across the app while a user is on the free trial. Renders
 // nothing for paid subscribers. Days left is rounded up from current_period_end.
 export async function TrialBanner({
-  locale,
   status,
   currentPeriodEnd,
 }: {
-  locale: string;
   status: string;
   currentPeriodEnd: string | null;
 }) {
@@ -24,11 +22,11 @@ export async function TrialBanner({
   const t = await getTranslations("trial");
 
   return (
-    <div className="flex items-center justify-center gap-3 bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-xs text-amber-700 dark:text-amber-300">
+    <div className="flex items-center justify-center gap-3 bg-[#6c5ce7]/10 border-b border-[#6c5ce7]/20 px-4 py-1.5 text-xs text-[#6c5ce7]">
       <span>{t("banner", { days })}</span>
       <Link
-        href={`/${locale}/pricing`}
-        className="font-medium underline underline-offset-2 hover:text-amber-500"
+        href={`/pricing`}
+        className="font-medium underline underline-offset-2 hover:text-[#6c5ce7]"
       >
         {t("upgrade")}
       </Link>

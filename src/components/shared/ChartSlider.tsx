@@ -37,7 +37,7 @@ export function ChartSlider({
         }}
         className="flex-1"
       />
-      <span className="text-[10px] font-semibold tabular-nums text-amber-400 shrink-0 w-10 text-right">
+      <span className="text-[10px] font-semibold tabular-nums text-[#6c5ce7] shrink-0 w-10 text-right">
         {value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)}
         {unit}
       </span>

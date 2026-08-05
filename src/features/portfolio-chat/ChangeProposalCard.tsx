@@ -63,10 +63,10 @@ export function ChangeProposalCard({
   };
 
   return (
-    <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.03] overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-amber-500/20 bg-amber-500/[0.06]">
-        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-        <span className="text-xs font-semibold text-amber-300">{t("proposal.title")}</span>
+    <div className="rounded-xl border border-[#6c5ce7]/30 bg-[#6c5ce7]/[0.03] overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-[#6c5ce7]/20 bg-[#6c5ce7]/[0.06]">
+        <Sparkles className="h-3.5 w-3.5 text-[#6c5ce7]" />
+        <span className="text-xs font-semibold text-[#6c5ce7]">{t("proposal.title")}</span>
       </div>
 
       <div className="px-3 py-2.5 flex flex-col gap-1.5">
@@ -81,7 +81,7 @@ export function ChangeProposalCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 px-3 py-2 border-t border-amber-500/20">
+      <div className="flex items-center gap-2 px-3 py-2 border-t border-[#6c5ce7]/20">
         {state === "applied" ? (
           <span className="flex items-center gap-1.5 text-xs text-emerald-400">
             <Check className="h-3.5 w-3.5" /> {t("proposal.applied")}
@@ -94,7 +94,7 @@ export function ChangeProposalCard({
               size="sm"
               onClick={apply}
               disabled={state === "applying"}
-              className="bg-amber-500 hover:bg-amber-400 text-black"
+              className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white"
             >
               {state === "applying" ? t("proposal.applying") : t("proposal.apply")}
             </Button>
