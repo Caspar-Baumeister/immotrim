@@ -9,6 +9,7 @@ import {
   Landmark,
   Loader2,
   Plus,
+  Wallet,
 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { MetricCard } from "@/components/shared/MetricCard";
@@ -74,6 +75,26 @@ export default function DashboardPage() {
   const appreciationSeries = calculatePortfolioAppreciationSeries(portfolioInputs);
   const wealthSeries = calculatePortfolioWealthSeries(portfolioInputs);
   const est = estimateFinancing(profile?.haushalt ?? {}, kpis.monthlyCashFlowBeforeTax);
+
+  // Household finance KPIs — all derived from the already-computed estimate
+  // plus the raw Vermögen fields of the Haushaltsrechnung.
+  const haushalt = profile?.haushalt ?? {};
+  const haushaltEmpty =
+    est.haushaltEinnahmen === 0 && est.haushaltAusgaben === 0;
+  const gesamtvermoegen =
+    kpis.netPropertyEquity +
+    (haushalt.bankSparguthaben ?? 0) +
+    (haushalt.wertpapiere ?? 0) +
+    (haushalt.sonstigesVermoegen ?? 0) -
+    (haushalt.sonstigeVerbindlichkeiten ?? 0);
+  const sparquote =
+    est.haushaltEinnahmen > 0
+      ? (est.haushaltSparrate / est.haushaltEinnahmen) * 100
+      : null;
+  const ltv =
+    kpis.estimatedPortfolioValue > 0
+      ? (kpis.outstandingLoanBalance / kpis.estimatedPortfolioValue) * 100
+      : null;
 
   const sections = BROSCHUERE_SECTIONS.map((s) => ({
     ...s,
@@ -208,6 +229,69 @@ export default function DashboardPage() {
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
+            </div>
+
+            {/* Haushalts-Finanzen: monatliche Ströme + Vermögenskennzahlen,
+                alles aus estimateFinancing bzw. den Haushalts-Rohfeldern. */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-[#6c5ce7]" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Deine Finanzen
+                  </h3>
+                </div>
+                <Link
+                  href="/haushalt"
+                  className="text-sm font-medium text-[#6c5ce7] hover:underline flex items-center gap-1"
+                >
+                  Zur Haushaltsrechnung <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+              {haushaltEmpty ? (
+                <Link
+                  href="/haushalt"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-4 py-5 text-sm text-muted-foreground hover:border-[#6c5ce7]/50 hover:text-[#6c5ce7] transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                  Fülle deine Haushaltsrechnung aus, um Einnahmen, Ausgaben und
+                  Überschuss zu sehen.
+                </Link>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <MetricCard
+                    label="Einnahmen / Monat"
+                    value={eur(est.haushaltEinnahmen)}
+                  />
+                  <MetricCard
+                    label="Ausgaben / Monat"
+                    value={eur(est.haushaltAusgaben)}
+                  />
+                  <MetricCard
+                    label="Haushalts-Überschuss"
+                    value={eur(est.haushaltSparrate)}
+                    accent={est.haushaltSparrate >= 0 ? "#10b981" : "#ef4444"}
+                  />
+                  <MetricCard
+                    label="Überschuss inkl. Immobilien"
+                    value={eur(est.sparrate)}
+                    accent={est.sparrate >= 0 ? "#10b981" : "#ef4444"}
+                  />
+                  <MetricCard
+                    label="Sparquote"
+                    value={sparquote === null ? "—" : formatPercent(sparquote)}
+                  />
+                  <MetricCard
+                    label="Gesamtvermögen (netto)"
+                    value={eur(gesamtvermoegen)}
+                    accent="#6c5ce7"
+                  />
+                  <MetricCard
+                    label="Beleihungsquote (LTV)"
+                    value={ltv === null ? "—" : formatPercent(ltv)}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Immobilien-Portfolio: minimal key figures — details live on /portfolio. */}

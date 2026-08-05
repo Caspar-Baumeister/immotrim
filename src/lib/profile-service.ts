@@ -67,3 +67,28 @@ export async function saveProfileSection<S extends ProfileSection>(
     .upsert(payload, { onConflict: "user_id" });
   if (error) throw error;
 }
+
+/**
+ * Ask the AI to turn rough notes in a Strategie text field into a polished
+ * German paragraph. Throws on non-OK responses so the caller can distinguish
+ * limit/busy from generic failure (same contract as classifyDocuments).
+ */
+export async function polishStrategieText(
+  field: "strategieText" | "ueberMich",
+  text: string,
+): Promise<string> {
+  const res = await fetch("/api/strategie/polish", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ field, text }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    const err = new Error(body?.error ?? "polish_failed") as Error & { status?: number };
+    err.status = res.status;
+    throw err;
+  }
+  const data = (await res.json()) as { text?: string };
+  if (!data.text) throw new Error("polish_failed");
+  return data.text;
+}

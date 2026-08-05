@@ -2,18 +2,93 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Image as ImageIcon, Loader2, Save, Trash2, Upload } from "lucide-react";
+import {
+  Check,
+  Image as ImageIcon,
+  Loader2,
+  RotateCcw,
+  Save,
+  Sparkles,
+  Trash2,
+  Undo2,
+  Upload,
+} from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/features/profile/components/SectionHeader";
-import { getProfile, saveProfileSection } from "@/lib/profile-service";
+import { getProfile, saveProfileSection, polishStrategieText } from "@/lib/profile-service";
 import { uploadDocument, getDownloadUrl } from "@/lib/document-service";
 import { strategieCompletion } from "@/features/profile/completeness";
 import { useSetSectionCompletion } from "@/features/profile/completion-context";
 import type { Strategie } from "@/features/profile/types";
 
 const ACCEPTED_IMAGE = ["image/png", "image/jpeg", "image/webp"];
+
+type PolishField = "strategieText" | "ueberMich";
+
+const PILL_CLASS =
+  "flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium shadow-sm transition-colors disabled:pointer-events-none disabled:opacity-40";
+
+// Gmail-style "Help me write" chips overlaid on the textarea. Before a polish:
+// a single sparkle pill. After one: "Neu generieren" (fresh AI variant from the
+// original notes) and "Rückgängig" (restore the original text).
+function PolishControls({
+  active,
+  disabled,
+  hasResult,
+  onPolish,
+  onRegenerate,
+  onUndo,
+}: {
+  active: boolean;
+  disabled: boolean;
+  hasResult: boolean;
+  onPolish: () => void;
+  onRegenerate: () => void;
+  onUndo: () => void;
+}) {
+  return (
+    <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5">
+      {active ? (
+        <span className={`${PILL_CLASS} text-[#6c5ce7]`}>
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Wird verbessert …
+        </span>
+      ) : hasResult ? (
+        <>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            disabled={disabled}
+            title="Noch einmal aus deinem ursprünglichen Text generieren"
+            className={`${PILL_CLASS} text-[#6c5ce7] hover:border-[#6c5ce7]/40 hover:bg-[#6c5ce7]/10`}
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Neu generieren
+          </button>
+          <button
+            type="button"
+            onClick={onUndo}
+            disabled={disabled}
+            title="Ursprünglichen Text wiederherstellen"
+            className={`${PILL_CLASS} text-muted-foreground hover:bg-muted/50`}
+          >
+            <Undo2 className="h-3.5 w-3.5" /> Rückgängig
+          </button>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={onPolish}
+          disabled={disabled}
+          title="Stichpunkte mit KI ausformulieren"
+          className={`${PILL_CLASS} text-[#6c5ce7] hover:border-[#6c5ce7]/40 hover:bg-[#6c5ce7]/10`}
+        >
+          <Sparkles className="h-3.5 w-3.5" /> Verbessern
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function StrategiePage() {
   const router = useRouter();
@@ -23,6 +98,11 @@ export default function StrategiePage() {
   const [saved, setSaved] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [polishing, setPolishing] = useState<PolishField | null>(null);
+  const [polishError, setPolishError] = useState<{ field: PolishField; message: string } | null>(null);
+  // Pre-polish text per field, kept while the AI result stands so the user can
+  // undo or regenerate. Cleared when they edit the field manually.
+  const [polishOriginals, setPolishOriginals] = useState<Partial<Record<PolishField, string>>>({});
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -53,6 +133,40 @@ export default function StrategiePage() {
       setUploadingImage(false);
       if (inputRef.current) inputRef.current.value = "";
     }
+  };
+
+  // Polishes from the field's current text, or — when regenerating — from the
+  // stored original, so a redo produces a fresh variant of the user's own notes.
+  const handlePolish = async (field: PolishField) => {
+    const source = polishOriginals[field] ?? data[field]?.trim();
+    if (!source || polishing) return;
+    setPolishing(field);
+    setPolishError(null);
+    try {
+      const polished = await polishStrategieText(field, source);
+      setField({ [field]: polished });
+      setPolishOriginals((prev) => ({ ...prev, [field]: source }));
+    } catch (e) {
+      const status = (e as Error & { status?: number }).status;
+      setPolishError({
+        field,
+        message:
+          status === 429
+            ? "Monatliches KI-Limit erreicht."
+            : status === 503
+              ? "Die KI ist gerade ausgelastet — bitte versuche es gleich noch einmal."
+              : "Verbessern fehlgeschlagen — bitte versuche es erneut.",
+      });
+    } finally {
+      setPolishing(null);
+    }
+  };
+
+  const handleUndoPolish = (field: PolishField) => {
+    const original = polishOriginals[field];
+    if (original === undefined) return;
+    setField({ [field]: original });
+    setPolishOriginals((prev) => ({ ...prev, [field]: undefined }));
   };
 
   const handleSave = async () => {
@@ -151,28 +265,60 @@ export default function StrategiePage() {
               <Label htmlFor="strategieText" className="text-xs text-muted-foreground">
                 Investmentstrategie
               </Label>
-              <textarea
-                id="strategieText"
-                value={data.strategieText ?? ""}
-                onChange={(e) => setField({ strategieText: e.target.value })}
-                rows={5}
-                placeholder="z.B. Fokus auf vermietete Bestandswohnungen in B-Lagen mit stabilem Cashflow, langfristiger Buy-and-Hold-Horizont …"
-                className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y"
-              />
+              <div className="relative">
+                <textarea
+                  id="strategieText"
+                  value={data.strategieText ?? ""}
+                  onChange={(e) => {
+                    setField({ strategieText: e.target.value });
+                    setPolishOriginals((prev) => ({ ...prev, strategieText: undefined }));
+                  }}
+                  rows={5}
+                  placeholder="z.B. Fokus auf vermietete Bestandswohnungen in B-Lagen mit stabilem Cashflow, langfristiger Buy-and-Hold-Horizont …"
+                  className="w-full rounded-lg border border-input bg-transparent px-3 py-2 pb-12 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y"
+                />
+                <PolishControls
+                  active={polishing === "strategieText"}
+                  disabled={!data.strategieText?.trim() || polishing !== null}
+                  hasResult={polishOriginals.strategieText !== undefined}
+                  onPolish={() => handlePolish("strategieText")}
+                  onRegenerate={() => handlePolish("strategieText")}
+                  onUndo={() => handleUndoPolish("strategieText")}
+                />
+              </div>
+              {polishError?.field === "strategieText" && (
+                <span className="text-xs text-red-400">{polishError.message}</span>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="ueberMich" className="text-xs text-muted-foreground">
                 Über mich
               </Label>
-              <textarea
-                id="ueberMich"
-                value={data.ueberMich ?? ""}
-                onChange={(e) => setField({ ueberMich: e.target.value })}
-                rows={4}
-                placeholder="Kurzer persönlicher Text: beruflicher Hintergrund, Erfahrung mit Immobilien, warum du finanzieren möchtest …"
-                className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y"
-              />
+              <div className="relative">
+                <textarea
+                  id="ueberMich"
+                  value={data.ueberMich ?? ""}
+                  onChange={(e) => {
+                    setField({ ueberMich: e.target.value });
+                    setPolishOriginals((prev) => ({ ...prev, ueberMich: undefined }));
+                  }}
+                  rows={4}
+                  placeholder="Kurzer persönlicher Text: beruflicher Hintergrund, Erfahrung mit Immobilien, warum du finanzieren möchtest …"
+                  className="w-full rounded-lg border border-input bg-transparent px-3 py-2 pb-12 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y"
+                />
+                <PolishControls
+                  active={polishing === "ueberMich"}
+                  disabled={!data.ueberMich?.trim() || polishing !== null}
+                  hasResult={polishOriginals.ueberMich !== undefined}
+                  onPolish={() => handlePolish("ueberMich")}
+                  onRegenerate={() => handlePolish("ueberMich")}
+                  onUndo={() => handleUndoPolish("ueberMich")}
+                />
+              </div>
+              {polishError?.field === "ueberMich" && (
+                <span className="text-xs text-red-400">{polishError.message}</span>
+              )}
             </div>
 
             <div className="flex items-center gap-3 pt-1 border-t border-border mt-1">
