@@ -8,7 +8,6 @@ import {
 import { TrialBanner } from "@/components/layout/TrialBanner";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
-import { PortfolioChatLauncher } from "@/features/portfolio-chat/PortfolioChatLauncher";
 import { CompletionProvider } from "@/features/profile/completion-context";
 
 // Everything under (app)/ is gated, user-specific app UI — never index it.
@@ -36,7 +35,6 @@ export default async function AppLayout({ children }: Props) {
           <TrialBanner status={sub.status} currentPeriodEnd={sub.current_period_end} />
           <MobileNav />
           {children}
-          <PortfolioChatLauncher />
         </div>
       </div>
     </CompletionProvider>

@@ -186,33 +186,7 @@
       "f4": "Cashflow-, Rendite- & Return-Analysen",
       "f5": "Mehrsprachig (DE/EN)"
     },
-    "footer": "Immotrim",
-    "ai": {
-      "eyebrow": "KI-Assistent",
-      "title": "Frag dein Portfolio — und lass die KI rechnen.",
-      "subtitle": "Stell ganz normale Fragen. Die KI rechnet mit deinen echten Zahlen und ändert Werte auf Wunsch direkt — du bestätigst jede Änderung, bevor sie gespeichert wird.",
-      "cta": "Jetzt kostenlos erstellen",
-      "confirmNote": "Du bestätigst jede Änderung, bevor sie gespeichert wird.",
-      "q1": "Wie viel verdiene ich aktuell eigentlich pro Tag mit meinen Immobilien?",
-      "a1Lead": "Über dein gesamtes Portfolio baust du aktuell rund",
-      "a1Total": "≈ 47 € pro Tag",
-      "a1Sub": "an Vermögen auf — so setzt sich das zusammen:",
-      "a1Tilgung": "Tilgung",
-      "a1TilgungVal": "14 €",
-      "a1Cashflow": "Cashflow",
-      "a1CashflowVal": "6 €",
-      "a1Wert": "Wertwachstum",
-      "a1WertVal": "27 €",
-      "q2": "Und was würde eine Erhöhung der AfA um 2 % mit meinem Cashflow nach Steuern machen?",
-      "a2": "Eine höhere AfA senkt dein zu versteuerndes Einkommen — dein Cashflow nach Steuern steigt entsprechend. Ich kann das direkt für dich anpassen:",
-      "proposalProperty": "Stockholmer Straße 30, Berlin",
-      "proposalField": "Abschreibung (AfA)",
-      "proposalOld": "2 %",
-      "proposalNew": "4 %",
-      "proposalTitle": "Vorgeschlagene Änderung",
-      "proposalApply": "Übernehmen",
-      "proposalCancel": "Abbrechen"
-    }
+    "footer": "Immotrim"
   },
   "selbstauskunft": {
     "meta": {
@@ -631,59 +605,5 @@
   "trial": {
     "banner": "{days, plural, =0 {Letzter Tag deiner kostenlosen Testphase} one {Noch # Tag in deiner kostenlosen Testphase} other {Noch # Tage in deiner kostenlosen Testphase}}",
     "upgrade": "Upgraden"
-  },
-  "portfolioChat": {
-    "title": "Portfolio-Assistent",
-    "launcher": "Assistent",
-    "close": "Schließen",
-    "send": "Senden",
-    "placeholder": "Frag etwas zu deinem Portfolio…",
-    "intro": {
-      "heading": "Dein Portfolio-Assistent",
-      "lead": "Frag alles zu deinen Immobilien — oder lass mich einen Wert ändern.",
-      "can1": "Kennzahlen erklären & Immobilien vergleichen (Cashflow, Rendite, Vermögensaufbau …)",
-      "can2": "Antworten aus deinen hochgeladenen Dokumenten ziehen",
-      "can3": "Werte ändern — du bestätigst jede Änderung, bevor sie gespeichert wird",
-      "beta": "Beta: Unterhaltungen werden nicht gespeichert und sind nach dem Schließen weg."
-    },
-    "suggestions": {
-      "afa": "Erhöhe die AfA meiner wertvollsten Immobilie um 1%",
-      "wealth": "Welche meiner Immobilien hat den größten Vermögensaufbau pro Jahr?",
-      "missingData": "Hat eine meiner Immobilien noch fehlende Daten, die für die Berechnung der Graphen wichtig sind?"
-    },
-    "errors": {
-      "limit": "Du hast dein Chat-Limit für diesen Monat erreicht.",
-      "failed": "Etwas ist schiefgelaufen. Bitte versuch es erneut.",
-      "busy": "Der Assistent ist gerade stark ausgelastet — bitte versuch es gleich noch einmal."
-    },
-    "units": {
-      "years": "Jahre"
-    },
-    "proposal": {
-      "title": "Vorgeschlagene Änderung",
-      "apply": "Übernehmen",
-      "applying": "Wird übernommen…",
-      "cancel": "Abbrechen",
-      "applied": "Änderung übernommen",
-      "dismissed": "Verworfen",
-      "failed": "Änderung konnte nicht übernommen werden."
-    },
-    "fields": {
-      "afaPct": "Abschreibung (AfA)",
-      "steuersatz": "Grenzsteuersatz",
-      "gebaeudeanteilPct": "Gebäudeanteil",
-      "bemessungsgrundlage": "AfA-Bemessungsgrundlage",
-      "zins": "Sollzins",
-      "tilgung": "Tilgung",
-      "zinsbindung": "Zinsbindung",
-      "kaufpreis": "Kaufpreis",
-      "eigenanteil": "Eigenanteil",
-      "kaltmiete": "Kaltmiete",
-      "nichtUmlagefaehig": "Nicht umlagefähige Kosten",
-      "ruecklagen": "Rücklagen",
-      "leerstand": "Leerstand",
-      "mietentwicklung": "Mietentwicklung",
-      "wertentwicklung": "Wertentwicklung"
-    }
   }
 }
