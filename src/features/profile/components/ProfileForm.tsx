@@ -137,6 +137,17 @@ export function ProfileForm({
   const isFirst = active === 0;
   const isLast = active === groups.length - 1;
 
+  // "Weiter"/"Fertig" confirms the tab: €-amount fields the user skipped count
+  // as an explicit 0 ("habe ich nicht"), so the tab can reach its check mark
+  // without typing zeros by hand. Non-monetary numbers (e.g. Gehälter pro Jahr)
+  // stay untouched — 0 would be wrong there, not "none".
+  const confirmEmptyAsZero = () => {
+    for (const f of group.fields) {
+      if (f.type === "number" && f.suffix === "€" && !hasValue(values[f.key]))
+        onChange(f.key, 0);
+    }
+  };
+
   const rendersAsCards = (f: ProfileFieldConfig) =>
     f.widget === "benefit" ||
     !!f.estimate ||
@@ -223,14 +234,24 @@ export function ProfileForm({
 
             <button
               type="button"
-              onClick={() =>
-                setActive((a) => Math.min(groups.length - 1, a + 1))
-              }
-              disabled={isLast}
+              onClick={() => {
+                confirmEmptyAsZero();
+                setActive((a) => Math.min(groups.length - 1, a + 1));
+              }}
+              disabled={isLast && progress[active].done}
               className="flex items-center gap-1 text-sm font-medium text-[#6c5ce7] transition-colors hover:text-[#5b4bd6] disabled:pointer-events-none disabled:opacity-0"
             >
-              Weiter
-              <ChevronRight className="h-4 w-4" />
+              {isLast ? (
+                <>
+                  Fertig
+                  <Check className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Weiter
+                  <ChevronRight className="h-4 w-4" />
+                </>
+              )}
             </button>
           </div>
         )}
