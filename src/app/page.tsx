@@ -8,7 +8,6 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { getActiveSubscription } from "@/lib/dal";
 import { getBaseUrl } from "@/lib/url";
 import { alternates } from "@/lib/seo";
-import { AiShowcase } from "@/components/marketing/AiShowcase";
 import { SelbstauskunftTeaser } from "@/components/marketing/SelbstauskunftTeaser";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
@@ -160,9 +159,6 @@ export default async function LandingPage() {
           <YouTubeEmbed videoId="Xsqcq9AA9OI" />
         </div>
       </section>
-
-      {/* AI assistant showcase */}
-      <AiShowcase />
 
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-5xl px-6 py-20 space-y-10">
