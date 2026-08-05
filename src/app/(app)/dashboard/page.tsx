@@ -12,11 +12,20 @@ import {
 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { MetricCard } from "@/components/shared/MetricCard";
-import { CompletionBar } from "@/components/shared/CompletionBar";
+import { CompletionBar, completionColor } from "@/components/shared/CompletionBar";
+import { ChartCard } from "@/components/shared/ChartCard";
+import { CashFlowChart } from "@/features/cash-flow/components/CashFlowChart";
+import { WertSchuldenChart } from "@/features/appreciation/components/WertSchuldenChart";
+import { VermoegensaufbauChart } from "@/features/wealth/components/VermoegensaufbauChart";
 import { getAllProperties } from "@/lib/property-service";
 import { getProfile } from "@/lib/profile-service";
 import { getAllKonzepte } from "@/features/konzepte/konzept-service";
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
+import {
+  calculatePortfolioCashFlowSeries,
+  calculatePortfolioAppreciationSeries,
+  calculatePortfolioWealthSeries,
+} from "@/features/portfolio/chart-calculations";
 import { estimateFinancing } from "@/features/financing/calculations";
 import { useCompletion } from "@/features/profile/completion-context";
 import type { Property } from "@/lib/supabase";
@@ -54,14 +63,16 @@ export default function DashboardPage() {
     );
   }, []);
 
-  const kpis = calculatePortfolioKpis(
-    properties.map((p) => ({
-      id: p.id,
-      name: p.name,
-      address: p.address,
-      inputs: p.inputs,
-    })),
-  );
+  const portfolioInputs = properties.map((p) => ({
+    id: p.id,
+    name: p.name,
+    address: p.address,
+    inputs: p.inputs,
+  }));
+  const kpis = calculatePortfolioKpis(portfolioInputs);
+  const cashFlowSeries = calculatePortfolioCashFlowSeries(portfolioInputs);
+  const appreciationSeries = calculatePortfolioAppreciationSeries(portfolioInputs);
+  const wealthSeries = calculatePortfolioWealthSeries(portfolioInputs);
   const est = estimateFinancing(profile?.haushalt ?? {}, kpis.monthlyCashFlowBeforeTax);
 
   const sections = BROSCHUERE_SECTIONS.map((s) => ({
@@ -98,11 +109,14 @@ export default function DashboardPage() {
                     {overall}%
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Aus diesen Unterlagen erstellt Immotrim deine bankfertige
-                  Investorenbroschüre (Selbstauskunft) — die Grundlage jeder
-                  Finanzierungsanfrage. Fülle die vier Bereiche aus:
-                </p>
+                <div className="flex items-center gap-4">
+                  <PdfIllustration progress={overall} />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Aus diesen Unterlagen erstellt Immotrim deine bankfertige
+                    Investorenbroschüre (Selbstauskunft) — die Grundlage jeder
+                    Finanzierungsanfrage. Fülle die vier Bereiche aus:
+                  </p>
+                </div>
                 <div className="flex flex-col gap-2">
                   {sections.map((s) => (
                     <Link
@@ -146,11 +160,14 @@ export default function DashboardPage() {
                     Bei Banken anfragen
                   </h3>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Lege ein Konzept für dein Vorhaben an und erstelle daraus pro Bank
-                  die fertige Finanzierungsanfrage — inklusive Investorenbroschüre
-                  und aller Unterlagen.
-                </p>
+                <div className="flex items-center gap-4">
+                  <BankIllustration />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Lege ein Konzept für dein Vorhaben an und erstelle daraus pro
+                    Bank die fertige Finanzierungsanfrage — inklusive
+                    Investorenbroschüre und aller Unterlagen.
+                  </p>
+                </div>
                 <ol className="flex flex-col gap-2 text-sm text-foreground">
                   <Step n={1} done={konzepte.length > 0}>
                     <Link href="/konzepte" className="hover:underline">
@@ -234,6 +251,49 @@ export default function DashboardPage() {
                     value={formatPercent(kpis.grossRentalYield)}
                   />
                 </div>
+                {/* Compact chart teasers — the full six-chart analysis lives on
+                    /portfolio; these three give the dashboard a visual pulse. */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  <ChartCard
+                    title="Vermögensaufbau pro Jahr"
+                    subtitle="Tilgung + Cashflow + Wertwachstum aller Objekte"
+                    expandLabel="Diagramm vergrößern"
+                    modalContent={
+                      <VermoegensaufbauChart
+                        data={wealthSeries.years}
+                        showWertwachstum={wealthSeries.hasWertwachstum}
+                        height="100%"
+                      />
+                    }
+                  >
+                    <VermoegensaufbauChart
+                      data={wealthSeries.years}
+                      showWertwachstum={wealthSeries.hasWertwachstum}
+                      height={160}
+                    />
+                  </ChartCard>
+                  <ChartCard
+                    title="Cashflow"
+                    subtitle="Jährlicher Netto-Cashflow aller Objekte"
+                    expandLabel="Diagramm vergrößern"
+                    modalContent={
+                      <CashFlowChart data={cashFlowSeries} monthly={false} height="100%" />
+                    }
+                  >
+                    <CashFlowChart data={cashFlowSeries} monthly={false} height={160} />
+                  </ChartCard>
+                  <ChartCard
+                    title="Immobilienwert vs. Schulden"
+                    subtitle="Wert, Restschuld & Nettovermögen über die Zeit"
+                    expandLabel="Diagramm vergrößern"
+                    className="md:col-span-2 xl:col-span-1"
+                    modalContent={
+                      <WertSchuldenChart data={appreciationSeries} monthly={false} height="100%" />
+                    }
+                  >
+                    <WertSchuldenChart data={appreciationSeries} monthly={false} height={160} />
+                  </ChartCard>
+                </div>
               </div>
             ) : (
               <Link
@@ -248,6 +308,70 @@ export default function DashboardPage() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+// Stylised PDF document stack with a completion ring — pure CSS/SVG so it
+// follows the card/border/muted theme tokens in light and dark mode.
+function PdfIllustration({ progress }: { progress: number }) {
+  const r = 13;
+  const circumference = 2 * Math.PI * r;
+  const p = Math.max(0, Math.min(100, Math.round(progress)));
+  return (
+    <div className="relative w-20 h-24 shrink-0" aria-hidden>
+      {/* back pages of the stack */}
+      <div className="absolute inset-0 translate-x-2.5 -translate-y-1 rotate-6 rounded-lg border border-border bg-muted/50" />
+      <div className="absolute inset-0 translate-x-1 rotate-3 rounded-lg border border-border bg-muted/70" />
+      {/* front page */}
+      <div className="absolute inset-0 rounded-lg border border-border bg-background shadow-sm p-2.5 flex flex-col gap-1.5 overflow-hidden">
+        <div className="h-1.5 w-9 rounded-full bg-[#6c5ce7]" />
+        <div className="h-1 w-full rounded-full bg-muted" />
+        <div className="h-1 w-4/5 rounded-full bg-muted" />
+        <div className="h-1 w-full rounded-full bg-muted" />
+        <div className="mt-1 h-5 w-full rounded bg-[#6c5ce7]/10" />
+        <span className="mt-auto self-start rounded bg-[#6c5ce7]/15 px-1 py-px text-[8px] font-bold tracking-wider text-[#6c5ce7]">
+          PDF
+        </span>
+      </div>
+      {/* completion ring, bottom-right corner */}
+      <div className="absolute -bottom-1.5 -right-2.5 h-9 w-9 rounded-full bg-card border border-border shadow-sm flex items-center justify-center">
+        <svg viewBox="0 0 32 32" className="absolute inset-0 h-full w-full -rotate-90">
+          <circle cx="16" cy="16" r={r} fill="none" strokeWidth="3" className="stroke-muted" />
+          <circle
+            cx="16"
+            cy="16"
+            r={r}
+            fill="none"
+            strokeWidth="3"
+            strokeLinecap="round"
+            stroke={completionColor(p)}
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - p / 100)}
+            className="transition-[stroke-dashoffset] duration-500"
+          />
+        </svg>
+        <span className="text-[8px] font-bold tabular-nums text-foreground">
+          {p}%
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// Big bank emblem: brand-gradient tile with soft concentric halos.
+function BankIllustration() {
+  return (
+    <div className="relative w-20 h-24 shrink-0 flex items-center justify-center" aria-hidden>
+      <div className="absolute h-20 w-20 rounded-full bg-[#6c5ce7]/8" />
+      <div className="absolute h-14 w-14 rounded-full bg-[#6c5ce7]/12" />
+      <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-[#6c5ce7] to-[#a29bfe] shadow-lg shadow-[#6c5ce7]/30">
+        <Landmark className="h-7 w-7 text-white" />
+      </div>
+      {/* euro accent */}
+      <span className="absolute top-0 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-card border border-border shadow-sm text-[11px] font-bold text-[#6c5ce7]">
+        €
+      </span>
     </div>
   );
 }
