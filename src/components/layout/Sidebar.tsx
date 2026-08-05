@@ -9,9 +9,10 @@ import { CompletionBar } from "@/components/shared/CompletionBar";
 import { useCompletion } from "@/features/profile/completion-context";
 import { NAV_ITEMS, type NavItemDef } from "./nav-items";
 
-// Persistent left navigation for the (app) shell. Renders the six menu points;
-// the four "Unterlagen" points show a completion bar fed by the live completion
-// context (seeded server-side, updated as the user edits a section form).
+// Persistent left navigation for the (app) shell. Ungrouped items render in
+// NAV_ITEMS order around the "Unterlagen" group; the "Unterlagen" points show a
+// completion bar fed by the live completion context (seeded server-side, updated
+// as the user edits a section form).
 export function Sidebar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
@@ -20,9 +21,9 @@ export function Sidebar() {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
-  const top = NAV_ITEMS.filter((i) => !i.group);
-  const dashboard = top.find((i) => i.href === "/dashboard");
-  const banken = top.find((i) => i.href === "/banken");
+  const firstGrouped = NAV_ITEMS.findIndex((i) => i.group === "unterlagen");
+  const before = NAV_ITEMS.filter((i, idx) => !i.group && idx < firstGrouped);
+  const after = NAV_ITEMS.filter((i, idx) => !i.group && idx > firstGrouped);
   const unterlagen = NAV_ITEMS.filter((i) => i.group === "unterlagen");
 
   return (
@@ -45,13 +46,14 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
-        {dashboard && (
+        {before.map((item) => (
           <NavItem
-            item={dashboard}
-            label={t(dashboard.labelKey)}
-            active={isActive(dashboard.href)}
+            key={item.href}
+            item={item}
+            label={t(item.labelKey)}
+            active={isActive(item.href)}
           />
-        )}
+        ))}
 
         <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
           {t("unterlagen")}
@@ -67,13 +69,14 @@ export function Sidebar() {
         ))}
 
         <div className="my-3 h-px bg-sidebar-border" />
-        {banken && (
+        {after.map((item) => (
           <NavItem
-            item={banken}
-            label={t(banken.labelKey)}
-            active={isActive(banken.href)}
+            key={item.href}
+            item={item}
+            label={t(item.labelKey)}
+            active={isActive(item.href)}
           />
-        )}
+        ))}
       </nav>
 
       <div className="px-5 py-3 border-t border-sidebar-border">
