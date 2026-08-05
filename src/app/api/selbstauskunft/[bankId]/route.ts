@@ -3,14 +3,21 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { hasPaidPlan } from "@/lib/dal";
 import { launchBrowser } from "@/lib/pdf/chromium";
-import { getBank, isValidBankId } from "@/features/banks/registry";
+import { getBank, hasBankDocument, isValidBankId } from "@/features/banks/registry";
 import type {
+  SelbstauskunftKonzept,
   SelbstauskunftPayload,
   SelbstauskunftProfile,
 } from "@/features/banks/types";
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
 import type { Property, Json } from "@/lib/supabase";
 import type { Stammdaten, Haushalt, Strategie } from "@/features/profile/types";
+import {
+  KONZEPT_TYPE_LABELS,
+  normaliseKonzeptType,
+  type KonzeptFinanzierung,
+  type KonzeptObjekt,
+} from "@/features/konzepte/types";
 
 const BUCKET = "property-documents";
 
@@ -41,6 +48,11 @@ export async function POST(
   if (!isValidBankId(bankId) || !bank) {
     return NextResponse.json({ error: "Unknown bank" }, { status: 404 });
   }
+  // Banks without a document component would render an empty print page and the
+  // renderer would time out waiting for #report-ready — fail fast instead.
+  if (!hasBankDocument(bankId)) {
+    return NextResponse.json({ error: "No document for this bank" }, { status: 404 });
+  }
 
   const sb = await createServerSupabase();
   const {
@@ -60,11 +72,34 @@ export async function POST(
   // German-only app: documents are always rendered in German.
   const locale = "de";
   let requestedName: string | undefined;
+  let conceptId: string | undefined;
   try {
     const body = await request.json();
     if (typeof body?.investorName === "string") requestedName = body.investorName;
+    if (typeof body?.conceptId === "string") conceptId = body.conceptId;
   } catch {
     // Body is optional — defaults are fine.
+  }
+
+  // ── Load the financing concept, if one was selected (RLS scopes to this user) ─
+  let konzept: SelbstauskunftKonzept | undefined;
+  if (conceptId) {
+    const { data: row } = await sb
+      .from("financing_concepts")
+      .select("*")
+      .eq("id", conceptId)
+      .maybeSingle();
+    if (!row) {
+      return NextResponse.json({ error: "Unknown concept" }, { status: 404 });
+    }
+    const typ = normaliseKonzeptType(row.concept_type);
+    konzept = {
+      titel: row.title,
+      typLabel: typ ? KONZEPT_TYPE_LABELS[typ] : undefined,
+      beschreibung: row.description ?? undefined,
+      objekt: (row.objekt ?? {}) as KonzeptObjekt,
+      finanzierung: (row.finanzierung ?? {}) as KonzeptFinanzierung,
+    };
   }
 
   // ── Fetch the full portfolio (RLS scopes to this user) ───────────────────────
@@ -73,7 +108,10 @@ export async function POST(
     .select("*")
     .order("created_at", { ascending: false });
   const properties = (rows ?? []) as unknown as Property[];
-  if (properties.length === 0) {
+  // Without a concept the form has nothing to describe, so an empty portfolio is
+  // a hard error. WITH a concept the target journey is a NEW acquisition —
+  // first-time buyers legitimately own nothing yet.
+  if (properties.length === 0 && !konzept) {
     return NextResponse.json({ error: "No properties" }, { status: 400 });
   }
 
@@ -124,6 +162,7 @@ export async function POST(
     investorName: investorNameFrom(requestedName || saName, user),
     properties: portfolio,
     profile,
+    konzept,
   };
 
   // ── Persist the job under an unguessable token (read by the print page) ──────

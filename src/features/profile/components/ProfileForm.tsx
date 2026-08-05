@@ -21,6 +21,37 @@ export type ProfileFieldOption = {
   icon?: LucideIcon;
 };
 
+export type EstimateTier = {
+  label: string;
+  amount: number;
+  /** Replaces the € amount as the card's sub-line (e.g. "bereits im Netto enthalten"). */
+  hint?: string;
+};
+
+export type EstimatePickItem = { id: string; label: string; amount: number };
+
+/**
+ * Inline standard-value helper for a number field. `tiers` = single-pick cards
+ * that each map to a typical amount (e.g. household size → Lebenshaltung);
+ * `multiPick` = a checklist whose typical amounts sum up (e.g. insurances).
+ * Both keep a free-entry card so users can always type their own number.
+ */
+export type FieldEstimate =
+  | {
+      kind: "tiers";
+      tiers: EstimateTier[];
+      note?: string;
+      customLabel?: string;
+      placeholder?: string;
+    }
+  | {
+      kind: "multiPick";
+      items: EstimatePickItem[];
+      note?: string;
+      customLabel?: string;
+      placeholder?: string;
+    };
+
 export type ProfileFieldConfig = {
   key: string;
   label: string;
@@ -60,6 +91,8 @@ export type ProfileFieldConfig = {
   /** benefit widget: unit noun, singular / plural ("Kind" / "Kinder"). */
   unitSingular?: string;
   unitPlural?: string;
+  /** Standard-value quick-fill cards rendered instead of a plain input. */
+  estimate?: FieldEstimate;
 };
 
 export type ProfileFieldGroup = {
@@ -106,6 +139,7 @@ export function ProfileForm({
 
   const rendersAsCards = (f: ProfileFieldConfig) =>
     f.widget === "benefit" ||
+    !!f.estimate ||
     (f.type === "select" && f.variant !== "dropdown" && !!f.options) ||
     (f.type === "number" && f.variant !== "dropdown" && !!f.presets);
 
@@ -266,7 +300,8 @@ function FieldInput({
   const asNumberCards =
     config.type === "number" && config.variant !== "dropdown" && config.presets;
   const asBenefit = config.widget === "benefit";
-  const labelless = asOptionCards || asNumberCards || asBenefit;
+  const estimate = config.estimate;
+  const labelless = asOptionCards || asNumberCards || asBenefit || !!estimate;
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
@@ -285,7 +320,29 @@ function FieldInput({
         </p>
       )}
 
-      {asBenefit ? (
+      {estimate ? (
+        estimate.kind === "multiPick" ? (
+          <MultiPickSumField
+            value={value as number | undefined}
+            onChange={onChange}
+            items={estimate.items}
+            note={estimate.note}
+            customLabel={estimate.customLabel}
+            placeholder={estimate.placeholder}
+            suffix={config.suffix}
+          />
+        ) : (
+          <TierEstimateField
+            value={value as number | undefined}
+            onChange={onChange}
+            tiers={estimate.tiers}
+            note={estimate.note}
+            customLabel={estimate.customLabel}
+            placeholder={estimate.placeholder}
+            suffix={config.suffix}
+          />
+        )
+      ) : asBenefit ? (
         <BenefitField
           value={value as number | undefined}
           onChange={onChange}
@@ -373,17 +430,19 @@ function ChoiceCard({
   description,
   icon: Icon,
   onClick,
+  role = "radio",
 }: {
   selected: boolean;
   label: string;
   description?: string;
   icon?: LucideIcon;
   onClick: () => void;
+  role?: "radio" | "checkbox";
 }) {
   return (
     <button
       type="button"
-      role="radio"
+      role={role}
       aria-checked={selected}
       onClick={onClick}
       className={cn(
@@ -493,9 +552,10 @@ function NumberChoiceCards({
   onChange: (value: number | undefined) => void;
   suffix?: string;
 }) {
-  const inPreset = value !== undefined && presets.includes(Number(value));
+  const has = hasValue(value);
+  const inPreset = has && presets.includes(Number(value));
   const [customOpen, setCustomOpen] = useState(false);
-  const showCustom = customOpen || (value !== undefined && !inPreset);
+  const showCustom = customOpen || (has && !inPreset);
 
   return (
     <div className="flex flex-col gap-2.5 mt-0.5">
@@ -503,11 +563,11 @@ function NumberChoiceCards({
         {presets.map((n) => (
           <ChoiceCard
             key={n}
-            selected={!showCustom && Number(value) === n}
-            label={String(n)}
+            selected={!showCustom && has && Number(value) === n}
+            label={suffix ? `${eur.format(n)} ${suffix}` : String(n)}
             onClick={() => {
               setCustomOpen(false);
-              onChange(Number(value) === n ? undefined : n);
+              onChange(has && Number(value) === n ? undefined : n);
             }}
           />
         ))}
@@ -520,7 +580,7 @@ function NumberChoiceCards({
       {showCustom && (
         <AmountInput
           value={value}
-          placeholder="z. B. 14"
+          placeholder={suffix ? "Betrag mtl." : "z. B. 14"}
           suffix={suffix}
           onChange={onChange}
         />
@@ -615,6 +675,142 @@ function BenefitField({
             />
           )}
         </div>
+      )}
+    </div>
+  );
+}
+
+// Standard-value cards for a single-pick estimate (e.g. household size →
+// typical Lebenshaltung). Each tier stores its € amount directly; a custom
+// card keeps free entry available. Re-clicking the selected tier clears it.
+function TierEstimateField({
+  value,
+  onChange,
+  tiers,
+  note,
+  customLabel,
+  placeholder,
+  suffix,
+}: {
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+  tiers: EstimateTier[];
+  note?: string;
+  customLabel?: string;
+  placeholder?: string;
+  suffix?: string;
+}) {
+  const has = hasValue(value);
+  const matchIdx = has ? tiers.findIndex((t) => t.amount === Number(value)) : -1;
+  const [customOpen, setCustomOpen] = useState(false);
+  const showCustom = customOpen || (has && matchIdx === -1);
+
+  return (
+    <div className="flex flex-col gap-2.5 mt-0.5">
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
+      <div className="flex flex-wrap gap-2.5">
+        {tiers.map((t, i) => (
+          <ChoiceCard
+            key={t.label}
+            selected={!showCustom && matchIdx === i}
+            label={t.label}
+            description={t.hint ?? `${eur.format(t.amount)} €`}
+            onClick={() => {
+              setCustomOpen(false);
+              onChange(!showCustom && matchIdx === i ? undefined : t.amount);
+            }}
+          />
+        ))}
+        <ChoiceCard
+          selected={showCustom}
+          label={customLabel ?? "Andere"}
+          onClick={() => setCustomOpen(true)}
+        />
+      </div>
+      {showCustom && (
+        <AmountInput
+          value={has ? Number(value) : undefined}
+          placeholder={placeholder}
+          suffix={suffix}
+          onChange={onChange}
+        />
+      )}
+    </div>
+  );
+}
+
+// Checklist estimate (e.g. insurances): tick what applies, typical monthly
+// amounts sum into the stored value. Which items were ticked is UI-only state —
+// only the € sum persists, so a saved value can't be split back into items and
+// loads (also after a tab switch remounts the widget) as the custom card.
+function MultiPickSumField({
+  value,
+  onChange,
+  items,
+  note,
+  customLabel,
+  placeholder,
+  suffix,
+}: {
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+  items: EstimatePickItem[];
+  note?: string;
+  customLabel?: string;
+  placeholder?: string;
+  suffix?: string;
+}) {
+  const has = hasValue(value);
+  const [checked, setChecked] = useState<Set<string>>(() => new Set());
+  const [customOpen, setCustomOpen] = useState(() => has);
+  const showCustom = customOpen;
+  const sumOf = (set: Set<string>) =>
+    items.reduce((acc, i) => (set.has(i.id) ? acc + i.amount : acc), 0);
+
+  const toggle = (id: string) => {
+    const next = new Set(checked);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setChecked(next);
+    setCustomOpen(false);
+    onChange(next.size === 0 ? undefined : sumOf(next));
+  };
+
+  return (
+    <div className="flex flex-col gap-2.5 mt-0.5">
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
+      <div className="flex flex-wrap gap-2.5">
+        {items.map((i) => (
+          <ChoiceCard
+            key={i.id}
+            role="checkbox"
+            selected={!showCustom && checked.has(i.id)}
+            label={i.label}
+            description={`~${eur.format(i.amount)} € mtl.`}
+            onClick={() => toggle(i.id)}
+          />
+        ))}
+        <ChoiceCard
+          selected={showCustom}
+          label={customLabel ?? "Eigener Betrag"}
+          onClick={() => setCustomOpen(true)}
+        />
+      </div>
+      {!showCustom && checked.size > 0 && (
+        <p className="text-xs text-muted-foreground">
+          Summe:{" "}
+          <span className="font-semibold text-[#6c5ce7]">
+            {eur.format(sumOf(checked))} € mtl.
+          </span>
+        </p>
+      )}
+      {showCustom && (
+        <AmountInput
+          value={has ? Number(value) : undefined}
+          placeholder={placeholder}
+          suffix={suffix}
+          onChange={onChange}
+        />
       )}
     </div>
   );

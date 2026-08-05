@@ -5,6 +5,7 @@ import {
   Building2,
   Compass,
   Landmark,
+  Lightbulb,
   ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -32,5 +33,6 @@ export const NAV_ITEMS: NavItemDef[] = [
   { href: "/portfolio", labelKey: "immobilien", icon: Building2, section: "immobilien", group: "unterlagen" },
   { href: "/strategie", labelKey: "strategie", icon: Compass, section: "strategie", group: "unterlagen" },
   { href: "/checklist", labelKey: "checklist", icon: ClipboardCheck, section: "checklist", group: "unterlagen" },
+  { href: "/konzepte", labelKey: "konzepte", icon: Lightbulb },
   { href: "/banken", labelKey: "banken", icon: Landmark },
 ];

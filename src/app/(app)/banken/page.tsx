@@ -1,35 +1,115 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { BankCard } from "@/features/banks/components/BankCard";
-import { BANKS } from "@/features/banks/registry";
+import { BANKS, type Bank } from "@/features/banks/registry";
+import { bankCompletion } from "@/features/banks/requirements";
 import { getAllProperties } from "@/lib/property-service";
 import { getProfile } from "@/lib/profile-service";
+import {
+  listBorrowerDocuments,
+  listConceptDocuments,
+} from "@/lib/document-service";
+import { getAllKonzepte } from "@/features/konzepte/konzept-service";
+import {
+  listRequestsForConcept,
+  upsertRequestStatus,
+  type AnfrageStatus,
+  type BankRequest,
+} from "@/features/anfrage/request-service";
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { estimateFinancing, bankFinancingScore } from "@/features/financing/calculations";
-import {
-  stammdatenCompletion,
-  haushaltCompletion,
-  strategieCompletion,
-  immobilienCompletion,
-} from "@/features/profile/completeness";
-import type { Property } from "@/lib/supabase";
+import { CHECKLIST_DOC_TYPES, type ChecklistDocType } from "@/lib/checklist/requirements";
+import { SA_DOC_TYPES, type SaDocType } from "@/lib/selbstauskunft/requirements";
+import type { Property, PropertyDocument } from "@/lib/supabase";
 import type { Profile } from "@/features/profile/types";
+import type { Konzept } from "@/features/konzepte/types";
 
+// useSearchParams needs a Suspense boundary — the actual page lives below.
 export default function BankenPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="h-6 w-6 animate-spin text-[#6c5ce7]" />
+        </div>
+      }
+    >
+      <BankenContent />
+    </Suspense>
+  );
+}
+
+function BankenContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [konzepte, setKonzepte] = useState<Konzept[]>([]);
+  const [borrowerDocs, setBorrowerDocs] = useState<PropertyDocument[]>([]);
+  // Loaded per selected concept; keyed by id so a stale load never leaks into
+  // another concept's view (and no state reset is needed on switch).
+  const [conceptData, setConceptData] = useState<{
+    id: string;
+    docs: PropertyDocument[];
+    requests: BankRequest[];
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getAllProperties(), getProfile()]).then(([ps, pr]) => {
+    Promise.all([
+      getAllProperties(),
+      getProfile(),
+      getAllKonzepte(),
+      listBorrowerDocuments(),
+    ]).then(([ps, pr, ks, docs]) => {
       setProperties(ps);
       setProfile(pr);
+      setKonzepte(ks);
+      setBorrowerDocs(docs);
       setLoading(false);
     });
   }, []);
+
+  // Selected concept: ?konzept= if valid, else the newest concept.
+  const requestedId = searchParams.get("konzept");
+  const selected =
+    konzepte.find((k) => k.id === requestedId) ?? konzepte[0] ?? null;
+
+  const selectKonzept = (id: string) => {
+    router.replace(id ? `/banken?konzept=${id}` : "/banken");
+  };
+
+  // Object docs + outreach statuses follow the selected concept.
+  const selectedId = selected?.id;
+  const selectedWishlistId = selected?.wishlistPropertyId;
+  useEffect(() => {
+    if (!selectedId) return;
+    let cancelled = false;
+    Promise.all([
+      listConceptDocuments(selectedId, selectedWishlistId),
+      listRequestsForConcept(selectedId),
+    ]).then(([docs, rs]) => {
+      if (cancelled) return;
+      setConceptData({ id: selectedId, docs, requests: rs });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId, selectedWishlistId]);
+
+  const conceptDocs = useMemo(
+    () => (conceptData?.id === selectedId ? conceptData.docs : []),
+    [conceptData, selectedId],
+  );
+  const requests = useMemo(
+    () => (conceptData?.id === selectedId ? conceptData.requests : []),
+    [conceptData, selectedId],
+  );
 
   const kpis = calculatePortfolioKpis(
     properties.map((p) => ({
@@ -42,37 +122,125 @@ export default function BankenPage() {
   const haushalt = profile?.haushalt ?? {};
   const est = estimateFinancing(haushalt, kpis.monthlyCashFlowBeforeTax);
 
-  // A bank Selbstauskunft draws on every section, so bank completeness is the
-  // average of the four section completions; "missing" lists any below 100%.
-  const sections = [
-    { label: "Haushaltsrechnung", value: haushaltCompletion(haushalt) },
-    { label: "Stammdaten", value: stammdatenCompletion(profile?.stammdaten ?? {}) },
-    {
-      label: "Immobilien",
-      value: immobilienCompletion(
-        properties.map((p) => ({ selbstauskunft: p.inputs.selbstauskunft })),
+  const presentBorrower = useMemo(
+    () =>
+      new Set<ChecklistDocType>(
+        borrowerDocs
+          .map((d) => d.doc_type)
+          .filter((t): t is ChecklistDocType =>
+            (CHECKLIST_DOC_TYPES as readonly string[]).includes(t ?? ""),
+          ),
       ),
-    },
-    { label: "Strategie", value: strategieCompletion(profile?.strategie ?? {}) },
-  ];
-  const completeness = Math.round(
-    sections.reduce((s, x) => s + x.value, 0) / sections.length,
+    [borrowerDocs],
   );
-  const missing = sections.filter((s) => s.value < 100).map((s) => s.label);
+  const presentObject = useMemo(
+    () =>
+      new Set<SaDocType>(
+        conceptDocs
+          .map((d) => d.doc_type)
+          .filter((t): t is SaDocType =>
+            (SA_DOC_TYPES as readonly string[]).includes(t ?? ""),
+          ),
+      ),
+    [conceptDocs],
+  );
+
+  const statusByBank = useMemo(
+    () => new Map(requests.map((r) => [r.bankId, r.status])),
+    [requests],
+  );
+
+  const handleStatusChange = useCallback(
+    async (bankId: string, status: AnfrageStatus) => {
+      if (!selected) return;
+      const conceptId = selected.id;
+      const patch = (requests: BankRequest[]): BankRequest[] => [
+        ...requests.filter((r) => r.bankId !== bankId),
+        { conceptId, bankId, status, sentAt: null, notes: null },
+      ];
+      setConceptData((prev) =>
+        prev && prev.id === conceptId ? { ...prev, requests: patch(prev.requests) } : prev,
+      );
+      try {
+        await upsertRequestStatus(conceptId, bankId, status, {
+          sentAt: status === "angefragt" ? new Date().toISOString() : undefined,
+        });
+      } catch {
+        const rs = await listRequestsForConcept(conceptId);
+        setConceptData((prev) =>
+          prev && prev.id === conceptId ? { ...prev, requests: rs } : prev,
+        );
+      }
+    },
+    [selected],
+  );
+
+  const renderCards = (banks: Bank[]) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {banks.map((bank) => {
+        const completion = bankCompletion(bank.id, presentBorrower, presentObject);
+        return (
+          <BankCard
+            key={bank.id}
+            bank={bank}
+            completeness={completion.pct}
+            score={bankFinancingScore(
+              est,
+              bank.conditions ?? {},
+              haushalt.nettoeinkommen ?? 0,
+            )}
+            missing={completion.missing.map((m) => m.label)}
+            conceptId={selected?.id}
+            status={statusByBank.get(bank.id)}
+            onStatusChange={
+              selected ? (s) => handleStatusChange(bank.id, s) : undefined
+            }
+          />
+        );
+      })}
+    </div>
+  );
+
+  const direct = BANKS.filter((b) => b.kind === "bank");
+  const vermittler = BANKS.filter((b) => b.kind === "vermittler");
 
   return (
     <div className="flex flex-col min-h-screen">
       <TopBar title="Banken" />
       <div className="flex-1 p-4 sm:p-6 flex flex-col gap-6 overflow-auto">
-        <div>
-          <h1 className="text-lg font-semibold font-heading text-foreground">
-            Banken
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5 max-w-2xl">
-            Sieh pro Bank, wie vollständig deine Unterlagen sind und wie gut deine
-            Finanzierung passt (Schätzung). Ist alles bereit, erzeugst du direkt die
-            passende Selbstauskunft und findest die Kontaktdaten.
-          </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-lg font-semibold font-heading text-foreground">
+              Banken
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5 max-w-2xl">
+              Wähle ein Konzept und sieh pro Bank, welche Unterlagen noch fehlen und
+              wie gut deine Finanzierung passt (Schätzung). Mit einem Klick erstellst
+              du die fertige Finanzierungsanfrage.
+            </p>
+          </div>
+          {konzepte.length > 0 && (
+            <div className="flex flex-col gap-1.5 w-full sm:w-72">
+              <label
+                htmlFor="konzept-select"
+                className="text-xs text-muted-foreground"
+              >
+                Konzept
+              </label>
+              <select
+                id="konzept-select"
+                value={selected?.id ?? ""}
+                onChange={(e) => selectKonzept(e.target.value)}
+                className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                {konzepte.map((k) => (
+                  <option key={k.id} value={k.id}>
+                    {k.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -80,22 +248,31 @@ export default function BankenPage() {
             <Loader2 className="h-6 w-6 animate-spin text-[#6c5ce7]" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {BANKS.map((bank) => (
-              <BankCard
-                key={bank.id}
-                bank={bank}
-                completeness={completeness}
-                score={bankFinancingScore(
-                  est,
-                  bank.conditions ?? {},
-                  haushalt.nettoeinkommen ?? 0,
-                )}
-                missing={missing}
-                disabled={properties.length === 0}
-              />
-            ))}
-          </div>
+          <>
+            {konzepte.length === 0 && (
+              <p className="text-xs text-muted-foreground bg-muted/10 border border-border rounded-lg px-3 py-2 max-w-2xl">
+                Du hast noch kein Konzept angelegt.{" "}
+                <Link href="/konzepte/new" className="text-[#6c5ce7] hover:underline">
+                  Lege zuerst ein Konzept an
+                </Link>
+                , damit die Anfrage und die Objektunterlagen ein konkretes Vorhaben
+                beschreiben.
+              </p>
+            )}
+            <div className="flex flex-col gap-3">
+              <h2 className="text-sm font-semibold text-foreground">Banken</h2>
+              {renderCards(direct)}
+            </div>
+            <div className="flex flex-col gap-3">
+              <h2 className="text-sm font-semibold text-foreground">
+                Vermittler{" "}
+                <span className="text-xs font-normal text-muted-foreground">
+                  — eine Anfrage erreicht viele Banken
+                </span>
+              </h2>
+              {renderCards(vermittler)}
+            </div>
+          </>
         )}
       </div>
     </div>

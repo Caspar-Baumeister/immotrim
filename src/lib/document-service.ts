@@ -18,12 +18,14 @@ function safeName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
 }
 
-// A document belongs to exactly one of: a property, a pre-save draft, or a
-// per-user profile category (Haushalt/Stammdaten/Strategie — no property FK).
+// A document belongs to exactly one of: a property, a pre-save draft, a
+// per-user profile category (Haushalt/Stammdaten/Strategie — no property FK),
+// or a financing concept (Objektunterlagen eines Konzepts).
 type Target =
   | { draftId: string }
   | { propertyId: string }
-  | { category: string };
+  | { category: string }
+  | { conceptId: string };
 
 export async function uploadDocument(
   file: File,
@@ -37,7 +39,9 @@ export async function uploadDocument(
       ? target.draftId
       : "propertyId" in target
         ? target.propertyId
-        : target.category;
+        : "conceptId" in target
+          ? target.conceptId
+          : target.category;
   const path = `${userId}/${group}/${uuidv4()}-${safeName(file.name)}`;
 
   const { error: uploadError } = await supabase.storage
@@ -52,6 +56,7 @@ export async function uploadDocument(
       property_id: "propertyId" in target ? target.propertyId : null,
       draft_id: "draftId" in target ? target.draftId : null,
       category: "category" in target ? target.category : null,
+      concept_id: "conceptId" in target ? target.conceptId : null,
       file_name: file.name,
       file_path: path,
       mime_type: file.type || null,
@@ -77,15 +82,17 @@ export async function listDocuments(target: Target): Promise<PropertyDocument[]>
       ? await query.eq("property_id", target.propertyId)
       : "draftId" in target
         ? await query.eq("draft_id", target.draftId)
-        : await query.eq("category", target.category).is("property_id", null);
+        : "conceptId" in target
+          ? await query.eq("concept_id", target.conceptId)
+          : await query.eq("category", target.category).is("property_id", null);
 
   if (error || !data) return [];
   return data as unknown as PropertyDocument[];
 }
 
-// All borrower/personal documents: user-level uploads not tied to a property or
-// a pre-save draft (i.e. the Stammdaten/Haushalt/Strategie/Checklist categories).
-// This is what the Unterlagen-Checkliste aggregates across sections.
+// All borrower/personal documents: user-level uploads not tied to a property, a
+// pre-save draft or a concept (i.e. the Stammdaten/Haushalt/Strategie/Checklist
+// categories). This is what the Unterlagen-Checkliste aggregates across sections.
 export async function listBorrowerDocuments(): Promise<PropertyDocument[]> {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
@@ -93,9 +100,33 @@ export async function listBorrowerDocuments(): Promise<PropertyDocument[]> {
     .select("*")
     .is("property_id", null)
     .is("draft_id", null)
+    .is("concept_id", null)
     .order("created_at", { ascending: false });
   if (error || !data) return [];
   return data as unknown as PropertyDocument[];
+}
+
+// Object documents of a concept. When the concept was prefilled from a wishlist
+// row, that row's Exposé uploads (grouped under draft_id = wishlistId, see
+// relinkWishlistDocuments) belong to the same object — include them.
+export async function listConceptDocuments(
+  conceptId: string,
+  wishlistPropertyId?: string | null,
+): Promise<PropertyDocument[]> {
+  const own = await listDocuments({ conceptId });
+  if (!wishlistPropertyId) return own;
+  const linked = await listDocuments({ draftId: wishlistPropertyId });
+  return [...own, ...linked];
+}
+
+// Manual re-assignment of the classified doc type (fallback / correction to the AI).
+export async function setDocumentType(id: string, docType: string): Promise<void> {
+  const supabase = getSupabaseBrowserClient();
+  const { error } = await supabase
+    .from("documents")
+    .update({ doc_type: docType })
+    .eq("id", id);
+  if (error) throw error;
 }
 
 export type ChecklistClassification = { id: string; docType: string; fileName: string };

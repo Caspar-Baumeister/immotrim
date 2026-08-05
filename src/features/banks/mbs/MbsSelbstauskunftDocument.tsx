@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
-import type { SelbstauskunftPayload } from "../types";
+import type { SelbstauskunftKonzept, SelbstauskunftPayload } from "../types";
 import { getBank } from "../registry";
 import type { Stammdaten, Haushalt, Strategie } from "@/features/profile/types";
 
@@ -271,7 +271,53 @@ function FinancesPage({
   );
 }
 
-function ObjectPage({ p }: { p: PortfolioProperty | undefined }) {
+// With a concept, the page describes the TARGET object of the financing request;
+// without one it falls back to the first portfolio property (legacy behavior).
+function ObjectPage({
+  p,
+  konzept,
+}: {
+  p: PortfolioProperty | undefined;
+  konzept?: SelbstauskunftKonzept;
+}) {
+  const o = konzept?.objekt;
+  const hasKonzeptObjekt = !!o && Object.values(o).some((v) => v != null && v !== "");
+  if (hasKonzeptObjekt) {
+    const vermietet = (o.erwarteteMiete ?? 0) > 0;
+    return (
+      <Page n={3}>
+        <h1 className="sa-title">Angaben zum Finanzierungsobjekt</h1>
+        <Band>Basisangaben</Band>
+        <div className="sa-grid2">
+          <Field caption="Straße, Hausnummer" value={o.adresse ?? ""} />
+          <Field caption="PLZ, Ort" value={o.ort ?? ""} />
+          <Field caption="Art der Immobilie" value={o.objekttyp ?? ""} />
+          <Field caption="Gesamte Wohnfläche (m²)" value={o.wohnflaeche ?? ""} />
+          <Field caption="Baujahr" value={o.baujahr ?? ""} />
+          <Field caption="Anzahl der Zimmer" value={o.zimmer ?? ""} />
+        </div>
+
+        <Band>Zusätzliche Angaben</Band>
+        <div className="sa-grid2">
+          <div>
+            <Check label="Vermietung geplant (auch Teilvermietung)" on={vermietet} />
+          </div>
+          <Field
+            caption="Erwartete Mieteinnahmen (monatlich)"
+            value={o.erwarteteMiete ?? ""}
+            eur
+          />
+        </div>
+
+        <Band>Kaufpreis</Band>
+        <div className="sa-grid2">
+          <Field caption="Kaufpreis" value={o.kaufpreis ?? ""} eur />
+          <div />
+        </div>
+      </Page>
+    );
+  }
+
   const r = p?.inputs.report;
   const loan = p ? deriveLoan(p) : null;
   const vermietet = (p?.inputs.kaltmiete ?? 0) > 0;
@@ -315,24 +361,45 @@ function ObjectPage({ p }: { p: PortfolioProperty | undefined }) {
   );
 }
 
-function FinanceNeedPage() {
+function FinanceNeedPage({ konzept }: { konzept?: SelbstauskunftKonzept }) {
+  const fin = konzept?.finanzierung;
   return (
     <Page n={4}>
       <h1 className="sa-title">Ihr Finanzbedarf</h1>
+      {konzept && (
+        <div style={{ marginBottom: 6 }}>
+          <div className="sa-subhead">
+            Vorhaben: {konzept.titel}
+            {konzept.typLabel ? ` (${konzept.typLabel})` : ""}
+          </div>
+          {konzept.beschreibung && <p className="sa-legal">{konzept.beschreibung}</p>}
+        </div>
+      )}
       <Band>Geplantes Vorhaben</Band>
       <div className="sa-grid2">
-        <Check label="Neubau" />
-        <Check label="Kauf" />
-        <Check label="Anschlussfinanzierung" />
-        <Check label="Kapitalbeschaffung" />
+        <Check label="Neubau" on={fin?.zweck === "neubau"} />
+        <Check label="Kauf" on={fin?.zweck === "kauf"} />
+        <Check label="Anschlussfinanzierung" on={fin?.zweck === "anschlussfinanzierung"} />
+        <Check label="Kapitalbeschaffung" on={fin?.zweck === "kapitalbeschaffung"} />
       </div>
       <Band>Haben Sie schon eine konkrete Vorstellung von Ihrer Finanzierung?</Band>
       <div className="sa-grid3">
-        <Field caption="Gesamtdarlehensbetrag" eur />
-        <Field caption="Zinsbindung" />
-        <Field caption="Anfängliche Tilgung (%)" />
+        <Field caption="Gesamtdarlehensbetrag" value={fin?.darlehensbetrag ?? ""} eur />
+        <Field
+          caption="Zinsbindung"
+          value={fin?.zinsbindungJahre ? `${fin.zinsbindungJahre} Jahre` : ""}
+        />
+        <Field
+          caption="Anfängliche Tilgung (%)"
+          value={
+            fin?.tilgungPct != null ? fin.tilgungPct.toLocaleString("de-DE") : ""
+          }
+        />
       </div>
-      <Field caption="Weitere Wünsche" />
+      <div className="sa-grid2">
+        <Field caption="Eingebrachtes Eigenkapital" value={fin?.eigenkapital ?? ""} eur />
+        <Field caption="Weitere Wünsche" value={fin?.wuensche ?? ""} />
+      </div>
     </Page>
   );
 }
@@ -442,7 +509,7 @@ export function MbsSelbstauskunftDocument({
 }: {
   payload: SelbstauskunftPayload;
 }) {
-  const { properties, investorName, bankId, profile } = payload;
+  const { properties, investorName, bankId, profile, konzept } = payload;
   const bank = getBank(bankId);
   const bankLabel = bank ? `${bank.shortName} in ${bank.city}` : "MBS in Potsdam";
   const sd = profile?.stammdaten;
@@ -475,8 +542,8 @@ export function MbsSelbstauskunftDocument({
         imageDataUrl={profile?.imageDataUrl}
       />
       <FinancesPage properties={properties} sd={sd} hh={hh} />
-      <ObjectPage p={primary} />
-      <FinanceNeedPage />
+      <ObjectPage p={primary} konzept={konzept} />
+      <FinanceNeedPage konzept={konzept} />
       <DeclarationPage bankLabel={bankLabel} />
       <ZusatzblattPages properties={properties} startPage={ZUSATZ_START} />
     </div>

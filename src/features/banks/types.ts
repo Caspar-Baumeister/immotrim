@@ -1,5 +1,6 @@
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
 import type { Stammdaten, Haushalt, Strategie } from "@/features/profile/types";
+import type { KonzeptFinanzierung, KonzeptObjekt } from "@/features/konzepte/types";
 
 // The applicant's profile, embedded so the previously-blank personal / income /
 // strategy fields on the form get filled. The image is embedded as a data URL so
@@ -9,6 +10,17 @@ export type SelbstauskunftProfile = {
   haushalt: Haushalt;
   strategie: Strategie;
   imageDataUrl?: string;
+};
+
+// The financing concept behind the request, serialized into the payload. Fills
+// the "Ihr Finanzbedarf" page and (when present) replaces the portfolio's first
+// property as the Finanzierungsobjekt.
+export type SelbstauskunftKonzept = {
+  titel: string;
+  typLabel?: string;
+  beschreibung?: string;
+  objekt?: KonzeptObjekt;
+  finanzierung?: KonzeptFinanzierung;
 };
 
 // Handoff payload for a bank Selbstauskunft. Built by the API route, stored under
@@ -26,4 +38,6 @@ export type SelbstauskunftPayload = {
   properties: PortfolioProperty[];
   /** Applicant profile — fills the personal / income / strategy sections. */
   profile?: SelbstauskunftProfile;
+  /** Financing concept — fills the Finanzbedarf page and the Finanzierungsobjekt. */
+  konzept?: SelbstauskunftKonzept;
 };
