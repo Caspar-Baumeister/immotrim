@@ -6,7 +6,12 @@ import { Landmark, Lightbulb, Loader2, Plus } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { getAllKonzepte } from "@/features/konzepte/konzept-service";
-import { KONZEPT_TYPE_LABELS, type Konzept } from "@/features/konzepte/types";
+import { listAllConceptObjects } from "@/features/konzepte/objekt-service";
+import {
+  KONZEPT_TYPE_LABELS,
+  type ConceptObject,
+  type Konzept,
+} from "@/features/konzepte/types";
 import {
   ANFRAGE_STATUS_LABELS,
   listAllRequests,
@@ -18,15 +23,19 @@ const nf0 = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 });
 
 export default function KonzeptePage() {
   const [konzepte, setKonzepte] = useState<Konzept[]>([]);
+  const [objects, setObjects] = useState<ConceptObject[]>([]);
   const [requests, setRequests] = useState<BankRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getAllKonzepte(), listAllRequests()]).then(([ks, rs]) => {
-      setKonzepte(ks);
-      setRequests(rs);
-      setLoading(false);
-    });
+    Promise.all([getAllKonzepte(), listAllConceptObjects(), listAllRequests()]).then(
+      ([ks, os, rs]) => {
+        setKonzepte(ks);
+        setObjects(os);
+        setRequests(rs);
+        setLoading(false);
+      },
+    );
   }, []);
 
   return (
@@ -76,6 +85,8 @@ export default function KonzeptePage() {
               const kRequests = requests.filter(
                 (r) => r.conceptId === k.id && r.status !== "entwurf",
               );
+              const kObjects = objects.filter((o) => o.conceptId === k.id);
+              const firstObjekt = kObjects[0]?.data;
               return (
                 <div
                   key={k.id}
@@ -94,11 +105,19 @@ export default function KonzeptePage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
-                    {k.objekt.kaufpreis ? (
+                    {kObjects.length > 0 ? (
+                      <span>
+                        <span className="text-foreground font-medium">
+                          {kObjects.length}
+                        </span>{" "}
+                        {kObjects.length === 1 ? "Objekt" : "Objekte"}
+                      </span>
+                    ) : null}
+                    {firstObjekt?.kaufpreis ? (
                       <span>
                         Kaufpreis{" "}
                         <span className="text-foreground font-medium">
-                          {nf0.format(k.objekt.kaufpreis)} €
+                          {nf0.format(firstObjekt.kaufpreis)} €
                         </span>
                       </span>
                     ) : null}
@@ -110,7 +129,7 @@ export default function KonzeptePage() {
                         </span>
                       </span>
                     ) : null}
-                    {k.objekt.ort ? <span>{k.objekt.ort}</span> : null}
+                    {firstObjekt?.ort ? <span>{firstObjekt.ort}</span> : null}
                   </div>
                   {kRequests.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">

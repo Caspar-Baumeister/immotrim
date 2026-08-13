@@ -5,9 +5,9 @@
 // documents and the per-bank checklist of what's still missing — everything the
 // user needs to send the Finanzierungsanfrage in one place.
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Check,
@@ -29,7 +29,8 @@ import {
   type BankMissingItem,
 } from "@/features/banks/requirements";
 import { getKonzept } from "@/features/konzepte/konzept-service";
-import type { Konzept } from "@/features/konzepte/types";
+import { listConceptObjects } from "@/features/konzepte/objekt-service";
+import { objektLabel, type ConceptObject, type Konzept } from "@/features/konzepte/types";
 import {
   buildAnfrageEmail,
   buildMailtoUrl,
@@ -89,11 +90,15 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-export default function AnfragePage() {
+function AnfragePageInner() {
   const { id, bankId } = useParams<{ id: string; bankId: string }>();
+  const searchParams = useSearchParams();
+  const paramObjektId = searchParams.get("objekt");
   const bank = getBank(bankId);
 
   const [konzept, setKonzept] = useState<Konzept | null>(null);
+  const [objects, setObjects] = useState<ConceptObject[]>([]);
+  const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [borrowerDocs, setBorrowerDocs] = useState<PropertyDocument[]>([]);
@@ -115,25 +120,45 @@ export default function AnfragePage() {
         setLoading(false);
         return;
       }
-      const [pr, ps, bd, cd, rs] = await Promise.all([
+      const [pr, ps, bd, os, rs] = await Promise.all([
         getProfile(),
         getAllProperties(),
         listBorrowerDocuments(),
-        listConceptDocuments(k.id, k.wishlistPropertyId),
+        listConceptObjects(k.id),
         listRequestsForConcept(k.id),
       ]);
       if (cancelled) return;
       setProfile(pr);
       setProperties(ps);
       setBorrowerDocs(bd);
-      setConceptDocs(cd);
-      setStatus(rs.find((r) => r.bankId === bankId)?.status ?? null);
+      setObjects(os);
+      const request = rs.find((r) => r.bankId === bankId);
+      setStatus(request?.status ?? null);
+      // Object selection: URL param → object stored on the request → first object.
+      const valid = (oid: string | null | undefined) =>
+        oid && os.some((o) => o.id === oid) ? oid : null;
+      setSelectedObjectId(valid(paramObjektId) ?? valid(request?.objectId) ?? os[0]?.id ?? null);
       setLoading(false);
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, bankId]);
+
+  // Concept docs depend on the selected object: shared docs + that object's exposé.
+  useEffect(() => {
+    if (!konzept) return;
+    let cancelled = false;
+    listConceptDocuments(konzept.id, selectedObjectId).then((cd) => {
+      if (!cancelled) setConceptDocs(cd);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [konzept, selectedObjectId]);
+
+  const selectedObject = objects.find((o) => o.id === selectedObjectId) ?? null;
 
   const kpis = calculatePortfolioKpis(
     properties.map((p) => ({ id: p.id, name: p.name, address: p.address, inputs: p.inputs })),
@@ -175,6 +200,7 @@ export default function AnfragePage() {
       ? buildAnfrageEmail({
           bank,
           konzept,
+          objekt: selectedObject?.data,
           stammdaten: profile?.stammdaten ?? {},
           strategie: profile?.strategie ?? {},
           est,
@@ -187,7 +213,7 @@ export default function AnfragePage() {
     const res = await fetch(`/api/selbstauskunft/${bankId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conceptId: id }),
+      body: JSON.stringify({ conceptId: id, objectId: selectedObjectId ?? undefined }),
     });
     if (res.status === 402) {
       setError("Für die PDF-Erstellung ist ein bezahlter Tarif nötig. Weiterleitung …");
@@ -260,6 +286,7 @@ export default function AnfragePage() {
     try {
       await upsertRequestStatus(konzept.id, bankId, "angefragt", {
         sentAt: new Date().toISOString(),
+        objectId: selectedObjectId,
       });
     } catch {
       setStatus(null);
@@ -330,6 +357,26 @@ export default function AnfragePage() {
             <p className="text-sm text-muted-foreground mt-0.5">
               Konzept: <span className="text-foreground">{konzept.title}</span>
             </p>
+            {objects.length >= 2 ? (
+              <label className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
+                Objekt:
+                <select
+                  value={selectedObjectId ?? ""}
+                  onChange={(e) => setSelectedObjectId(e.target.value || null)}
+                  className="h-8 rounded-lg border border-input bg-transparent px-2 text-xs text-foreground outline-none"
+                >
+                  {objects.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {objektLabel(o)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : selectedObject ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Objekt: <span className="text-foreground">{objektLabel(selectedObject)}</span>
+              </p>
+            ) : null}
           </div>
           <div className="flex items-center gap-3">
             {status && (
@@ -547,5 +594,23 @@ export default function AnfragePage() {
         </Panel>
       </div>
     </div>
+  );
+}
+
+// useSearchParams needs a Suspense boundary during prerender.
+export default function AnfragePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col min-h-screen">
+          <TopBar title="Finanzierungsanfrage" />
+          <div className="flex-1 flex items-center justify-center py-24">
+            <Loader2 className="h-6 w-6 animate-spin text-[#6c5ce7]" />
+          </div>
+        </div>
+      }
+    >
+      <AnfragePageInner />
+    </Suspense>
   );
 }

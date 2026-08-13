@@ -29,6 +29,8 @@ export const ANFRAGE_STATUS_LABELS: Record<AnfrageStatus, string> = {
 export type BankRequest = {
   conceptId: string;
   bankId: string;
+  // Which concept object was sent with the request (concept_objects id).
+  objectId: string | null;
   status: AnfrageStatus;
   sentAt: string | null;
   notes: string | null;
@@ -41,6 +43,7 @@ function fromRow(row: Row): BankRequest {
   return {
     conceptId: row.concept_id,
     bankId: row.bank_id,
+    objectId: row.object_id,
     status,
     sentAt: row.sent_at,
     notes: row.notes,
@@ -51,7 +54,7 @@ export async function upsertRequestStatus(
   conceptId: string,
   bankId: string,
   status: AnfrageStatus,
-  opts?: { sentAt?: string | null; notes?: string | null },
+  opts?: { sentAt?: string | null; notes?: string | null; objectId?: string | null },
 ): Promise<void> {
   const supabase = getSupabaseBrowserClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -65,6 +68,7 @@ export async function upsertRequestStatus(
       status,
       ...(opts?.sentAt !== undefined ? { sent_at: opts.sentAt } : {}),
       ...(opts?.notes !== undefined ? { notes: opts.notes } : {}),
+      ...(opts?.objectId !== undefined ? { object_id: opts.objectId } : {}),
       updated_at: new Date().toISOString(),
     },
     { onConflict: "concept_id,bank_id" },

@@ -9,7 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Bank } from "@/features/banks/registry";
-import type { Konzept } from "@/features/konzepte/types";
+import type { Konzept, KonzeptObjekt } from "@/features/konzepte/types";
 import { KONZEPT_TYPE_LABELS, KONZEPT_ZWECK_LABELS } from "@/features/konzepte/types";
 import type { Stammdaten, Strategie } from "@/features/profile/types";
 import type { FinancingEstimate } from "@/features/financing/calculations";
@@ -21,6 +21,8 @@ const eur = (v: number | null | undefined): string | null =>
 export type AnfrageEmailInput = {
   bank: Bank;
   konzept: Konzept;
+  /** The selected concept object; the Objekt block is omitted when absent. */
+  objekt?: KonzeptObjekt;
   stammdaten: Stammdaten;
   strategie: Strategie;
   est: FinancingEstimate;
@@ -45,7 +47,7 @@ function block(title: string, lines: (string | null)[]): string | null {
 export function buildAnfrageEmail(input: AnfrageEmailInput): AnfrageEmail {
   const { bank, konzept, stammdaten, strategie, est, propertyCount, attachmentNames } =
     input;
-  const o = konzept.objekt;
+  const o = input.objekt ?? {};
   const fin = konzept.finanzierung;
 
   const name = [stammdaten.vorname, stammdaten.nachname].filter(Boolean).join(" ").trim();

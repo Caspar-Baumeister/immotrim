@@ -20,12 +20,15 @@ function safeName(name: string): string {
 
 // A document belongs to exactly one of: a property, a pre-save draft, a
 // per-user profile category (Haushalt/Stammdaten/Strategie — no property FK),
-// or a financing concept (Objektunterlagen eines Konzepts).
+// or a financing concept (Objektunterlagen eines Konzepts). Concept documents
+// may additionally target one of the concept's objects (objectId) — e.g. the
+// exposé of a specific candidate object; without objectId they count as shared
+// concept documents.
 type Target =
   | { draftId: string }
   | { propertyId: string }
   | { category: string }
-  | { conceptId: string };
+  | { conceptId: string; objectId?: string };
 
 export async function uploadDocument(
   file: File,
@@ -57,6 +60,7 @@ export async function uploadDocument(
       draft_id: "draftId" in target ? target.draftId : null,
       category: "category" in target ? target.category : null,
       concept_id: "conceptId" in target ? target.conceptId : null,
+      object_id: "conceptId" in target ? (target.objectId ?? null) : null,
       file_name: file.name,
       file_path: path,
       mime_type: file.type || null,
@@ -83,7 +87,9 @@ export async function listDocuments(target: Target): Promise<PropertyDocument[]>
       : "draftId" in target
         ? await query.eq("draft_id", target.draftId)
         : "conceptId" in target
-          ? await query.eq("concept_id", target.conceptId)
+          ? target.objectId
+            ? await query.eq("concept_id", target.conceptId).eq("object_id", target.objectId)
+            : await query.eq("concept_id", target.conceptId)
           : await query.eq("category", target.category).is("property_id", null);
 
   if (error || !data) return [];
@@ -106,17 +112,27 @@ export async function listBorrowerDocuments(): Promise<PropertyDocument[]> {
   return data as unknown as PropertyDocument[];
 }
 
-// Object documents of a concept. When the concept was prefilled from a wishlist
-// row, that row's Exposé uploads (grouped under draft_id = wishlistId, see
-// relinkWishlistDocuments) belong to the same object — include them.
+// Documents of a concept. Without objectId: everything attached to the concept
+// (used by the Unterlagen section and concept deletion). With objectId: the
+// shared concept documents (object_id null — includes pre-multi-object legacy
+// uploads) plus the selected object's own documents (its exposé) — this is what
+// goes to the bank (completion scoring, ZIP bundle).
 export async function listConceptDocuments(
   conceptId: string,
-  wishlistPropertyId?: string | null,
+  objectId?: string | null,
 ): Promise<PropertyDocument[]> {
-  const own = await listDocuments({ conceptId });
-  if (!wishlistPropertyId) return own;
-  const linked = await listDocuments({ draftId: wishlistPropertyId });
-  return [...own, ...linked];
+  const supabase = getSupabaseBrowserClient();
+  let query = supabase
+    .from("documents")
+    .select("*")
+    .eq("concept_id", conceptId)
+    .order("created_at", { ascending: false });
+  if (objectId) {
+    query = query.or(`object_id.is.null,object_id.eq.${objectId}`);
+  }
+  const { data, error } = await query;
+  if (error || !data) return [];
+  return data as unknown as PropertyDocument[];
 }
 
 // Manual re-assignment of the classified doc type (fallback / correction to the AI).

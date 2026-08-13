@@ -1,114 +1,30 @@
 "use client";
 
-// Shared form for /konzepte/new and /konzepte/[id]: Grunddaten, Objekt (inline
-// or prefilled from an Objektanalyse row) and Finanzierungswunsch. Follows the
-// setField patch-state pattern of the profile section pages (strategie/page.tsx).
+// Shared form for /konzepte/new and /konzepte/[id]: Grunddaten and
+// Finanzierungswunsch. Objects live in their own section (ObjekteSection) —
+// a concept is a strategy; its candidate objects are separate rows.
+// Follows the setField patch-state pattern of the profile section pages.
 
-import { useEffect, useState } from "react";
 import { Check, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { getAllWishlistProperties } from "@/features/wishlist/wishlist-service";
-import type { WishlistProperty } from "@/features/wishlist/types";
+import {
+  inputClass,
+  textareaClass,
+  NumberField,
+  SectionCard,
+  TextField,
+} from "./fields";
 import {
   KONZEPT_TYPES,
   KONZEPT_TYPE_LABELS,
   KONZEPT_ZWECKE,
   KONZEPT_ZWECK_LABELS,
-  prefillFromWishlist,
   type KonzeptDraft,
   type KonzeptFinanzierung,
-  type KonzeptObjekt,
   type KonzeptType,
   type KonzeptZweck,
 } from "../types";
-
-const inputClass = cn(
-  "h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none",
-  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-);
-
-const textareaClass = cn(
-  "w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none",
-  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y",
-);
-
-function TextField({
-  id,
-  label,
-  value,
-  onChange,
-  placeholder,
-}: {
-  id: string;
-  label: string;
-  value: string | undefined;
-  onChange: (v: string | undefined) => void;
-  placeholder?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id} className="text-xs text-muted-foreground">
-        {label}
-      </Label>
-      <input
-        id={id}
-        type="text"
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value || undefined)}
-        placeholder={placeholder}
-        className={inputClass}
-      />
-    </div>
-  );
-}
-
-function NumberField({
-  id,
-  label,
-  value,
-  onChange,
-  suffix,
-  placeholder,
-}: {
-  id: string;
-  label: string;
-  value: number | undefined;
-  onChange: (v: number | undefined) => void;
-  suffix?: string;
-  placeholder?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id} className="text-xs text-muted-foreground">
-        {label}
-        {suffix ? ` (${suffix})` : ""}
-      </Label>
-      <input
-        id={id}
-        type="number"
-        inputMode="decimal"
-        value={value ?? ""}
-        onChange={(e) => {
-          const v = e.target.value;
-          onChange(v === "" ? undefined : Number(v));
-        }}
-        placeholder={placeholder}
-        className={inputClass}
-      />
-    </div>
-  );
-}
-
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 sm:p-5 flex flex-col gap-4">
-      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      {children}
-    </div>
-  );
-}
 
 export function KonzeptForm({
   draft,
@@ -123,27 +39,9 @@ export function KonzeptForm({
   saving: boolean;
   saved: boolean;
 }) {
-  const [wishlist, setWishlist] = useState<WishlistProperty[]>([]);
-
-  useEffect(() => {
-    getAllWishlistProperties().then(setWishlist);
-  }, []);
-
   const setField = (patch: Partial<KonzeptDraft>) => onChange({ ...draft, ...patch });
-  const setObjekt = (patch: Partial<KonzeptObjekt>) =>
-    setField({ objekt: { ...draft.objekt, ...patch } });
   const setFin = (patch: Partial<KonzeptFinanzierung>) =>
     setField({ finanzierung: { ...draft.finanzierung, ...patch } });
-
-  const applyWishlist = (id: string) => {
-    if (!id) {
-      setField({ wishlistPropertyId: null });
-      return;
-    }
-    const w = wishlist.find((x) => x.id === id);
-    if (!w) return;
-    setField({ wishlistPropertyId: id, objekt: { ...draft.objekt, ...prefillFromWishlist(w) } });
-  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -186,85 +84,8 @@ export function KonzeptForm({
             value={draft.description ?? ""}
             onChange={(e) => setField({ description: e.target.value || undefined })}
             rows={4}
-            placeholder="Beschreibe das Konzept so, wie du es der Bank erklären würdest: Zielgruppe, geplante Vermietung, warum das Objekt dazu passt …"
+            placeholder="Beschreibe das Konzept so, wie du es der Bank erklären würdest: Zielgruppe, geplante Vermietung, welche Art Objekt du suchst …"
             className={textareaClass}
-          />
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Objekt">
-        {wishlist.length > 0 && (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="konzept-wishlist" className="text-xs text-muted-foreground">
-              Aus Objektanalyse übernehmen (optional)
-            </Label>
-            <select
-              id="konzept-wishlist"
-              value={draft.wishlistPropertyId ?? ""}
-              onChange={(e) => applyWishlist(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">– kein Objekt verknüpft –</option>
-              {wishlist.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <TextField
-            id="objekt-adresse"
-            label="Straße, Hausnummer"
-            value={draft.objekt.adresse}
-            onChange={(v) => setObjekt({ adresse: v })}
-          />
-          <TextField
-            id="objekt-ort"
-            label="PLZ, Ort"
-            value={draft.objekt.ort}
-            onChange={(v) => setObjekt({ ort: v })}
-          />
-          <TextField
-            id="objekt-typ"
-            label="Objektart"
-            value={draft.objekt.objekttyp}
-            onChange={(v) => setObjekt({ objekttyp: v })}
-            placeholder="z.B. Eigentumswohnung"
-          />
-          <NumberField
-            id="objekt-flaeche"
-            label="Wohnfläche"
-            suffix="m²"
-            value={draft.objekt.wohnflaeche}
-            onChange={(v) => setObjekt({ wohnflaeche: v })}
-          />
-          <NumberField
-            id="objekt-zimmer"
-            label="Zimmer"
-            value={draft.objekt.zimmer}
-            onChange={(v) => setObjekt({ zimmer: v })}
-          />
-          <NumberField
-            id="objekt-baujahr"
-            label="Baujahr"
-            value={draft.objekt.baujahr}
-            onChange={(v) => setObjekt({ baujahr: v })}
-          />
-          <NumberField
-            id="objekt-kaufpreis"
-            label="Kaufpreis"
-            suffix="€"
-            value={draft.objekt.kaufpreis}
-            onChange={(v) => setObjekt({ kaufpreis: v })}
-          />
-          <NumberField
-            id="objekt-miete"
-            label="Erwartete Kaltmiete"
-            suffix="€/Monat"
-            value={draft.objekt.erwarteteMiete}
-            onChange={(v) => setObjekt({ erwarteteMiete: v })}
           />
         </div>
       </SectionCard>

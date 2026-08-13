@@ -73,10 +73,12 @@ export async function POST(
   const locale = "de";
   let requestedName: string | undefined;
   let conceptId: string | undefined;
+  let objectId: string | undefined;
   try {
     const body = await request.json();
     if (typeof body?.investorName === "string") requestedName = body.investorName;
     if (typeof body?.conceptId === "string") conceptId = body.conceptId;
+    if (typeof body?.objectId === "string") objectId = body.objectId;
   } catch {
     // Body is optional — defaults are fine.
   }
@@ -92,12 +94,27 @@ export async function POST(
     if (!row) {
       return NextResponse.json({ error: "Unknown concept" }, { status: 404 });
     }
+    // The selected concept object; legacy financing_concepts.objekt jsonb is the
+    // fallback for pre-multi-object concepts / callers that send no objectId.
+    let objekt = (row.objekt ?? {}) as KonzeptObjekt;
+    if (objectId) {
+      const { data: objRow } = await sb
+        .from("concept_objects")
+        .select("data")
+        .eq("id", objectId)
+        .eq("concept_id", conceptId)
+        .maybeSingle();
+      if (!objRow) {
+        return NextResponse.json({ error: "Unknown object" }, { status: 404 });
+      }
+      objekt = (objRow.data ?? {}) as KonzeptObjekt;
+    }
     const typ = normaliseKonzeptType(row.concept_type);
     konzept = {
       titel: row.title,
       typLabel: typ ? KONZEPT_TYPE_LABELS[typ] : undefined,
       beschreibung: row.description ?? undefined,
-      objekt: (row.objekt ?? {}) as KonzeptObjekt,
+      objekt,
       finanzierung: (row.finanzierung ?? {}) as KonzeptFinanzierung,
     };
   }

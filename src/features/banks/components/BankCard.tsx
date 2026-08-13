@@ -29,6 +29,7 @@ export function BankCard({
   score,
   missing,
   conceptId,
+  objectId,
   status,
   onStatusChange,
 }: {
@@ -41,6 +42,8 @@ export function BankCard({
   missing: string[];
   /** Selected concept — without one the Anfrage CTA is disabled. */
   conceptId?: string;
+  /** Selected concept object — carried into the Anfrage and the PDF. */
+  objectId?: string;
   /** Outreach status of (concept, bank), if any. */
   status?: AnfrageStatus;
   onStatusChange?: (status: AnfrageStatus) => void;
@@ -55,7 +58,7 @@ export function BankCard({
       const res = await fetch(`/api/selbstauskunft/${bank.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(conceptId ? { conceptId } : {}),
+        body: JSON.stringify(conceptId ? { conceptId, objectId } : {}),
       });
       if (res.status === 402) {
         setError("Bezahlter Tarif nötig. Weiterleitung …");
@@ -195,7 +198,10 @@ export function BankCard({
 
       <div className="px-5 pb-4 mt-auto space-y-2">
         {conceptId ? (
-          <Link href={`/konzepte/${conceptId}/anfrage/${bank.id}`} className="block">
+          <Link
+            href={`/konzepte/${conceptId}/anfrage/${bank.id}${objectId ? `?objekt=${objectId}` : ""}`}
+            className="block"
+          >
             <Button
               size="sm"
               className="w-full bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold gap-1.5"

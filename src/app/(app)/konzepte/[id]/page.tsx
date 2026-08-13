@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Landmark, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Landmark, Loader2, Trash2 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/features/profile/components/SectionHeader";
 import { KonzeptForm } from "@/features/konzepte/components/KonzeptForm";
 import { KonzeptUnterlagen } from "@/features/konzepte/components/KonzeptUnterlagen";
+import { ObjekteSection } from "@/features/konzepte/components/ObjekteSection";
 import {
   deleteKonzept,
   getKonzept,
@@ -40,8 +41,6 @@ export default function KonzeptDetailPage() {
           title: k.title,
           conceptType: k.conceptType,
           description: k.description,
-          wishlistPropertyId: k.wishlistPropertyId,
-          objekt: k.objekt,
           finanzierung: k.finanzierung,
         });
       }
@@ -105,10 +104,20 @@ export default function KonzeptDetailPage() {
     <div className="flex flex-col min-h-screen">
       <TopBar title={konzept.title} />
       <div className="flex-1 p-4 sm:p-6 flex flex-col gap-6 overflow-auto max-w-5xl w-full">
-        <SectionHeader
-          title={konzept.title}
-          description="Konzept, Objektunterlagen und der Stand deiner Bankanfragen — alles zu diesem Vorhaben an einem Ort."
-        />
+        <div>
+          <Link
+            href="/konzepte"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Zurück zu allen Konzepten
+          </Link>
+          <div className="mt-2">
+            <SectionHeader
+              title={konzept.title}
+              description="Konzept, Objektunterlagen und der Stand deiner Bankanfragen — alles zu diesem Vorhaben an einem Ort."
+            />
+          </div>
+        </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <Link href={`/banken?konzept=${konzept.id}`}>
@@ -145,6 +154,8 @@ export default function KonzeptDetailPage() {
           </div>
         )}
 
+        <ObjekteSection conceptId={konzept.id} />
+
         <KonzeptForm
           draft={draft}
           onChange={(next) => {
@@ -168,10 +179,7 @@ export default function KonzeptDetailPage() {
               .
             </p>
           </div>
-          <KonzeptUnterlagen
-            conceptId={konzept.id}
-            wishlistPropertyId={konzept.wishlistPropertyId}
-          />
+          <KonzeptUnterlagen conceptId={konzept.id} />
         </div>
       </div>
     </div>
