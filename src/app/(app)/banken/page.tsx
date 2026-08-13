@@ -15,6 +15,8 @@ import {
   listConceptDocuments,
 } from "@/lib/document-service";
 import { getAllKonzepte } from "@/features/konzepte/konzept-service";
+import { listConceptObjects } from "@/features/konzepte/objekt-service";
+import { objektLabel, type ConceptObject } from "@/features/konzepte/types";
 import {
   listRequestsForConcept,
   upsertRequestStatus,
@@ -55,8 +57,13 @@ function BankenContent() {
   // another concept's view (and no state reset is needed on switch).
   const [conceptData, setConceptData] = useState<{
     id: string;
-    docs: PropertyDocument[];
+    objects: ConceptObject[];
     requests: BankRequest[];
+  } | null>(null);
+  // Concept docs depend on (concept, selected object) — keyed the same way.
+  const [conceptDocsData, setConceptDocsData] = useState<{
+    key: string;
+    docs: PropertyDocument[];
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -84,31 +91,62 @@ function BankenContent() {
     router.replace(id ? `/banken?konzept=${id}` : "/banken");
   };
 
-  // Object docs + outreach statuses follow the selected concept.
+  // Objects + outreach statuses follow the selected concept.
   const selectedId = selected?.id;
-  const selectedWishlistId = selected?.wishlistPropertyId;
   useEffect(() => {
     if (!selectedId) return;
     let cancelled = false;
     Promise.all([
-      listConceptDocuments(selectedId, selectedWishlistId),
+      listConceptObjects(selectedId),
       listRequestsForConcept(selectedId),
-    ]).then(([docs, rs]) => {
+    ]).then(([os, rs]) => {
       if (cancelled) return;
-      setConceptData({ id: selectedId, docs, requests: rs });
+      setConceptData({ id: selectedId, objects: os, requests: rs });
     });
     return () => {
       cancelled = true;
     };
-  }, [selectedId, selectedWishlistId]);
+  }, [selectedId]);
 
-  const conceptDocs = useMemo(
-    () => (conceptData?.id === selectedId ? conceptData.docs : []),
+  const objects = useMemo(
+    () => (conceptData && conceptData.id === selectedId ? conceptData.objects : []),
     [conceptData, selectedId],
   );
   const requests = useMemo(
-    () => (conceptData?.id === selectedId ? conceptData.requests : []),
+    () => (conceptData && conceptData.id === selectedId ? conceptData.requests : []),
     [conceptData, selectedId],
+  );
+
+  // Selected object: ?objekt= if valid, else the concept's first object.
+  const requestedObjektId = searchParams.get("objekt");
+  const selectedObjectId =
+    objects.find((o) => o.id === requestedObjektId)?.id ?? objects[0]?.id ?? null;
+
+  const selectObjekt = (objektId: string) => {
+    if (!selectedId) return;
+    router.replace(
+      `/banken?konzept=${selectedId}${objektId ? `&objekt=${objektId}` : ""}`,
+    );
+  };
+
+  // Concept docs = shared docs + the selected object's exposé (completion scoring).
+  const docsKey = selectedId ? `${selectedId}/${selectedObjectId ?? ""}` : null;
+  const objectsReady = conceptData?.id === selectedId;
+  useEffect(() => {
+    if (!selectedId || !docsKey || !objectsReady) return;
+    let cancelled = false;
+    listConceptDocuments(selectedId, selectedObjectId).then((docs) => {
+      if (cancelled) return;
+      setConceptDocsData({ key: docsKey, docs });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId, selectedObjectId, docsKey, objectsReady]);
+
+  const conceptDocs = useMemo(
+    () => (conceptDocsData?.key === docsKey ? conceptDocsData.docs : []),
+    [conceptDocsData, docsKey],
   );
 
   const kpis = calculatePortfolioKpis(
@@ -154,9 +192,10 @@ function BankenContent() {
     async (bankId: string, status: AnfrageStatus) => {
       if (!selected) return;
       const conceptId = selected.id;
+      const objectId = selectedObjectId;
       const patch = (requests: BankRequest[]): BankRequest[] => [
         ...requests.filter((r) => r.bankId !== bankId),
-        { conceptId, bankId, status, sentAt: null, notes: null },
+        { conceptId, bankId, objectId, status, sentAt: null, notes: null },
       ];
       setConceptData((prev) =>
         prev && prev.id === conceptId ? { ...prev, requests: patch(prev.requests) } : prev,
@@ -164,6 +203,7 @@ function BankenContent() {
       try {
         await upsertRequestStatus(conceptId, bankId, status, {
           sentAt: status === "angefragt" ? new Date().toISOString() : undefined,
+          objectId,
         });
       } catch {
         const rs = await listRequestsForConcept(conceptId);
@@ -172,7 +212,7 @@ function BankenContent() {
         );
       }
     },
-    [selected],
+    [selected, selectedObjectId],
   );
 
   const renderCards = (banks: Bank[]) => (
@@ -191,6 +231,7 @@ function BankenContent() {
             )}
             missing={completion.missing.map((m) => m.label)}
             conceptId={selected?.id}
+            objectId={selectedObjectId ?? undefined}
             status={statusByBank.get(bank.id)}
             onStatusChange={
               selected ? (s) => handleStatusChange(bank.id, s) : undefined
@@ -220,25 +261,49 @@ function BankenContent() {
             </p>
           </div>
           {konzepte.length > 0 && (
-            <div className="flex flex-col gap-1.5 w-full sm:w-72">
-              <label
-                htmlFor="konzept-select"
-                className="text-xs text-muted-foreground"
-              >
-                Konzept
-              </label>
-              <select
-                id="konzept-select"
-                value={selected?.id ?? ""}
-                onChange={(e) => selectKonzept(e.target.value)}
-                className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                {konzepte.map((k) => (
-                  <option key={k.id} value={k.id}>
-                    {k.title}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="flex flex-col gap-1.5 w-full sm:w-72">
+                <label
+                  htmlFor="konzept-select"
+                  className="text-xs text-muted-foreground"
+                >
+                  Konzept
+                </label>
+                <select
+                  id="konzept-select"
+                  value={selected?.id ?? ""}
+                  onChange={(e) => selectKonzept(e.target.value)}
+                  className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  {konzepte.map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {objects.length > 0 && (
+                <div className="flex flex-col gap-1.5 w-full sm:w-64">
+                  <label
+                    htmlFor="objekt-select"
+                    className="text-xs text-muted-foreground"
+                  >
+                    Objekt
+                  </label>
+                  <select
+                    id="objekt-select"
+                    value={selectedObjectId ?? ""}
+                    onChange={(e) => selectObjekt(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    {objects.map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {objektLabel(o)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           )}
         </div>

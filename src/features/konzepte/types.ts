@@ -1,15 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // FINANZIERUNGSKONZEPT DOMAIN TYPES
 //
-// A "Konzept" is one financing case: what the user wants to buy and how they
-// want to finance it (e.g. "Möbliertes 1-Zimmer-Apartment in Potsdam"). It is
-// deliberately separate from the portfolio (owned properties) and the wishlist
-// (Objektanalyse comparison table) — a concept may optionally be prefilled from
-// a wishlist row. `objekt`/`finanzierung` live in jsonb columns, so every field
-// here is optional and the catalog can grow without a migration.
+// A "Konzept" is one financing strategy: what the user wants to buy and how
+// they want to finance it (e.g. "Möbliertes 1-Zimmer-Apartment in Potsdam").
+// It is a container for MULTIPLE candidate objects (concept_objects rows) —
+// whenever the user finds a fitting object they add it to the concept (manually
+// or via exposé AI extraction) and pick one when sending a bank request.
+// `finanzierung`/`data`/`details` live in jsonb columns, so every field here is
+// optional and the catalog can grow without a migration.
 // ─────────────────────────────────────────────────────────────────────────────
-
-import type { WishlistProperty } from "@/features/wishlist/types";
 
 export const KONZEPT_TYPES = [
   "moebliertes_apartment",
@@ -45,7 +44,7 @@ export const KONZEPT_ZWECK_LABELS: Record<KonzeptZweck, string> = {
   kapitalbeschaffung: "Kapitalbeschaffung",
 };
 
-/** The target object of the concept — inline data or prefilled from a wishlist row. */
+/** Core data of a concept object — feeds the anfrage email and Selbstauskunft. */
 export type KonzeptObjekt = {
   adresse?: string; // Straße, Hausnummer
   ort?: string; // PLZ, Ort / Stadtteil
@@ -67,14 +66,48 @@ export type KonzeptFinanzierung = {
   wuensche?: string; // weitere Wünsche (Sondertilgung, KfW, …)
 };
 
+/** Extra object details from exposé extraction — not shown in the core form. */
+export type KonzeptObjektDetails = {
+  hausgeld?: number; // monatliches Hausgeld €
+  etage?: number;
+  etagenGesamt?: number;
+  schlafzimmer?: number;
+  badezimmer?: number;
+  stellplaetze?: number;
+  objektzustand?: string;
+  ausstattung?: string;
+  heizungsart?: string;
+  energietraeger?: string;
+  energieausweistyp?: string;
+  energieKennwert?: number; // kWh/(m²·a)
+  energieKlasse?: string;
+  provisionsfrei?: boolean;
+  maklerName?: string;
+  maklerTelefon?: string;
+  exposeUrl?: string;
+};
+
+/** One candidate object inside a concept (concept_objects row). */
+export type ConceptObject = {
+  id: string;
+  conceptId: string;
+  data: KonzeptObjekt;
+  details: KonzeptObjektDetails;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Display label of an object — address, else type, else a generic fallback. */
+export function objektLabel(o: ConceptObject): string {
+  return o.data.adresse?.trim() || o.data.objekttyp?.trim() || "Neues Objekt";
+}
+
 export type Konzept = {
   id: string;
   userId: string;
   title: string;
   conceptType?: KonzeptType;
   description?: string;
-  wishlistPropertyId?: string | null;
-  objekt: KonzeptObjekt;
   finanzierung: KonzeptFinanzierung;
   createdAt: string;
   updatedAt: string;
@@ -84,7 +117,6 @@ export type KonzeptDraft = Omit<Konzept, "id" | "userId" | "createdAt" | "update
 
 export const EMPTY_KONZEPT_DRAFT: KonzeptDraft = {
   title: "",
-  objekt: {},
   finanzierung: {},
 };
 
@@ -93,17 +125,4 @@ export function normaliseKonzeptType(raw: string | null | undefined): KonzeptTyp
   return (KONZEPT_TYPES as readonly string[]).includes(raw ?? "")
     ? (raw as KonzeptType)
     : undefined;
-}
-
-/** Map an Objektanalyse (wishlist) row into concept object data ("Aus Objektanalyse übernehmen"). */
-export function prefillFromWishlist(w: WishlistProperty): KonzeptObjekt {
-  return {
-    adresse: w.address ?? w.name,
-    objekttyp: w.details.wohnungstyp ?? undefined,
-    wohnflaeche: w.wohnflaeche ?? undefined,
-    zimmer: w.zimmer ?? undefined,
-    baujahr: w.baujahr ?? undefined,
-    kaufpreis: w.kaufpreis ?? undefined,
-    erwarteteMiete: w.sollMiete ?? w.istMiete ?? undefined,
-  };
 }

@@ -294,6 +294,109 @@ Feld-Hinweise (typische ImmoScout24-Labels in Klammern):
 Für jedes Feld: value (Zahl, Text bzw. Wahrheitswert), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
+// ── Konzept-Objekt (candidate object inside a financing concept) ─────────────
+const KONZEPT_OBJEKT_FIELD_ORDER = [
+  "adresse",
+  "ort",
+  "objekttyp",
+  "wohnflaeche",
+  "zimmer",
+  "baujahr",
+  "kaufpreis",
+  "erwarteteMiete",
+  "hausgeld",
+  "etage",
+  "etagenGesamt",
+  "schlafzimmer",
+  "badezimmer",
+  "stellplaetze",
+  "objektzustand",
+  "ausstattung",
+  "provisionsfrei",
+  "heizungsart",
+  "energietraeger",
+  "energieausweistyp",
+  "energieKennwert",
+  "energieKlasse",
+  "maklerName",
+  "maklerTelefon",
+  "exposeUrl",
+];
+
+const KONZEPT_OBJEKT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    fields: {
+      type: Type.OBJECT,
+      properties: {
+        adresse: fieldSchema(Type.STRING),
+        ort: fieldSchema(Type.STRING),
+        objekttyp: fieldSchema(Type.STRING),
+        wohnflaeche: fieldSchema(Type.NUMBER),
+        zimmer: fieldSchema(Type.NUMBER),
+        baujahr: fieldSchema(Type.NUMBER),
+        kaufpreis: fieldSchema(Type.NUMBER),
+        erwarteteMiete: fieldSchema(Type.NUMBER),
+        hausgeld: fieldSchema(Type.NUMBER),
+        etage: fieldSchema(Type.NUMBER),
+        etagenGesamt: fieldSchema(Type.NUMBER),
+        schlafzimmer: fieldSchema(Type.NUMBER),
+        badezimmer: fieldSchema(Type.NUMBER),
+        stellplaetze: fieldSchema(Type.NUMBER),
+        objektzustand: fieldSchema(Type.STRING),
+        ausstattung: fieldSchema(Type.STRING),
+        provisionsfrei: fieldSchema(Type.BOOLEAN),
+        heizungsart: fieldSchema(Type.STRING),
+        energietraeger: fieldSchema(Type.STRING),
+        energieausweistyp: fieldSchema(Type.STRING),
+        energieKennwert: fieldSchema(Type.NUMBER),
+        energieKlasse: fieldSchema(Type.STRING),
+        maklerName: fieldSchema(Type.STRING),
+        maklerTelefon: fieldSchema(Type.STRING),
+        exposeUrl: fieldSchema(Type.STRING),
+      },
+      propertyOrdering: KONZEPT_OBJEKT_FIELD_ORDER,
+    },
+  },
+  required: ["fields"],
+};
+
+const KONZEPT_OBJEKT_PROMPT = `Du bist ein Assistent, der deutsche Immobilien-Exposés auswertet, um das Objekt eines Finanzierungskonzepts vorauszufüllen — mit den Eckdaten, die eine Bank für eine Finanzierungsanfrage braucht.
+Du erhältst ein oder mehrere Dokumente: typischerweise ein Verkaufs-Exposé (z.B. von ImmoScout24 oder einem Makler), als PDF oder Screenshot.
+
+WICHTIG: Lies das GESAMTE Dokument (alle Seiten) sorgfältig und extrahiere ALLE im Dokument vorhandenen Felder aus dem Schema. Gib für jedes Feld, das du im Dokument findest, einen Wert zurück – auch wenn es nur an einer Stelle steht. Lass ein Feld NUR dann weg, wenn die Information wirklich nicht im Dokument vorkommt. Erfinde keine Werte und schätze nicht.
+Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
+
+Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. Beispiele: "349.900 €" -> 349900, "81,13 m²" -> 81.13, "92,2 kWh/(m²*a)" -> 92.2.
+
+Feld-Hinweise (typische ImmoScout24-Labels in Klammern):
+- adresse: NUR Straße und Hausnummer (z.B. "Musterstraße 12"), soweit angegeben. PLZ/Ort gehören NICHT hierher.
+- ort: PLZ und Ort, ggf. mit Stadtteil (z.B. "10967 Berlin" oder "Kreuzberg, 10967 Berlin"). Straße gehört NICHT hierher.
+- objekttyp: Immobilientyp bzw. ("Wohnungstyp"), z.B. "Eigentumswohnung", "Etagenwohnung", "Erdgeschosswohnung", "Maisonette", "Einfamilienhaus".
+- wohnflaeche: ("Wohnfläche ca.") in m².
+- zimmer: ("Zimmer") Anzahl der Zimmer (ggf. mit Nachkommastelle).
+- baujahr: ("Baujahr") vierstellige Jahreszahl.
+- kaufpreis: ("Kaufpreis") Kaufpreis in Euro.
+- erwarteteMiete: erwartete monatliche Kaltmiete in Euro. Nimm die angestrebte/marktübliche Soll-Kaltmiete, falls genannt; sonst die aktuelle Ist-Kaltmiete ("Mieteinnahmen pro Monat"). Falls nur eine "Jahresnettokaltmiete" genannt ist, teile sie durch 12.
+- hausgeld: ("Hausgeld") monatlich in Euro.
+- etage / etagenGesamt: ("Etage"). Bei "1 von 4" ist etage=1 und etagenGesamt=4.
+- schlafzimmer: ("Schlafzimmer"). badezimmer: ("Badezimmer").
+- stellplaetze: Anzahl Stellplätze/Garagen, falls genannt.
+- objektzustand: ("Objektzustand", z.B. "Gepflegt", "Neuwertig").
+- ausstattung: ("Qualität der Ausstattung", z.B. "Normal", "Gehoben").
+- provisionsfrei: true, wenn "Provision für Käufer: Nein" oder "provisionsfrei" steht; false, wenn eine Käuferprovision angegeben ist.
+- heizungsart: ("Heizungsart", z.B. "Etagenheizung", "Zentralheizung", "Fernwärme").
+- energietraeger: ("Wesentliche Energieträger", z.B. "Gas", "Öl").
+- energieausweistyp: ("Energieausweistyp": "Verbrauchsausweis" oder "Bedarfsausweis").
+- energieKennwert: ("Endenergieverbrauch"/"Endenergiebedarf") als Zahl in kWh/(m²·a).
+- energieKlasse: ("Energieeffizienzklasse", A+ bis H).
+- maklerName: Name des Anbieters/Ansprechpartners bzw. der Maklerfirma (Anbieter-Bereich).
+- maklerTelefon: Telefon-/Mobilnummer des Anbieters (z.B. "Mobil: 0163 2189233").
+- exposeUrl: die vollständige ImmoScout24-Exposé-URL. Steht meist im Kopf-/Fußbereich, Form "https://www.immobilienscout24.de/expose/<ID>". Übernimm sie OHNE den Zusatz "/print".
+
+Für jedes Feld: value (Zahl, Text bzw. Wahrheitswert), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
+Gib ausschließlich JSON gemäß Schema zurück.`;
+
 // ── Stammdaten (personal master data) ────────────────────────────────────────
 const STAMMDATEN_FIELD_ORDER = [
   "anrede",
@@ -469,6 +572,7 @@ Gib ausschließlich JSON gemäß Schema zurück.`;
 const MODES = {
   property: { schema: PROPERTY_SCHEMA, prompt: PROPERTY_PROMPT },
   wishlist: { schema: WISHLIST_SCHEMA, prompt: WISHLIST_PROMPT },
+  konzeptObjekt: { schema: KONZEPT_OBJEKT_SCHEMA, prompt: KONZEPT_OBJEKT_PROMPT },
   stammdaten: { schema: STAMMDATEN_SCHEMA, prompt: STAMMDATEN_PROMPT },
   haushalt: { schema: HAUSHALT_SCHEMA, prompt: HAUSHALT_PROMPT },
 } as const;

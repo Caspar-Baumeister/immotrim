@@ -7,7 +7,6 @@ import {
   type Konzept,
   type KonzeptDraft,
   type KonzeptFinanzierung,
-  type KonzeptObjekt,
 } from "./types";
 
 type Row = Database["public"]["Tables"]["financing_concepts"]["Row"];
@@ -19,7 +18,9 @@ async function requireUserId(): Promise<string> {
   return user.id;
 }
 
-// objekt/finanzierung are jsonb — coerce defensively so older rows still hydrate.
+// finanzierung is jsonb — coerce defensively so older rows still hydrate.
+// (objekt/wishlist_property_id are deprecated columns; objects live in
+// concept_objects, see objekt-service.ts.)
 function fromRow(row: Row): Konzept {
   return {
     id: row.id,
@@ -27,8 +28,6 @@ function fromRow(row: Row): Konzept {
     title: row.title,
     conceptType: normaliseKonzeptType(row.concept_type),
     description: row.description ?? undefined,
-    wishlistPropertyId: row.wishlist_property_id,
-    objekt: ((row.objekt ?? {}) as KonzeptObjekt) ?? {},
     finanzierung: ((row.finanzierung ?? {}) as KonzeptFinanzierung) ?? {},
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -40,8 +39,6 @@ function toColumns(draft: KonzeptDraft) {
     title: draft.title,
     concept_type: draft.conceptType ?? null,
     description: draft.description ?? null,
-    wishlist_property_id: draft.wishlistPropertyId ?? null,
-    objekt: draft.objekt as unknown as Json,
     finanzierung: draft.finanzierung as unknown as Json,
   };
 }

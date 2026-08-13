@@ -93,6 +93,7 @@ export type PropertyDocument = {
   property_id: string | null;
   draft_id: string | null;
   concept_id: string | null;
+  object_id: string | null;
   category: string | null;
   // AI-classified checklist doc type for borrower/personal docs. Null until sorted.
   doc_type: string | null;
@@ -162,6 +163,9 @@ type DocumentRowShape = {
   draft_id: string | null;
   // Object documents of a financing concept (src/features/konzepte). Null otherwise.
   concept_id: string | null;
+  // Documents of a specific concept object (concept_objects). Null = shared
+  // concept document (or non-concept upload).
+  object_id: string | null;
   // null = property-scoped upload; otherwise a profile section
   // ("haushalt" | "stammdaten" | "strategie" | "checklist").
   category: string | null;
@@ -210,8 +214,10 @@ type PortfolioShareRowShape = {
   created_at: string;
 };
 
-// One row per financing concept ("Konzept"); objekt/finanzierung are jsonb — see
-// src/features/konzepte/types.ts for the parsed shapes.
+// One row per financing concept ("Konzept"); finanzierung is jsonb — see
+// src/features/konzepte/types.ts for the parsed shapes. wishlist_property_id
+// and objekt are DEPRECATED (superseded by concept_objects) but still present
+// in the DB until the cleanup migration drops them.
 type FinancingConceptRowShape = {
   id: string;
   user_id: string;
@@ -226,14 +232,28 @@ type FinancingConceptRowShape = {
 };
 
 // Outreach status per (concept, bank). bank_id references the TS bank registry.
+// object_id records which concept object was sent with the request.
 type ConceptBankRequestRowShape = {
   id: string;
   user_id: string;
   concept_id: string;
   bank_id: string;
+  object_id: string | null;
   status: string;
   sent_at: string | null;
   notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+// One row per candidate object inside a concept; data/details are jsonb — see
+// src/features/konzepte/types.ts for the parsed shapes.
+type ConceptObjectRowShape = {
+  id: string;
+  user_id: string;
+  concept_id: string;
+  data: Json;
+  details: Json;
   created_at: string;
   updated_at: string;
 };
@@ -298,12 +318,13 @@ export type Database = {
         Row: DocumentRowShape;
         Insert: Omit<
           DocumentRowShape,
-          "id" | "created_at" | "category" | "doc_type" | "concept_id"
+          "id" | "created_at" | "category" | "doc_type" | "concept_id" | "object_id"
         > & {
           id?: string;
           category?: string | null;
           doc_type?: string | null;
           concept_id?: string | null;
+          object_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Omit<DocumentRowShape, "id" | "user_id" | "created_at">>;
@@ -311,8 +332,13 @@ export type Database = {
       };
       financing_concepts: {
         Row: FinancingConceptRowShape;
-        Insert: Omit<FinancingConceptRowShape, "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<
+          FinancingConceptRowShape,
+          "id" | "wishlist_property_id" | "objekt" | "created_at" | "updated_at"
+        > & {
           id?: string;
+          wishlist_property_id?: string | null;
+          objekt?: Json;
           created_at?: string;
           updated_at?: string;
         };
@@ -325,9 +351,10 @@ export type Database = {
         Row: ConceptBankRequestRowShape;
         Insert: Omit<
           ConceptBankRequestRowShape,
-          "id" | "status" | "sent_at" | "notes" | "created_at" | "updated_at"
+          "id" | "object_id" | "status" | "sent_at" | "notes" | "created_at" | "updated_at"
         > & {
           id?: string;
+          object_id?: string | null;
           status?: string;
           sent_at?: string | null;
           notes?: string | null;
@@ -337,6 +364,18 @@ export type Database = {
         Update: Partial<
           Omit<ConceptBankRequestRowShape, "id" | "user_id" | "concept_id" | "created_at">
         >;
+        Relationships: [];
+      };
+      concept_objects: {
+        Row: ConceptObjectRowShape;
+        Insert: Omit<ConceptObjectRowShape, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Omit<ConceptObjectRowShape, "id" | "user_id" | "concept_id" | "created_at">
+        > & { updated_at?: string };
         Relationships: [];
       };
       profiles: {

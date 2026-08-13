@@ -72,13 +72,7 @@ async function classifyKonzeptDocuments(
   return data.results ?? [];
 }
 
-export function KonzeptUnterlagen({
-  conceptId,
-  wishlistPropertyId,
-}: {
-  conceptId: string;
-  wishlistPropertyId?: string | null;
-}) {
+export function KonzeptUnterlagen({ conceptId }: { conceptId: string }) {
   const [docs, setDocs] = useState<PropertyDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -128,7 +122,7 @@ export function KonzeptUnterlagen({
 
   useEffect(() => {
     let cancelled = false;
-    listConceptDocuments(conceptId, wishlistPropertyId).then((rows) => {
+    listConceptDocuments(conceptId).then((rows) => {
       if (cancelled) return;
       setDocs(rows);
       setLoading(false);
@@ -138,7 +132,7 @@ export function KonzeptUnterlagen({
     return () => {
       cancelled = true;
     };
-  }, [conceptId, wishlistPropertyId, runClassify]);
+  }, [conceptId, runClassify]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -174,7 +168,7 @@ export function KonzeptUnterlagen({
       await deleteDocument(doc);
     } catch {
       setError("Löschen fehlgeschlagen.");
-      listConceptDocuments(conceptId, wishlistPropertyId).then(setDocs);
+      listConceptDocuments(conceptId).then(setDocs);
     }
   };
 
