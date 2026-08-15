@@ -18,7 +18,13 @@ import {
   type ChecklistDocType,
 } from "@/lib/checklist/requirements";
 import { checklistCompletion } from "@/lib/checklist/completeness";
-import type { PropertyDocument } from "@/lib/supabase";
+import {
+  useCompletion,
+  useSetSectionCompletion,
+} from "@/features/profile/completion-context";
+import { getAllProperties } from "@/lib/property-service";
+import { ReportDialog } from "@/features/report/components/ReportDialog";
+import type { Property, PropertyDocument } from "@/lib/supabase";
 
 const ACCEPTED = ["application/pdf", "image/png", "image/jpeg", "image/webp"];
 const MAX_BYTES = 50 * 1024 * 1024;
@@ -26,10 +32,14 @@ const MAX_BYTES = 50 * 1024 * 1024;
 export default function ChecklistPage() {
   const [docs, setDocs] = useState<PropertyDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const setChecklistCompletion = useSetSectionCompletion("checklist");
   const [uploading, setUploading] = useState(false);
   const [classifyingIds, setClassifyingIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // For the app-generated Portfoliobericht tile (source: "app").
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const setClassifying = (ids: string[], on: boolean) =>
     setClassifyingIds((prev) => {
@@ -83,6 +93,9 @@ export default function ChecklistPage() {
       const unsorted = rows.filter((d) => !d.doc_type);
       if (unsorted.length > 0) void runClassify(unsorted);
     });
+    getAllProperties().then((rows) => {
+      if (!cancelled) setProperties(rows);
+    });
     return () => {
       cancelled = true;
     };
@@ -131,6 +144,14 @@ export default function ChecklistPage() {
     if (url) window.open(url, "_blank", "noopener");
   };
 
+  // The Selbstauskunft is generated from Stammdaten + Haushalt — it counts as
+  // "present" once both sections are complete (see checklist/completeness.ts).
+  // The Portfoliobericht is generated from the property portfolio.
+  const sidebarCompletion = useCompletion();
+  const selbstauskunftReady =
+    sidebarCompletion.stammdaten === 100 && sidebarCompletion.haushalt === 100;
+  const portfolioberichtReady = properties.length > 0;
+
   // Group docs into requirement tiles; anything unsorted/`sonstiges` is "extra".
   const { tiles, extraDocs, completion } = useMemo(() => {
     const tiles: ChecklistTile[] = CHECKLIST_REQUIREMENTS.map((r) => ({
@@ -138,6 +159,7 @@ export default function ChecklistPage() {
       level: r.level,
       label: r.label,
       hint: r.hint,
+      source: r.source,
       docs: docs.filter((d) => d.doc_type === r.docType),
     }));
     const extraDocs = docs.filter(
@@ -148,8 +170,22 @@ export default function ChecklistPage() {
         .map((d) => d.doc_type as ChecklistDocType | null)
         .filter((t): t is ChecklistDocType => !!t),
     );
-    return { tiles, extraDocs, completion: checklistCompletion(presentTypes) };
-  }, [docs]);
+    return {
+      tiles,
+      extraDocs,
+      completion: checklistCompletion(presentTypes, {
+        selbstauskunftReady,
+        portfolioberichtReady,
+      }),
+    };
+  }, [docs, selbstauskunftReady, portfolioberichtReady]);
+
+  // Publish the live % into the sidebar bar — the server-seeded value goes stale
+  // as soon as uploads are classified client-side. Guarded so the empty pre-load
+  // state never overwrites the server value with 0.
+  useEffect(() => {
+    if (!loading) setChecklistCompletion(completion);
+  }, [loading, completion, setChecklistCompletion]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -165,7 +201,9 @@ export default function ChecklistPage() {
               Steuerbescheid, Ausweis</strong> und mehr. Die KI erkennt automatisch, worum es sich
               handelt, sortiert jedes Dokument in die passende Kachel und benennt es sinnvoll um.
               Auch Dokumente, die du unter Stammdaten oder Haushaltsrechnung hochgeladen hast,
-              erscheinen hier. Offene Kacheln zeigen, was noch fehlt.
+              erscheinen hier. Offene Kacheln zeigen, was noch fehlt. Die private Selbstauskunft
+              und den Portfoliobericht (Investorenbroschüre) musst du nicht hochladen — die
+              erstellt Immotrim für dich aus deinen Angaben und deinem Portfolio.
             </>
           }
         />
@@ -214,8 +252,23 @@ export default function ChecklistPage() {
               tiles={tiles}
               extraDocs={extraDocs}
               classifyingIds={classifyingIds}
+              selbstauskunft={{
+                ready: selbstauskunftReady,
+                stammdaten: sidebarCompletion.stammdaten,
+                haushalt: sidebarCompletion.haushalt,
+              }}
+              report={{
+                ready: portfolioberichtReady,
+                onCreate: () => setReportOpen(true),
+              }}
               onDownload={handleDownload}
               onDelete={handleDelete}
+            />
+
+            <ReportDialog
+              open={reportOpen}
+              onOpenChange={setReportOpen}
+              properties={properties}
             />
           </>
         )}

@@ -98,13 +98,15 @@ export const getProfileCompletion = cache(
           .eq("user_id", userId)
           .maybeSingle(),
         sb.from("properties").select("inputs").eq("user_id", userId),
-        // Borrower/personal docs (not property- or draft-scoped) back the checklist bar.
+        // Borrower/personal docs (not property-, draft- or concept-scoped) back the
+        // checklist bar — same predicate as document-service.listBorrowerDocuments.
         sb
           .from("documents")
           .select("doc_type")
           .eq("user_id", userId)
           .is("property_id", null)
-          .is("draft_id", null),
+          .is("draft_id", null)
+          .is("concept_id", null),
       ]);
 
     const propertyMetas = ((properties ?? []) as { inputs: PropertyInputs }[]).map(

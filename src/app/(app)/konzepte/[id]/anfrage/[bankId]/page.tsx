@@ -1,9 +1,10 @@
 "use client";
 
 // The compile screen for one (Konzept, Bank) pair: generated German email text
-// (copy-paste / mailto), the pre-filled Selbstauskunft-PDF, a ZIP of all
-// documents and the per-bank checklist of what's still missing — everything the
-// user needs to send the Finanzierungsanfrage in one place.
+// (copy-paste / mailto), the pre-filled Selbstauskunft-PDF, the Portfoliobericht
+// (Investorenbroschüre), a ZIP of all documents and the per-bank checklist of
+// what's still missing — everything the user needs to send the
+// Finanzierungsanfrage in one place.
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -53,6 +54,7 @@ import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { estimateFinancing } from "@/features/financing/calculations";
 import { CHECKLIST_DOC_TYPES, type ChecklistDocType } from "@/lib/checklist/requirements";
 import { SA_DOC_TYPES, type SaDocType } from "@/lib/selbstauskunft/requirements";
+import { ReportDialog } from "@/features/report/components/ReportDialog";
 import type { Property, PropertyDocument } from "@/lib/supabase";
 import type { Profile } from "@/features/profile/types";
 
@@ -108,6 +110,7 @@ function AnfragePageInner() {
 
   const [pdfBusy, setPdfBusy] = useState(false);
   const [zipBusy, setZipBusy] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [zipNote, setZipNote] = useState<string | null>(null);
 
@@ -534,16 +537,51 @@ function AnfragePageInner() {
           ) : (
             <p className="text-xs text-muted-foreground">
               Für {bank.shortName} gibt es noch kein bankspezifisches
-              Selbstauskunft-Formular. Nutze stattdessen den{" "}
-              <Link href="/portfolio" className="text-[#6c5ce7] hover:underline">
-                Bankbericht aus deinem Portfolio
-              </Link>{" "}
-              als Anlage.
+              Selbstauskunft-Formular. Nutze stattdessen den Portfoliobericht
+              unten als Anlage.
             </p>
           )}
         </Panel>
 
-        {/* 4. ZIP-Bundle */}
+        {/* 4. Portfoliobericht (Investorenbroschüre) */}
+        <Panel title="Portfoliobericht (PDF)">
+          {properties.length > 0 ? (
+            <>
+              <p className="text-xs text-muted-foreground">
+                Die Investorenbroschüre deines Bestandsportfolios — mit Grafiken zu
+                Wert, Restschuld und Cashflow deiner Immobilien. Ideal als Anlage
+                zur Anfrage.
+              </p>
+              <div>
+                <Button
+                  size="sm"
+                  onClick={() => setReportOpen(true)}
+                  className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white gap-1.5"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Bericht erstellen & herunterladen
+                </Button>
+              </div>
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Sobald du Immobilien in deinem{" "}
+              <Link href="/portfolio" className="text-[#6c5ce7] hover:underline">
+                Portfolio
+              </Link>{" "}
+              angelegt hast, erstellt Immotrim hier die Investorenbroschüre mit den
+              Grafiken deines Bestands.
+            </p>
+          )}
+        </Panel>
+
+        <ReportDialog
+          open={reportOpen}
+          onOpenChange={setReportOpen}
+          properties={properties}
+        />
+
+        {/* 5. ZIP-Bundle */}
         <Panel title="Unterlagen-Paket (ZIP)">
           <p className="text-xs text-muted-foreground">
             Alle persönlichen Unterlagen und Objektunterlagen{withDocument ? " sowie die frisch erzeugte Selbstauskunft" : ""} in einem
@@ -567,7 +605,7 @@ function AnfragePageInner() {
           {zipNote && <p className="text-xs text-orange-400">{zipNote}</p>}
         </Panel>
 
-        {/* 5. Anlagen-Checkliste */}
+        {/* 6. Anlagen-Checkliste */}
         <Panel title="Diese Dateien anhängen">
           {attachmentNames.length === 0 ? (
             <p className="text-xs text-muted-foreground">

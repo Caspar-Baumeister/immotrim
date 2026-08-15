@@ -23,6 +23,7 @@ export const CHECKLIST_DOC_TYPES = [
   "kontoauszug",
   "steuerbescheid",
   "selbstauskunft",
+  "portfoliobericht",
   "schufa",
   "einkommensteuererklaerung",
   "arbeitsvertrag",
@@ -45,6 +46,13 @@ export type ChecklistRequirement = {
   label: string;
   /** Short reason / what the document proves — used as the tile hint. */
   hint: string;
+  /**
+   * Where the document comes from. "upload" (default): the user uploads it.
+   * "app": Immotrim generates it from the profile data — the tile shows a
+   * create action instead of an upload prompt, and completeness counts it once
+   * the underlying profile sections are filled (see checklist/completeness.ts).
+   */
+  source?: "upload" | "app";
 };
 
 // The checklist. Order = display order. `sonstiges` is deliberately NOT a
@@ -78,7 +86,15 @@ export const CHECKLIST_REQUIREMENTS: ChecklistRequirement[] = [
     docType: "selbstauskunft",
     level: "pflicht",
     label: "Private Selbstauskunft",
-    hint: "Übersicht deiner Vermögens- und Einkommensverhältnisse.",
+    hint: "Musst du nicht hochladen — Immotrim erstellt sie aus deinen Stammdaten und deiner Haushaltsrechnung.",
+    source: "app",
+  },
+  {
+    docType: "portfoliobericht",
+    level: "empfohlen",
+    label: "Portfoliobericht (Investorenbroschüre)",
+    hint: "Musst du nicht hochladen — Immotrim erstellt den bankfertigen Bericht mit den Grafiken deines Immobilienportfolios.",
+    source: "app",
   },
   {
     docType: "schufa",
@@ -142,6 +158,7 @@ export const CHECKLIST_DOC_TYPE_LABELS: Record<ChecklistDocType, string> = {
   kontoauszug: "Kontoauszüge",
   steuerbescheid: "Einkommensteuerbescheid",
   selbstauskunft: "Private Selbstauskunft",
+  portfoliobericht: "Portfoliobericht (Investorenbroschüre)",
   schufa: "SCHUFA-Auskunft",
   einkommensteuererklaerung: "Einkommensteuererklärung",
   arbeitsvertrag: "Arbeitsvertrag",

@@ -44,6 +44,12 @@ export type Bank = {
 // without importing the print components.
 export const BANK_IDS_WITH_DOCUMENT = ["mbs"] as const;
 
+// Pseudo id for the bank-neutral "Private Selbstauskunft" Immotrim generates for
+// the user (Dashboard/Checkliste). Not a bank: never in BANKS or
+// BANK_IDS_WITH_DOCUMENT, but registered in documents.tsx and accepted by the
+// /api/selbstauskunft route. Must never collide with a real bank id.
+export const GENERIC_SELBSTAUSKUNFT_ID = "immotrim";
+
 export function hasBankDocument(bankId: string): boolean {
   return (BANK_IDS_WITH_DOCUMENT as readonly string[]).includes(bankId);
 }

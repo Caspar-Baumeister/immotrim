@@ -3,7 +3,12 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { hasPaidPlan } from "@/lib/dal";
 import { launchBrowser } from "@/lib/pdf/chromium";
-import { getBank, hasBankDocument, isValidBankId } from "@/features/banks/registry";
+import {
+  GENERIC_SELBSTAUSKUNFT_ID,
+  getBank,
+  hasBankDocument,
+  isValidBankId,
+} from "@/features/banks/registry";
 import type {
   SelbstauskunftKonzept,
   SelbstauskunftPayload,
@@ -44,13 +49,16 @@ export async function POST(
   { params }: { params: Promise<{ bankId: string }> }
 ) {
   const { bankId } = await params;
-  const bank = getBank(bankId);
-  if (!isValidBankId(bankId) || !bank) {
+  // "immotrim" is the bank-neutral Private Selbstauskunft — no bank entry, but a
+  // registered document component (see features/banks/documents.tsx).
+  const isGeneric = bankId === GENERIC_SELBSTAUSKUNFT_ID;
+  const bank = isGeneric ? undefined : getBank(bankId);
+  if (!isGeneric && (!isValidBankId(bankId) || !bank)) {
     return NextResponse.json({ error: "Unknown bank" }, { status: 404 });
   }
   // Banks without a document component would render an empty print page and the
   // renderer would time out waiting for #report-ready — fail fast instead.
-  if (!hasBankDocument(bankId)) {
+  if (!isGeneric && !hasBankDocument(bankId)) {
     return NextResponse.json({ error: "No document for this bank" }, { status: 404 });
   }
 
@@ -125,10 +133,12 @@ export async function POST(
     .select("*")
     .order("created_at", { ascending: false });
   const properties = (rows ?? []) as unknown as Property[];
-  // Without a concept the form has nothing to describe, so an empty portfolio is
-  // a hard error. WITH a concept the target journey is a NEW acquisition —
-  // first-time buyers legitimately own nothing yet.
-  if (properties.length === 0 && !konzept) {
+  // Without a concept a BANK form has nothing to describe, so an empty portfolio
+  // is a hard error there. WITH a concept the target journey is a NEW acquisition
+  // — first-time buyers legitimately own nothing yet. The generic borrower
+  // Selbstauskunft is also valid without properties: the object sections render
+  // as a blank form.
+  if (properties.length === 0 && !konzept && !isGeneric) {
     return NextResponse.json({ error: "No properties" }, { status: 400 });
   }
 
@@ -235,7 +245,7 @@ export async function POST(
   return new NextResponse(Buffer.from(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="Selbstauskunft-${bank.shortName}.pdf"`,
+      "Content-Disposition": `attachment; filename="Selbstauskunft-${bank?.shortName ?? "Immotrim"}.pdf"`,
       "Cache-Control": "no-store",
     },
   });
