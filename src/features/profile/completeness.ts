@@ -100,11 +100,19 @@ export function profileCompletion(input: {
   const checklistTypes = input.checklistDocTypes
     .filter((t): t is string => !!t)
     .map(normaliseChecklistDocType) as ChecklistDocType[];
+  const haushalt = haushaltCompletion(input.haushalt);
+  const stammdaten = stammdatenCompletion(input.stammdaten);
   return {
-    haushalt: haushaltCompletion(input.haushalt),
-    stammdaten: stammdatenCompletion(input.stammdaten),
+    haushalt,
+    stammdaten,
     immobilien: immobilienCompletion(input.properties),
     strategie: strategieCompletion(input.strategie),
-    checklist: checklistCompletion(checklistTypes),
+    // The Selbstauskunft item is app-generated from Stammdaten + Haushalt, so it
+    // counts as present once both sections are complete. The Portfoliobericht is
+    // generated from the property portfolio and counts once properties exist.
+    checklist: checklistCompletion(checklistTypes, {
+      selbstauskunftReady: stammdaten === 100 && haushalt === 100,
+      portfolioberichtReady: input.properties.length > 0,
+    }),
   };
 }

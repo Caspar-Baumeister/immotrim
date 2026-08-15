@@ -5,12 +5,14 @@ import Link from "next/link";
 import {
   ArrowRight,
   Building2,
+  Download,
   FileText,
   Landmark,
   Loader2,
   Plus,
   Wallet,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { TopBar } from "@/components/layout/TopBar";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { CompletionBar, completionColor } from "@/components/shared/CompletionBar";
@@ -29,6 +31,8 @@ import {
 } from "@/features/portfolio/chart-calculations";
 import { estimateFinancing } from "@/features/financing/calculations";
 import { useCompletion } from "@/features/profile/completion-context";
+import { GENERIC_SELBSTAUSKUNFT_ID } from "@/features/banks/registry";
+import { useSelbstauskunftDownload } from "@/features/banks/hooks/useSelbstauskunftDownload";
 import type { Property } from "@/lib/supabase";
 import type { Profile } from "@/features/profile/types";
 import type { Konzept } from "@/features/konzepte/types";
@@ -52,6 +56,7 @@ export default function DashboardPage() {
   const [konzepte, setKonzepte] = useState<Konzept[]>([]);
   const [loading, setLoading] = useState(true);
   const completion = useCompletion();
+  const selbstauskunft = useSelbstauskunftDownload(GENERIC_SELBSTAUSKUNFT_ID);
 
   useEffect(() => {
     Promise.all([getAllProperties(), getProfile(), getAllKonzepte()]).then(
@@ -158,19 +163,45 @@ export default function DashboardPage() {
                     </Link>
                   ))}
                 </div>
-                {nextSection ? (
-                  <Link
-                    href={nextSection.href}
-                    className="mt-auto self-start text-sm font-medium text-[#6c5ce7] hover:underline flex items-center gap-1"
+                <div className="mt-auto flex flex-col gap-2">
+                  {nextSection ? (
+                    <Link
+                      href={nextSection.href}
+                      className="self-start text-sm font-medium text-[#6c5ce7] hover:underline flex items-center gap-1"
+                    >
+                      Weiter mit {nextSection.label}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  ) : (
+                    <p className="text-sm font-medium text-emerald-500">
+                      Alle Unterlagen vollständig — deine Broschüre ist bankfertig.
+                    </p>
+                  )}
+                  {/* Creating with partial data is allowed — open fields render
+                      as blanks to complete by hand. */}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={nextSection ? "outline" : undefined}
+                    onClick={selbstauskunft.download}
+                    disabled={selbstauskunft.busy}
+                    className={
+                      nextSection
+                        ? "self-start gap-1.5"
+                        : "self-start gap-1.5 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold"
+                    }
                   >
-                    Weiter mit {nextSection.label}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                ) : (
-                  <p className="mt-auto text-sm font-medium text-emerald-500">
-                    Alle Unterlagen vollständig — deine Broschüre ist bankfertig.
-                  </p>
-                )}
+                    {selbstauskunft.busy ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Download className="h-3.5 w-3.5" />
+                    )}
+                    Selbstauskunft erstellen (PDF)
+                  </Button>
+                  {selbstauskunft.error && (
+                    <p className="text-xs text-destructive">{selbstauskunft.error}</p>
+                  )}
+                </div>
               </div>
 
               {/* Bank-Anfrage */}

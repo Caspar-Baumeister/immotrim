@@ -6,7 +6,6 @@
 // from the Selbstauskunft engine so the two vocabularies stay independent.
 import {
   CHECKLIST_REQUIREMENTS,
-  CHECKLIST_REQUIREMENT_BY_TYPE,
   type ChecklistDocType,
   type ChecklistLevel,
 } from "./requirements";
@@ -32,33 +31,62 @@ const LEVEL_ORDER: Record<ChecklistLevel, number> = {
   optional: 2,
 };
 
+export type ChecklistOptions = {
+  /**
+   * Whether the app-generated Selbstauskunft is ready, i.e. Stammdaten and
+   * Haushalt are both complete. The `source: "app"` requirement counts as
+   * present when this is true (or when the user uploaded a matching doc anyway).
+   */
+  selbstauskunftReady: boolean;
+  /**
+   * Whether the app-generated Portfoliobericht is ready, i.e. the user has at
+   * least one property to report on.
+   */
+  portfolioberichtReady: boolean;
+};
+
+/** Whether a single requirement counts as present. */
+function isPresent(
+  r: (typeof CHECKLIST_REQUIREMENTS)[number],
+  present: Set<ChecklistDocType>,
+  opts: ChecklistOptions,
+): boolean {
+  if (present.has(r.docType)) return true;
+  if (r.source !== "app") return false;
+  return r.docType === "portfoliobericht"
+    ? opts.portfolioberichtReady
+    : opts.selbstauskunftReady;
+}
+
 /** Evaluate present vs. missing checklist items from the present doc types. */
 export function evaluateChecklist(
   presentDocTypes: Iterable<ChecklistDocType>,
+  opts: ChecklistOptions,
 ): ChecklistEvaluation {
   const present = new Set<ChecklistDocType>(presentDocTypes);
 
   const missing: ChecklistMissing[] = CHECKLIST_REQUIREMENTS.filter(
-    (r) => !present.has(r.docType),
+    (r) => !isPresent(r, present, opts),
   )
     .map((r) => ({ docType: r.docType, level: r.level, label: r.label, hint: r.hint }))
     .sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]);
 
-  const presentRequirements = [...present].filter(
-    (t) => CHECKLIST_REQUIREMENT_BY_TYPE[t] !== undefined,
-  );
+  const presentRequirements = CHECKLIST_REQUIREMENTS.filter((r) =>
+    isPresent(r, present, opts),
+  ).map((r) => r.docType);
 
   return { present: presentRequirements, missing };
 }
 
 /**
- * Completion % (0–100, rounded): the share of requirement doc types present.
+ * Completion % (0–100, rounded): the share of requirements present.
  * `sonstiges` and any non-requirement type never count.
  */
 export function checklistCompletion(
   presentDocTypes: Iterable<ChecklistDocType>,
+  opts: ChecklistOptions,
 ): number {
   const present = new Set<ChecklistDocType>(presentDocTypes);
-  const have = CHECKLIST_REQUIREMENTS.filter((r) => present.has(r.docType)).length;
+  const have = CHECKLIST_REQUIREMENTS.filter((r) => isPresent(r, present, opts)).length;
   return Math.round((have / CHECKLIST_REQUIREMENTS.length) * 100);
 }

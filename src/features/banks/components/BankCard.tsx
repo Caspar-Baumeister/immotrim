@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   Building2,
@@ -14,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CompletionBar } from "@/components/shared/CompletionBar";
 import { hasBankDocument, type Bank } from "../registry";
+import { useSelbstauskunftDownload } from "../hooks/useSelbstauskunftDownload";
 import {
   ANFRAGE_STATUSES,
   ANFRAGE_STATUS_LABELS,
@@ -48,39 +48,11 @@ export function BankCard({
   status?: AnfrageStatus;
   onStatusChange?: (status: AnfrageStatus) => void;
 }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const download = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/selbstauskunft/${bank.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(conceptId ? { conceptId, objectId } : {}),
-      });
-      if (res.status === 402) {
-        setError("Bezahlter Tarif nötig. Weiterleitung …");
-        window.location.assign(`/pricing`);
-        return;
-      }
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Selbstauskunft-${bank.shortName}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      setError("Erstellung fehlgeschlagen. Bitte erneut versuchen.");
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { busy, error, download } = useSelbstauskunftDownload(bank.id, {
+    fileName: `Selbstauskunft-${bank.shortName}.pdf`,
+    conceptId,
+    objectId,
+  });
 
   const scoreColor =
     score >= 67 ? "#10b981" : score >= 34 ? "#f59e0b" : "#ef4444";
