@@ -163,7 +163,7 @@ export function ReportDialog({ open, onOpenChange, properties }: Props) {
 
   const handleGenerate = async () => {
     if (!trimmedName) {
-      setError("Bitte gib deinen Namen an, bevor du den Bericht erstellst.");
+      setError("Bitte gib deinen Namen an, bevor du die Broschüre erstellst.");
       return;
     }
     setGenerating(true);
@@ -185,7 +185,7 @@ export function ReportDialog({ open, onOpenChange, properties }: Props) {
       // trial users to pricing instead of failing silently.
       if (response.status === 402) {
         setError(
-          "Zum Erstellen des Berichts ist ein bezahlter Tarif nötig. Weiterleitung zu den Tarifen …"
+          "Zum Erstellen der Broschüre ist ein bezahlter Tarif nötig. Weiterleitung zu den Tarifen …"
         );
         window.location.assign(`/pricing`);
         return;
@@ -205,7 +205,7 @@ export function ReportDialog({ open, onOpenChange, properties }: Props) {
       onOpenChange(false);
     } catch {
       setError(
-        "Der Bericht konnte nicht erstellt werden. Bitte versuche es erneut."
+        "Die Broschüre konnte nicht erstellt werden. Bitte versuche es erneut."
       );
     } finally {
       setGenerating(false);
@@ -220,11 +220,11 @@ export function ReportDialog({ open, onOpenChange, properties }: Props) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-[#6c5ce7]" />
-            Bankbericht erstellen
+            Investorenbroschüre erstellen
           </DialogTitle>
           <DialogDescription>
-            Erstellt einen bankfertigen Portfolio-Finanzierungsbericht (PDF) auf
-            Basis deiner eingegebenen Daten.
+            Erstellt deine Investorenbroschüre (PDF): dein Immobilienportfolio mit
+            Kennzahlen und Grafiken, bankfertig aufbereitet.
           </DialogDescription>
         </DialogHeader>
 
@@ -242,7 +242,7 @@ export function ReportDialog({ open, onOpenChange, properties }: Props) {
             />
             {!trimmedName && (
               <p className="text-[11px] text-[#6c5ce7]/90">
-                Bitte gib deinen Namen an — er erscheint auf dem Deckblatt des Berichts.
+                Bitte gib deinen Namen an — er erscheint auf dem Deckblatt der Broschüre.
               </p>
             )}
           </section>
@@ -411,7 +411,7 @@ export function ReportDialog({ open, onOpenChange, properties }: Props) {
             ) : (
               <FileText className="h-4 w-4" />
             )}
-            {generating ? "Bericht wird erstellt …" : "PDF erstellen"}
+            {generating ? "Broschüre wird erstellt …" : "PDF erstellen"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -92,8 +92,8 @@ export const CHECKLIST_REQUIREMENTS: ChecklistRequirement[] = [
   {
     docType: "portfoliobericht",
     level: "empfohlen",
-    label: "Portfoliobericht (Investorenbroschüre)",
-    hint: "Musst du nicht hochladen — Immotrim erstellt den bankfertigen Bericht mit den Grafiken deines Immobilienportfolios.",
+    label: "Investorenbroschüre (Portfoliobericht)",
+    hint: "Musst du nicht hochladen — Immotrim erstellt sie aus deinem Immobilienportfolio, mit Kennzahlen und Grafiken.",
     source: "app",
   },
   {
@@ -158,7 +158,7 @@ export const CHECKLIST_DOC_TYPE_LABELS: Record<ChecklistDocType, string> = {
   kontoauszug: "Kontoauszüge",
   steuerbescheid: "Einkommensteuerbescheid",
   selbstauskunft: "Private Selbstauskunft",
-  portfoliobericht: "Portfoliobericht (Investorenbroschüre)",
+  portfoliobericht: "Investorenbroschüre (Portfoliobericht)",
   schufa: "SCHUFA-Auskunft",
   einkommensteuererklaerung: "Einkommensteuererklärung",
   arbeitsvertrag: "Arbeitsvertrag",

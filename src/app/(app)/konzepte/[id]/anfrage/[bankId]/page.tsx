@@ -537,20 +537,20 @@ function AnfragePageInner() {
           ) : (
             <p className="text-xs text-muted-foreground">
               Für {bank.shortName} gibt es noch kein bankspezifisches
-              Selbstauskunft-Formular. Nutze stattdessen den Portfoliobericht
+              Selbstauskunft-Formular. Nutze stattdessen die Investorenbroschüre
               unten als Anlage.
             </p>
           )}
         </Panel>
 
-        {/* 4. Portfoliobericht (Investorenbroschüre) */}
-        <Panel title="Portfoliobericht (PDF)">
+        {/* 4. Investorenbroschüre (Portfoliobericht) */}
+        <Panel title="Investorenbroschüre (PDF)">
           {properties.length > 0 ? (
             <>
               <p className="text-xs text-muted-foreground">
-                Die Investorenbroschüre deines Bestandsportfolios — mit Grafiken zu
-                Wert, Restschuld und Cashflow deiner Immobilien. Ideal als Anlage
-                zur Anfrage.
+                Dein Immobilienportfolio als bankfertiger Bericht — mit Grafiken zu
+                Wert, Restschuld und Cashflow. Ideal als Anlage zur Anfrage,
+                ergänzend zur klassischen Selbstauskunft.
               </p>
               <div>
                 <Button
@@ -559,7 +559,7 @@ function AnfragePageInner() {
                   className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white gap-1.5"
                 >
                   <FileText className="h-3.5 w-3.5" />
-                  Bericht erstellen & herunterladen
+                  Broschüre erstellen & herunterladen
                 </Button>
               </div>
             </>

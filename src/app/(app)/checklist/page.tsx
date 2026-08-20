@@ -201,9 +201,10 @@ export default function ChecklistPage() {
               Steuerbescheid, Ausweis</strong> und mehr. Die KI erkennt automatisch, worum es sich
               handelt, sortiert jedes Dokument in die passende Kachel und benennt es sinnvoll um.
               Auch Dokumente, die du unter Stammdaten oder Haushaltsrechnung hochgeladen hast,
-              erscheinen hier. Offene Kacheln zeigen, was noch fehlt. Die private Selbstauskunft
-              und den Portfoliobericht (Investorenbroschüre) musst du nicht hochladen — die
-              erstellt Immotrim für dich aus deinen Angaben und deinem Portfolio.
+              erscheinen hier. Offene Kacheln zeigen, was noch fehlt. Zwei Dokumente musst du
+              nicht hochladen, die erstellt Immotrim für dich: die private Selbstauskunft
+              (klassisch, aus Stammdaten und Haushaltsrechnung) und die Investorenbroschüre
+              (dein Portfolio mit Kennzahlen und Grafiken).
             </>
           }
         />
