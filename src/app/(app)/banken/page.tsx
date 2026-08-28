@@ -242,9 +242,6 @@ function BankenContent() {
     </div>
   );
 
-  const direct = BANKS.filter((b) => b.kind === "bank");
-  const vermittler = BANKS.filter((b) => b.kind === "vermittler");
-
   return (
     <div className="flex flex-col min-h-screen">
       <TopBar title="Banken" />
@@ -324,19 +321,7 @@ function BankenContent() {
                 beschreiben.
               </p>
             )}
-            <div className="flex flex-col gap-3">
-              <h2 className="text-sm font-semibold text-foreground">Banken</h2>
-              {renderCards(direct)}
-            </div>
-            <div className="flex flex-col gap-3">
-              <h2 className="text-sm font-semibold text-foreground">
-                Vermittler{" "}
-                <span className="text-xs font-normal text-muted-foreground">
-                  — eine Anfrage erreicht viele Banken
-                </span>
-              </h2>
-              {renderCards(vermittler)}
-            </div>
+            {renderCards(BANKS)}
           </>
         )}
       </div>

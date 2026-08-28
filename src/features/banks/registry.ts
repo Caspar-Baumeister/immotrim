@@ -16,6 +16,56 @@ import type { BankFinancingCriteria } from "@/features/financing/calculations";
 
 export type BankKind = "bank" | "vermittler";
 
+// A published contact person for financing inquiries. Only ever filled from the
+// institution's own website (team pages, branch pages, Impressum) — same
+// never-invent rule as `email` on Bank.
+export type BankAnsprechpartner = {
+  /** Full name as published. */
+  name: string;
+  /** "Herr" | "Frau" — only if derivable from the institution's own page; drives the salutation. */
+  anrede?: "Herr" | "Frau";
+  /** Role/title, e.g. "Spezialistin Baufinanzierung". */
+  rolle?: string;
+  /** Branch/location, e.g. "Filiale Potsdam". */
+  standort?: string;
+  telefon?: string;
+  email?: string;
+};
+
+// What the bank finances — structured criteria for the expandable
+// "Was finanziert diese Bank?" section on the bank card. Same sourcing rule as
+// the contact data: only published values (Stand im Kommentar), Drittquellen im
+// Text als solche gekennzeichnet.
+export type BankFinanzierungsInfo = {
+  /** Finanziert vermietete Objekte / Kapitalanlage? "unklar" = nicht publiziert. */
+  kapitalanlage: "ja" | "unklar" | "nein";
+  /** Freitext dazu (EK-Erwartung, Mietanrechnung, Reserven …). */
+  kapitalanlageHinweis?: string;
+  /** Geschäftsgebiet / regionale Beschränkung; weglassen = bundesweit bzw. keine publiziert. */
+  region?: string;
+  /** Mindest-/Höchstdarlehen in €. */
+  minDarlehen?: number;
+  maxDarlehen?: number;
+  /** Mindestwohnfläche vermieteter Objekte in m². */
+  minObjektflaeche?: number;
+  /** Max. Beleihung/Finanzierung als Text (Nuancen wie "100% + Nebenkosten im Einzelfall"). */
+  maxBeleihung?: string;
+  /** Anrechnung der Mieteinnahmen in der Haushaltsrechnung (%-Quote, Mietansatz-Caps, Bewirtschaftungsabzüge). */
+  mietanrechnung?: string;
+  /** Eigenkapital-Anforderung speziell bei vermieteten Objekten. */
+  ekKapitalanlage?: string;
+  /** Haltung zu möblierten Apartments / Mikroapartments / Betreiberkonzepten. */
+  mikroapartments?: string;
+  /** Bereitstellungszinsfreie Zeit, z.B. "6 Monate". */
+  bereitstellungszinsfrei?: string;
+  /** Angebotene Zinsbindungen, z.B. "5–20 Jahre". */
+  zinsbindungen?: string;
+  /** Hinweis zu Selbständigen. */
+  selbststaendige?: string;
+  /** Weitere harte Kriterien / Besonderheiten. */
+  besonderheiten?: string[];
+};
+
 export type Bank = {
   /** URL-safe id; also the segment in /selbstauskunft/document/[bankId]/… */
   id: string;
@@ -33,10 +83,16 @@ export type Bank = {
   email?: string;
   /** Official contact-form / financing-inquiry page (for form-first institutions). */
   contactUrl?: string;
+  /** Published financing hotline / central number. */
+  telefon?: string;
+  /** Published contact person for financing inquiries (personalizes the Anfrage email). */
+  ansprechpartner?: BankAnsprechpartner;
   /** Public website. */
   website?: string;
   /** Lending criteria used for the fit score + displayed conditions. */
   conditions?: BankFinancingCriteria;
+  /** Structured "was finanziert diese Bank?" details (expandable on the card). */
+  finanzierungsInfo?: BankFinanzierungsInfo;
 };
 
 // Ids that have a bank-specific Selbstauskunft document component wired up in
@@ -54,10 +110,13 @@ export function hasBankDocument(bankId: string): boolean {
   return (BANK_IDS_WITH_DOCUMENT as readonly string[]).includes(bankId);
 }
 
-// NOTE: conditions/email/contactUrl below are indicative values researched from
-// the institutions' public pages (Stand 07/2026) — a starting point for contact,
-// NOT verified offers. Verify current terms and the right recipient before
-// relying on them.
+// NOTE: conditions/email/telefon/contactUrl/ansprechpartner below are indicative
+// values researched from the institutions' public pages (Stand 07–08/2026) — a
+// starting point for contact, NOT verified offers. Verify current terms and the
+// right recipient before relying on them. Deliberately NOT listed: Santander
+// (Baufi-Neugeschäft seit 04/2024 eingestellt), Münchener Hyp (kein
+// Direktvertrieb, nur über Volks-/Sparda-/PSD-Banken und Vermittler), PSD Bank
+// Berlin-Brandenburg (zum 01.09.2025 in der BBBank aufgegangen).
 export const BANKS: Bank[] = [
   // ── Banken (direkt/regional) ───────────────────────────────────────────────
   {
@@ -73,6 +132,19 @@ export const BANKS: Bank[] = [
       maxLtv: 90,
       minEinkommenMonatlich: 1500,
     },
+    // Kriterien recherchiert 08/2026; Drittquellen im Text gekennzeichnet.
+    finanzierungsInfo: {
+      kapitalanlage: "unklar",
+      kapitalanlageHinweis:
+        "Baufi-Seiten adressieren nur Eigennutzung, kein expliziter Ausschluss — im Gespräch klären.",
+      region: "Geschäftsgebiet westliches/mittleres Brandenburg (Potsdam)",
+      bereitstellungszinsfrei: "12 Monate für Neubau (Aktion bis 18.12.2026)",
+      zinsbindungen: "5–30 Jahre",
+      selbststaendige: "Ja — Steuerbescheide + BWA erforderlich",
+      besonderheiten: [
+        "Vermittelt zusätzlich Fremdbanken-Baufinanzierungen über die eigene Plattform (finmas).",
+      ],
+    },
   },
   {
     id: "berliner-sparkasse",
@@ -83,6 +155,17 @@ export const BANKS: Bank[] = [
     website: "https://www.berliner-sparkasse.de",
     // Kein veröffentlichtes Anfrage-Postfach — Kontakt über Terminanfrage/Formular.
     contactUrl: "https://www.berliner-sparkasse.de/de/home/toolbar/kontakt.html",
+    finanzierungsInfo: {
+      kapitalanlage: "ja",
+      kapitalanlageHinweis:
+        "Nettokaltmiete soll mind. Zinslast + nicht umlegbare Kosten decken; Eigenkapital mind. in Höhe der Kaufnebenkosten (8–12%).",
+      region: "Geschäftsgebiet Berlin",
+      zinsbindungen: "5–20 Jahre",
+      selbststaendige: "Ja — 2 Steuerbescheide, BWA, Jahresabschlüsse",
+      besonderheiten: [
+        "Keine Finanzierung bei drohender Insolvenz oder Vollstreckungsmaßnahmen der letzten 5 Jahre.",
+      ],
+    },
   },
   {
     id: "berliner-volksbank",
@@ -93,6 +176,16 @@ export const BANKS: Bank[] = [
     website: "https://www.berliner-volksbank.de",
     contactUrl:
       "https://www.berliner-volksbank.de/privatkunden/immobilien/baufinanzierung.html",
+    finanzierungsInfo: {
+      kapitalanlage: "unklar",
+      kapitalanlageHinweis:
+        "Privatkunden-Seiten adressieren nur Eigennutzung; die Tochter BVBI vermarktet aber aktiv Anlageobjekte — im Gespräch klären.",
+      region: "Geschäftsgebiet Berlin und Brandenburg (~60 Standorte)",
+      zinsbindungen: "5–20 Jahre",
+      besonderheiten: [
+        "Baufi-Rechner vergleicht über 500 Finanzierungspartner — vermittelt auch fremde Darlehensgeber.",
+      ],
+    },
   },
   {
     id: "ing",
@@ -103,6 +196,21 @@ export const BANKS: Bank[] = [
     website: "https://www.ing.de",
     // Kapitalanlage-Finanzierungsanfrage (formularbasiert, kein E-Mail-Einstieg).
     contactUrl: "https://www.ing.de/baufinanzierung/kapitalanlage/",
+    finanzierungsInfo: {
+      kapitalanlage: "ja",
+      kapitalanlageHinweis:
+        "Mietansatz ohne Nachweis max. 8,50 €/m² (Großstädte 11 €/m²); Bewirtschaftungskosten 1,10 €/m² in der Haushaltsrechnung.",
+      minDarlehen: 75000,
+      minObjektflaeche: 30,
+      maxBeleihung: "95% von Kaufpreis/Herstellungskosten",
+      bereitstellungszinsfrei: "6 Monate",
+      zinsbindungen: "5, 10 oder 15 Jahre",
+      selbststaendige: "Ja — mit erweiterten Unterlagen",
+      besonderheiten: [
+        "Nur EFH/DHH/RH/ZFH/MFH bzw. nach WEG geteilte Objekte; Objekt muss in Deutschland liegen.",
+        "Mindestfläche 30 m² gilt seit 24.11.2025 (vorher 40 m²).",
+      ],
+    },
   },
   {
     id: "dkb",
@@ -112,51 +220,206 @@ export const BANKS: Bank[] = [
     city: "Berlin",
     website: "https://www.dkb.de",
     contactUrl: "https://www.dkb.de/privatkunden/baufinanzierung",
-  },
-  // ── Vermittler (ein Antrag erreicht viele Banken) ──────────────────────────
-  {
-    id: "interhyp",
-    kind: "vermittler",
-    name: "Interhyp AG",
-    shortName: "Interhyp",
-    city: "München",
-    email: "info@interhyp.de",
-    website: "https://www.interhyp.de",
-    contactUrl: "https://www.interhyp.de/termin-vereinbaren",
-    conditions: {
-      zinsAb: 3.75, // 10J eff., <70% Beleihung — indikativ 07/2026
+    finanzierungsInfo: {
+      kapitalanlage: "ja",
+      kapitalanlageHinweis:
+        "Eigenes Vermieterpaket für private Vermieter; Eigenkapital-Faustregel ~25%.",
+      bereitstellungszinsfrei: "6 Monate (Drittquelle)",
+      zinsbindungen: "5–30 Jahre",
+      selbststaendige:
+        "Laut Drittquelle stark eingeschränkt — bevorzugt etablierte Freiberufler (Arzt, Notar, StB)",
+      besonderheiten: [
+        "Mehrfamilienhäuser bis 10 Wohneinheiten finanzierbar (Drittquelle).",
+        "Mindestdarlehen ca. 20.000 € (Drittquelle).",
+      ],
     },
   },
   {
-    id: "drklein",
-    kind: "vermittler",
-    name: "Dr. Klein Privatkunden AG",
-    shortName: "Dr. Klein",
-    city: "Lübeck",
-    website: "https://www.drklein.de",
-    contactUrl: "https://www.drklein.de/finanzierungsanfrage.html",
-    conditions: {
-      zinsAb: 3.71, // 10J eff., ~73% Beleihung — indikativ 07/2026
-    },
-  },
-  {
-    id: "huettig-rompf",
-    kind: "vermittler",
-    name: "Hüttig & Rompf AG",
-    shortName: "Hüttig & Rompf",
+    id: "sparda-berlin",
+    kind: "bank",
+    name: "Sparda-Bank Berlin eG",
+    shortName: "Sparda Berlin",
     city: "Berlin",
-    email: "info@huettig-rompf.de",
-    website: "https://www.huettig-rompf.de",
-    contactUrl: "https://www.huettig-rompf.de/baufinanzierung/filialen/berlin",
+    email: "hallo@sparda-berlin.de",
+    telefon: "030 42080420",
+    website: "https://www.sparda-b.de",
+    contactUrl: "https://www.sparda-berlin.de/termin",
+    finanzierungsInfo: {
+      kapitalanlage: "unklar",
+      kapitalanlageHinweis:
+        "Eigenkonditionen gelten nur für eigengenutzte Immobilien wirtschaftlich unselbständiger Personen; vermietete Objekte ggf. über das Vermittlungsgeschäft (400+ Darlehensgeber).",
+      region:
+        "Ostdeutschland (Berlin, Brandenburg, MV, Sachsen, Sachsen-Anhalt, Thüringen)",
+      zinsbindungen: "10 oder 15 Jahre fest, auch variabel",
+      selbststaendige:
+        "Eigenprodukt nur für wirtschaftlich Unselbständige — Selbständige allenfalls über die Vermittlung",
+      besonderheiten: ["Genossenschaftsbank — Mitgliedschaft erforderlich."],
+    },
   },
   {
-    id: "baufipool24",
-    kind: "vermittler",
-    name: "Baufinanzierungspool24 GmbH & Co. KG",
-    shortName: "Baufipool24",
+    id: "commerzbank",
+    kind: "bank",
+    name: "Commerzbank AG",
+    shortName: "Commerzbank",
+    city: "Frankfurt am Main",
+    telefon: "069 98660900",
+    website: "https://www.commerzbank.de",
+    // Kein Baufi-Postfach publiziert — Einstieg über Terminvereinbarung.
+    contactUrl:
+      "https://www.commerzbank.de/privatkunden/immobilienkredite/baufinanzierung/",
+    conditions: {
+      zinsAb: 4.2, // eff. Aktionszins 10J, bis 60% Beleihung — indikativ 08/2026
+    },
+    finanzierungsInfo: {
+      kapitalanlage: "ja",
+      kapitalanlageHinweis:
+        "Empfohlen 20–30% Eigenkapital für günstige Konditionen.",
+      maxBeleihung: "Vollfinanzierung grundsätzlich möglich",
+      bereitstellungszinsfrei: "6 Monate (grüne Baufinanzierung bis 24 Monate)",
+      zinsbindungen: "Bis 40 Jahre (Drittquelle)",
+    },
+  },
+  {
+    id: "deutsche-bank",
+    kind: "bank",
+    name: "Deutsche Bank AG",
+    shortName: "Deutsche Bank",
+    city: "Frankfurt am Main",
+    telefon: "069 910-10000",
+    website: "https://www.deutsche-bank.de",
+    // Keine publizierte Anfrage-Adresse — Online-Terminvereinbarung.
+    contactUrl: "https://www.deutsche-bank.de/opra4/pfb/advisor-appointments",
+    finanzierungsInfo: {
+      kapitalanlage: "ja",
+      kapitalanlageHinweis:
+        "Empfohlen 20% EK + Nebenkosten; Vollfinanzierung aus steuerlichen Gründen explizit thematisiert; Polster für Instandhaltung/Mietausfall erwartet.",
+      maxBeleihung: "100% Kaufpreis, bis 110% gegen Zinsaufschlag (Drittquelle)",
+      zinsbindungen: "Bis 30 Jahre",
+      selbststaendige: "Ja — individuelle Finanzierungskonzepte (Drittquelle)",
+    },
+  },
+  {
+    id: "postbank",
+    kind: "bank",
+    name: "Postbank — eine Niederlassung der Deutsche Bank AG",
+    shortName: "Postbank",
+    city: "Bonn",
+    email: "direkt@postbank.de",
+    telefon: "0228 5500 5543",
+    website: "https://www.postbank.de",
+    contactUrl:
+      "https://baufinanzierung.postbank.de/pb-immobilienfinanzierung/leadForm/purchase",
+    finanzierungsInfo: {
+      kapitalanlage: "unklar",
+      kapitalanlageHinweis:
+        "Produktseiten ohne Aussage zu vermieteten Objekten (EK-Empfehlung 20–30%); die Makler-Tochter Postbank Immobilien vermittelt aber aktiv Anlageobjekte inkl. Mikroapartments.",
+      zinsbindungen: "5–20 Jahre (Drittquelle)",
+      selbststaendige:
+        "Laut Drittquelle nicht bedient — verlangt wird ein unbefristetes Arbeitsverhältnis (≥6 Monate)",
+      besonderheiten: [
+        "Mindestdarlehen ca. 50.000 €, max. 5 Mio. € (Drittquelle).",
+      ],
+    },
+  },
+  {
+    id: "bbbank",
+    kind: "bank",
+    name: "BBBank eG",
+    shortName: "BBBank",
     city: "Karlsruhe",
-    website: "https://baufinanzierungspool24.de",
-    contactUrl: "https://baufinanzierungspool24.de/microappartments",
+    email: "info@bbbank.de",
+    telefon: "0721 141-0",
+    website: "https://www.bbbank.de",
+    contactUrl:
+      "https://www.bbbank.de/serviceauftraege/kontakt-baufinanzierungsanfrage.html",
+    conditions: {
+      zinsAb: 3.79, // 10J eff., Beispiel bei 60% Beleihung — indikativ 08/2026
+    },
+    finanzierungsInfo: {
+      kapitalanlage: "unklar",
+      kapitalanlageHinweis:
+        "Offiziell weder angeboten noch ausgeschlossen; Drittquellen widersprechen sich — unbedingt vorab telefonisch klären.",
+      maxBeleihung: "Vollfinanzierung des Kaufpreises möglich (Nebenkosten aus EK)",
+      bereitstellungszinsfrei: "3 Monate",
+      zinsbindungen: "5–20 Jahre (Drittquelle)",
+      selbststaendige: "Laut Drittquelle nicht finanziert",
+      besonderheiten: [
+        "Gebäudeversicherung Pflicht; Genossenschaftsanteil 5 €; 0,10% Zinsrabatt für Mitglieder.",
+        "Mindestdarlehen ca. 50.000 € (Drittquelle).",
+      ],
+    },
+  },
+  {
+    id: "brandenburger-bank",
+    kind: "bank",
+    name: "Brandenburger Bank Volksbank-Raiffeisenbank eG",
+    shortName: "Brandenburger Bank",
+    city: "Brandenburg an der Havel",
+    email: "info@brandenburgerbank.de",
+    telefon: "03381 357-0",
+    website: "https://www.brandenburgerbank.de",
+    contactUrl:
+      "https://www.brandenburgerbank.de/service/online-services/online-terminvereinbarung.html",
+    finanzierungsInfo: {
+      kapitalanlage: "unklar",
+      kapitalanlageHinweis:
+        "Privatkundenseiten nur Eigenheim; Mietobjekte laufen über den Firmenkunden-Immobilienkredit (Ertragswertverfahren) — direkt anfragen.",
+      region: "Brandenburg a. d. Havel, westliches Havelland, Potsdam-Mittelmark",
+      besonderheiten: [
+        "Publiziert praktisch keine harten Kriterien — alles über persönliche Beratung.",
+        "Kooperation mit Schwäbisch Hall und KfW.",
+      ],
+    },
+  },
+  {
+    id: "targobank",
+    kind: "bank",
+    name: "TARGOBANK AG",
+    shortName: "Targobank",
+    city: "Düsseldorf",
+    email: "kontakt@targobank.de",
+    telefon: "0211 900 20 940",
+    website: "https://www.targobank.de",
+    contactUrl: "https://www.targobank.de/de/baufinanzierung/index.html",
+    finanzierungsInfo: {
+      kapitalanlage: "ja",
+      kapitalanlageHinweis: "Kapitalanlage explizit möglich; EK-Empfehlung ~20%.",
+      maxBeleihung: "100%, in Einzelfällen bis 110%",
+      bereitstellungszinsfrei: "12 Monate (OLB, Drittquelle)",
+      zinsbindungen: "Bis 20 Jahre (OLB bis 30, Drittquelle)",
+      selbststaendige: "Ja, ohne Zinsaufschlag (OLB, Drittquelle)",
+      besonderheiten: [
+        "Vertragspartner ist seit 07/2026 exklusiv die OLB (Abwicklung via Europace).",
+        "Mindestdarlehen ca. 25.000 € (OLB, Drittquelle).",
+      ],
+    },
+  },
+  {
+    id: "1822direkt",
+    kind: "bank",
+    name: "1822direkt (Frankfurter Sparkasse)",
+    shortName: "1822direkt",
+    city: "Frankfurt am Main",
+    email: "info@1822direkt.de",
+    telefon: "069 505093-0",
+    website: "https://www.1822direkt.de",
+    contactUrl: "https://www.1822direkt.de/baufinanzierung/beratung",
+    conditions: {
+      zinsAb: 3.81, // "TOP-Zins ab" (Sollzins) — indikativ 08/2026
+    },
+    finanzierungsInfo: {
+      kapitalanlage: "ja",
+      kapitalanlageHinweis:
+        "EK-Empfehlung nur 10–15% des Kaufpreises; Zinsbindung ≥10 Jahre empfohlen.",
+      maxBeleihung:
+        "100% Beleihungsauslauf (ca. 10% Eigenmittel für Nebenkosten, Drittquelle)",
+      bereitstellungszinsfrei: "12 Monate (Drittquelle)",
+      besonderheiten: [
+        "Eigenprodukt der Frankfurter Sparkasse + Vermittlung von >400 Partnern.",
+        "Mindestdarlehen ca. 50.000 € (Drittquelle); Mindesttilgung 2%.",
+        "Auslandsimmobilien nicht als Sicherheit akzeptiert.",
+      ],
+    },
   },
 ];
 
