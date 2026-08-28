@@ -33,6 +33,7 @@ import { estimateFinancing } from "@/features/financing/calculations";
 import { useCompletion } from "@/features/profile/completion-context";
 import { GENERIC_SELBSTAUSKUNFT_ID } from "@/features/banks/registry";
 import { useSelbstauskunftDownload } from "@/features/banks/hooks/useSelbstauskunftDownload";
+import { ReportDialog } from "@/features/report/components/ReportDialog";
 import type { Property } from "@/lib/supabase";
 import type { Profile } from "@/features/profile/types";
 import type { Konzept } from "@/features/konzepte/types";
@@ -40,10 +41,12 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 
 const eur = (v: number) => formatCurrency(v, "de-DE");
 
-// The four sections whose data feeds the Investorenbroschüre (Selbstauskunft).
-// Immobilien is deliberately not in this list — the portfolio has its own
-// overview below and a per-property completeness on /portfolio.
-const BROSCHUERE_SECTIONS = [
+// The four sections whose data feeds the two bank documents: the private
+// Selbstauskunft (Stammdaten + Haushalt) and the Investorenbroschüre
+// (portfolio report). Immobilien is deliberately not in this list — the
+// portfolio has its own overview below and a per-property completeness on
+// /portfolio.
+const UNTERLAGEN_SECTIONS = [
   { key: "haushalt", label: "Haushaltsrechnung", href: "/haushalt" },
   { key: "stammdaten", label: "Stammdaten", href: "/stammdaten" },
   { key: "strategie", label: "Strategie", href: "/strategie" },
@@ -57,6 +60,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const completion = useCompletion();
   const selbstauskunft = useSelbstauskunftDownload(GENERIC_SELBSTAUSKUNFT_ID);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([getAllProperties(), getProfile(), getAllKonzepte()]).then(
@@ -101,7 +105,7 @@ export default function DashboardPage() {
       ? (kpis.outstandingLoanBalance / kpis.estimatedPortfolioValue) * 100
       : null;
 
-  const sections = BROSCHUERE_SECTIONS.map((s) => ({
+  const sections = UNTERLAGEN_SECTIONS.map((s) => ({
     ...s,
     value: completion[s.key],
   }));
@@ -120,15 +124,15 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            {/* Two paths: build the Investorenbroschüre, then take it to banks. */}
+            {/* Two paths: build the bank documents, then take them to banks. */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Investorenbroschüre */}
+              {/* Selbstauskunft & Investorenbroschüre */}
               <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-[#6c5ce7]" />
                     <h3 className="text-sm font-semibold text-foreground">
-                      Deine Investorenbroschüre
+                      Selbstauskunft &amp; Investorenbroschüre
                     </h3>
                   </div>
                   <span className="text-xs tabular-nums font-semibold text-foreground">
@@ -138,9 +142,11 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-4">
                   <PdfIllustration progress={overall} />
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Aus diesen Unterlagen erstellt Immotrim deine bankfertige
-                    Investorenbroschüre (Selbstauskunft) — die Grundlage jeder
-                    Finanzierungsanfrage. Fülle die vier Bereiche aus:
+                    Immotrim erstellt dir zwei bankfertige Dokumente: die{" "}
+                    <strong>private Selbstauskunft</strong> — klassisch, mit deinen
+                    Stammdaten und deiner Haushaltsrechnung — und die{" "}
+                    <strong>Investorenbroschüre</strong> — dein Immobilienportfolio
+                    mit Kennzahlen und Grafiken. Fülle die vier Bereiche aus:
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -174,35 +180,61 @@ export default function DashboardPage() {
                     </Link>
                   ) : (
                     <p className="text-sm font-medium text-emerald-500">
-                      Alle Unterlagen vollständig — deine Broschüre ist bankfertig.
+                      Alle Angaben vollständig — deine Dokumente sind bankfertig.
                     </p>
                   )}
-                  {/* Creating with partial data is allowed — open fields render
-                      as blanks to complete by hand. */}
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={nextSection ? "outline" : undefined}
-                    onClick={selbstauskunft.download}
-                    disabled={selbstauskunft.busy}
-                    className={
-                      nextSection
-                        ? "self-start gap-1.5"
-                        : "self-start gap-1.5 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold"
-                    }
-                  >
-                    {selbstauskunft.busy ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Download className="h-3.5 w-3.5" />
-                    )}
-                    Selbstauskunft erstellen (PDF)
-                  </Button>
+                  {/* Both documents are downloadable independently. Creating with
+                      partial data is allowed — open fields render as blanks to
+                      complete by hand. */}
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={nextSection ? "outline" : undefined}
+                      onClick={selbstauskunft.download}
+                      disabled={selbstauskunft.busy}
+                      className={
+                        nextSection
+                          ? "gap-1.5"
+                          : "gap-1.5 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold"
+                      }
+                    >
+                      {selbstauskunft.busy ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Download className="h-3.5 w-3.5" />
+                      )}
+                      Selbstauskunft (PDF)
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setReportOpen(true)}
+                      disabled={properties.length === 0}
+                      className="gap-1.5"
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      Investorenbroschüre (PDF)
+                    </Button>
+                  </div>
+                  {properties.length === 0 && (
+                    <p className="text-[11px] text-muted-foreground">
+                      Die Investorenbroschüre gibt es, sobald du deine erste
+                      Immobilie angelegt hast.
+                    </p>
+                  )}
                   {selbstauskunft.error && (
                     <p className="text-xs text-destructive">{selbstauskunft.error}</p>
                   )}
                 </div>
               </div>
+
+              <ReportDialog
+                open={reportOpen}
+                onOpenChange={setReportOpen}
+                properties={properties}
+              />
 
               {/* Bank-Anfrage */}
               <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
@@ -217,7 +249,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Lege ein Konzept für dein Vorhaben an und erstelle daraus pro
                     Bank die fertige Finanzierungsanfrage — inklusive
-                    Investorenbroschüre und aller Unterlagen.
+                    Selbstauskunft, Investorenbroschüre und aller Unterlagen.
                   </p>
                 </div>
                 <ol className="flex flex-col gap-2 text-sm text-foreground">
@@ -237,7 +269,7 @@ export default function DashboardPage() {
                     </Link>
                   </Step>
                   <Step n={3} done={false}>
-                    Anfrage mit Broschüre &amp; Dokumenten versenden
+                    Anfrage mit Selbstauskunft, Broschüre &amp; Dokumenten versenden
                   </Step>
                 </ol>
                 <div className="rounded-lg bg-muted/30 px-4 py-3 flex flex-col gap-0.5">
@@ -416,8 +448,8 @@ export default function DashboardPage() {
                 className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-4 py-5 text-sm text-muted-foreground hover:border-[#6c5ce7]/50 hover:text-[#6c5ce7] transition-colors"
               >
                 <Plus className="h-4 w-4" />
-                Du besitzt bereits Immobilien? Lege sie an — sie stärken deine
-                Broschüre und Finanzierung.
+                Du besitzt bereits Immobilien? Lege sie an — sie werden zur
+                Investorenbroschüre mit Grafiken für die Bank.
               </Link>
             )}
           </>

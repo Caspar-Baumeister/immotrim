@@ -99,7 +99,7 @@ export default function PortfolioPage() {
                 className="gap-1.5"
               >
                 <FileText className="h-3.5 w-3.5" />
-                Bankbericht
+                Investorenbroschüre
               </Button>
             )}
             <Link href={`/property/new`}>

@@ -550,8 +550,8 @@ export function PropertyForm() {
         )}
       </InputSection>
 
-      {/* ── Objektdetails (nur für den Bericht) ─────────────────────────────── */}
-      <InputSection title="Objektdetails (nur für den Bericht)" defaultOpen={false}>
+      {/* ── Objektdetails (nur für die Investorenbroschüre) ─────────────────── */}
+      <InputSection title="Objektdetails (nur für die Investorenbroschüre)" defaultOpen={false}>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 flex flex-col gap-1.5">
             <Label className="text-xs text-muted-foreground">Immobilientyp</Label>
@@ -575,7 +575,7 @@ export function PropertyForm() {
               className="bg-card border-border focus-visible:ring-1"
             />
             <p className="text-[10px] text-muted-foreground/60">
-              Eigene Wertschätzung für den Bericht. Ohne Angabe wird der aus dem
+              Eigene Wertschätzung für die Broschüre. Ohne Angabe wird der aus dem
               Kaufpreis fortgeschriebene Wert verwendet.
             </p>
           </div>
@@ -653,7 +653,7 @@ export function PropertyForm() {
           </div>
         </div>
         <div className="bg-muted/20 rounded-lg px-3 py-2 text-[10px] text-muted-foreground/70 leading-relaxed">
-          Diese Angaben werden ausschließlich für den Bankbericht verwendet und haben
+          Diese Angaben werden ausschließlich für die Investorenbroschüre verwendet und haben
           keinen Einfluss auf die Berechnungen. Felder können auch automatisch aus
           hochgeladenen Dokumenten übernommen werden.
         </div>

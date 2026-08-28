@@ -234,7 +234,7 @@ function ReportTileAction({
         className="w-full gap-1.5"
       >
         <FileText className="h-3.5 w-3.5" />
-        Bericht erstellen (PDF)
+        Investorenbroschüre erstellen (PDF)
       </Button>
       <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
         <span className="min-w-0">

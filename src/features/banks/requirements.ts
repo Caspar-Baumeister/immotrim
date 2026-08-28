@@ -34,7 +34,7 @@ export type BankDocProfile = {
 };
 
 // Per-bank tweaks. An empty profile (or a missing entry) = the default lists.
-// Hints researched 07/2026 from the institutions' public pages — indicative.
+// Hints researched 07–08/2026 from the institutions' public pages — indicative.
 export const BANK_DOC_PROFILES: Record<string, BankDocProfile> = {
   mbs: {},
   ing: {
@@ -43,9 +43,51 @@ export const BANK_DOC_PROFILES: Record<string, BankDocProfile> = {
       "Einstieg über die Online-Finanzierungsanfrage; Unterlagen werden nach dem Erstkontakt digital nachgereicht.",
     ],
   },
-  baufipool24: {
+  "sparda-berlin": {
     extraHints: [
-      "Spezialisiert auf Mikroapartments (14–32 m², möbliert) — Konzept im Anschreiben explizit nennen.",
+      "Arbeitet als Vermittlerin mit Vergleich von 400+ Darlehensgebern; Fokus Berlin/Ostdeutschland (Stand 08/2026).",
+      "Kapitalanlage auf den Baufi-Seiten nicht explizit genannt — im Erstgespräch abklären.",
+    ],
+  },
+  commerzbank: {
+    extraHints: [
+      "Aktionszins gilt nur bis 60% Beleihungswert; Kapitalanlage wird explizit finanziert, empfohlen 20–30% Eigenkapital (Stand 08/2026).",
+      "Unterlagen-Upload über den digitalen Dokumentenmanager nach dem Erstkontakt.",
+    ],
+  },
+  "deutsche-bank": {
+    extraHints: [
+      "Eigene Rubrik für vermietete Objekte/Kapitalanlage; finanzielle Reserven für Instandhaltung/Mietausfall werden erwartet (Stand 08/2026).",
+    ],
+  },
+  postbank: {
+    extraHints: [
+      "Beratung läuft über selbständige Berater der Postbank Finanzberatung AG; Kapitalanlage-Finanzierung vorab abklären (Stand 08/2026).",
+      "Mindestdarlehen laut Drittquellen ca. 50.000 € — unverifiziert.",
+    ],
+  },
+  bbbank: {
+    extraHints: [
+      "Ehemalige PSD Bank Berlin-Brandenburg ist hier aufgegangen — Berliner Filiale: Berlin-Friedenau, Handjerystr. 33–36 (Standortgarantie bis 2035).",
+      "Ob Kapitalanlage-Objekte finanziert werden, ist nicht publiziert — vor der Anfrage telefonisch klären (Stand 08/2026).",
+      "Beispielkondition gilt bei 60% Beleihung; 0,10% Zinsvorteil für Mitglieder.",
+    ],
+  },
+  "brandenburger-bank": {
+    extraHints: [
+      "Geschäftsgebiet Brandenburg an der Havel und Umland — für Berliner/Potsdamer Objekte vorab Zuständigkeit klären.",
+      "Publizierte Unterlagenliste: letzte 3 Gehaltsabrechnungen, 3 Steuererklärungen, Ausgabenaufstellung; Objekt: Exposé, Fotos, Kaufvertrag, Baupläne, Teilungserklärung (Stand 08/2026).",
+    ],
+  },
+  targobank: {
+    extraHints: [
+      "Reine Vermittlung — Darlehensgeber ist die Oldenburgische Landesbank (OLB); Kapitalanlage explizit möglich (Stand 08/2026).",
+      "Verlangt: Einkommensnachweise, Eigenkapitalbelege, Kontoauszüge, Selbstauskunft, Exposé/Kaufvertrag.",
+    ],
+  },
+  "1822direkt": {
+    extraHints: [
+      "Kapitalanlage explizit beworben, Eigenkapital-Empfehlung nur 10–15% des Kaufpreises; Darlehensgeber des Eigenprodukts ist die Frankfurter Sparkasse, daneben Vermittlung von ~400 Banken (Stand 08/2026).",
     ],
   },
 };
