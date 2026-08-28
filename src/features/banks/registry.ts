@@ -137,6 +137,8 @@ export const BANKS: Bank[] = [
       kapitalanlage: "unklar",
       kapitalanlageHinweis:
         "Baufi-Seiten adressieren nur Eigennutzung, kein expliziter Ausschluss — im Gespräch klären.",
+      ekKapitalanlage:
+        "Auch ohne EK möglich (höhere Zinsen), Empfehlung 20–30% — Angabe gilt allgemein, nicht Kapitalanlage-spezifisch.",
       region: "Geschäftsgebiet westliches/mittleres Brandenburg (Potsdam)",
       bereitstellungszinsfrei: "12 Monate für Neubau (Aktion bis 18.12.2026)",
       zinsbindungen: "5–30 Jahre",
@@ -158,11 +160,17 @@ export const BANKS: Bank[] = [
     finanzierungsInfo: {
       kapitalanlage: "ja",
       kapitalanlageHinweis:
-        "Nettokaltmiete soll mind. Zinslast + nicht umlegbare Kosten decken; Eigenkapital mind. in Höhe der Kaufnebenkosten (8–12%).",
+        "Nettokaltmiete soll mind. Zinslast + nicht umlegbare Kosten decken.",
+      mietanrechnung:
+        "Nur nachhaltige Mieten (z.B. Berliner Mietspiegel) — Möblierungszuschläge werden ausdrücklich nicht angesetzt.",
+      ekKapitalanlage: "Mind. Kaufnebenkosten (8–12% des Kaufpreises) aus Eigenkapital.",
+      mikroapartments:
+        "Kritische Haltung: Möblierungs-/Sondermieten gelten als nicht nachhaltig planbar.",
       region: "Geschäftsgebiet Berlin",
       zinsbindungen: "5–20 Jahre",
       selbststaendige: "Ja — 2 Steuerbescheide, BWA, Jahresabschlüsse",
       besonderheiten: [
+        "Eigenes Segment für Investoren/Vermieter inkl. MFH; Grenze zum Firmenkundengeschäft nicht publiziert.",
         "Keine Finanzierung bei drohender Insolvenz oder Vollstreckungsmaßnahmen der letzten 5 Jahre.",
       ],
     },
@@ -184,6 +192,8 @@ export const BANKS: Bank[] = [
       zinsbindungen: "5–20 Jahre",
       besonderheiten: [
         "Baufi-Rechner vergleicht über 500 Finanzierungspartner — vermittelt auch fremde Darlehensgeber.",
+        "Nimmt private Baukredite laut Drittquelle erst ab 750.000 € ins eigene Buch — darunter reine Vermittlung.",
+        "MFH/Zinshäuser über die gewerbliche Immobilienfinanzierung, ausdrücklich auch für private Investoren.",
       ],
     },
   },
@@ -198,17 +208,22 @@ export const BANKS: Bank[] = [
     contactUrl: "https://www.ing.de/baufinanzierung/kapitalanlage/",
     finanzierungsInfo: {
       kapitalanlage: "ja",
-      kapitalanlageHinweis:
-        "Mietansatz ohne Nachweis max. 8,50 €/m² (Großstädte 11 €/m²); Bewirtschaftungskosten 1,10 €/m² in der Haushaltsrechnung.",
+      mietanrechnung:
+        "Ohne Mietnachweis Ansatz max. 9 €/m² (Berlin fällt NICHT unter die 11-€-Großstadtliste); Bewirtschaftungspauschale 1,10 €/m² + 50 € Verwaltungspauschale je vermieteter Einheit.",
+      ekKapitalanlage:
+        "100%-Finanzierung des Kaufpreises seit 07/2026 explizit auch für Kapitalanleger (Haushaltsnetto ≥7.000 €, Überschuss ≥1.500 €, Obligo ≤1,5 Mio. €, max. 3 Wohneinheiten); Nebenkosten stets aus EK.",
+      mikroapartments:
+        "Mindestfläche 30 m² (seit 24.11.2025, vorher 40 m²); zu Betreiberkonzepten/Boardinghouses keine publizierte Aussage.",
       minDarlehen: 75000,
       minObjektflaeche: 30,
-      maxBeleihung: "95% von Kaufpreis/Herstellungskosten",
+      maxBeleihung: "95% von Kaufpreis/Herstellungskosten (100%-Programm s. EK)",
       bereitstellungszinsfrei: "6 Monate",
       zinsbindungen: "5, 10 oder 15 Jahre",
       selbststaendige: "Ja — mit erweiterten Unterlagen",
       besonderheiten: [
+        "Bis 3 Wohneinheiten regulär — MFH ab 4 Einheiten nur eingeschränkt.",
+        "200-km-Entfernungsgrenze für Kapitalanleger seit 09/2025 gestrichen (Drittquelle).",
         "Nur EFH/DHH/RH/ZFH/MFH bzw. nach WEG geteilte Objekte; Objekt muss in Deutschland liegen.",
-        "Mindestfläche 30 m² gilt seit 24.11.2025 (vorher 40 m²).",
       ],
     },
   },
@@ -222,14 +237,16 @@ export const BANKS: Bank[] = [
     contactUrl: "https://www.dkb.de/privatkunden/baufinanzierung",
     finanzierungsInfo: {
       kapitalanlage: "ja",
-      kapitalanlageHinweis:
-        "Eigenes Vermieterpaket für private Vermieter; Eigenkapital-Faustregel ~25%.",
+      kapitalanlageHinweis: "Eigenes Vermieterpaket für private Vermieter.",
+      ekKapitalanlage:
+        "Kaufnebenkosten aus EK empfohlen (Faustregel ~25%); 100–110%-Finanzierung nur in Ausnahmefällen mit Zinsaufschlag (Drittquelle).",
       bereitstellungszinsfrei: "6 Monate (Drittquelle)",
       zinsbindungen: "5–30 Jahre",
       selbststaendige:
         "Laut Drittquelle stark eingeschränkt — bevorzugt etablierte Freiberufler (Arzt, Notar, StB)",
       besonderheiten: [
-        "Mehrfamilienhäuser bis 10 Wohneinheiten finanzierbar (Drittquelle).",
+        "Mehrfamilienhäuser bis 10 Wohneinheiten im Privatkundengeschäft (Drittquelle), darüber Geschäftskundenbereich Wohnungswirtschaft.",
+        "Endfälliges Darlehen mit Tilgungsaussetzung möglich (Drittquelle).",
         "Mindestdarlehen ca. 20.000 € (Drittquelle).",
       ],
     },
@@ -272,11 +289,15 @@ export const BANKS: Bank[] = [
     },
     finanzierungsInfo: {
       kapitalanlage: "ja",
-      kapitalanlageHinweis:
-        "Empfohlen 20–30% Eigenkapital für günstige Konditionen.",
+      ekKapitalanlage:
+        "Empfohlen 20–30% EK für günstige Konditionen; Vollfinanzierung nur bei sehr guter Bonität/Lage.",
       maxBeleihung: "Vollfinanzierung grundsätzlich möglich",
       bereitstellungszinsfrei: "6 Monate (grüne Baufinanzierung bis 24 Monate)",
       zinsbindungen: "Bis 40 Jahre (Drittquelle)",
+      besonderheiten: [
+        "Auch endfällige Darlehen und 1–5 tilgungsfreie Anlaufjahre (Drittquelle).",
+        "Vermietete Wohneinheiten explizit finanzierbar; Mindestdarlehen ca. 25.000 € (Drittquelle).",
+      ],
     },
   },
   {
@@ -292,10 +313,16 @@ export const BANKS: Bank[] = [
     finanzierungsInfo: {
       kapitalanlage: "ja",
       kapitalanlageHinweis:
-        "Empfohlen 20% EK + Nebenkosten; Vollfinanzierung aus steuerlichen Gründen explizit thematisiert; Polster für Instandhaltung/Mietausfall erwartet.",
+        "Vollfinanzierung aus steuerlichen Gründen explizit thematisiert; Polster für Instandhaltung/Mietausfall erwartet.",
+      ekKapitalanlage:
+        "Empfohlen 20% + Nebenkosten; bis 110% Finanzierung mit +0,35% Zinsaufschlag (Drittquelle).",
       maxBeleihung: "100% Kaufpreis, bis 110% gegen Zinsaufschlag (Drittquelle)",
       zinsbindungen: "Bis 30 Jahre",
       selbststaendige: "Ja — individuelle Finanzierungskonzepte (Drittquelle)",
+      besonderheiten: [
+        "Kein endfälliges Darlehen gelistet — Tilgungsaussetzung über „Wohndarlehen“ mit Bausparvertrag (Drittquelle).",
+        "Mindestdarlehen ca. 25.000 € (Drittquelle).",
+      ],
     },
   },
   {
@@ -312,7 +339,9 @@ export const BANKS: Bank[] = [
     finanzierungsInfo: {
       kapitalanlage: "unklar",
       kapitalanlageHinweis:
-        "Produktseiten ohne Aussage zu vermieteten Objekten (EK-Empfehlung 20–30%); die Makler-Tochter Postbank Immobilien vermittelt aber aktiv Anlageobjekte inkl. Mikroapartments.",
+        "Produktseiten ohne Aussage zu vermieteten Objekten; die Makler-Tochter Postbank Immobilien vermittelt aber aktiv Anlageobjekte inkl. Mikroapartments.",
+      ekKapitalanlage:
+        "Nicht Kapitalanlage-spezifisch publiziert (allgemein 20–30% empfohlen); Zinsstaffel +0,11% ab 70%, +0,12% ab 80% Beleihung (Drittquelle).",
       zinsbindungen: "5–20 Jahre (Drittquelle)",
       selbststaendige:
         "Laut Drittquelle nicht bedient — verlangt wird ein unbefristetes Arbeitsverhältnis (≥6 Monate)",
@@ -338,12 +367,15 @@ export const BANKS: Bank[] = [
     finanzierungsInfo: {
       kapitalanlage: "unklar",
       kapitalanlageHinweis:
-        "Offiziell weder angeboten noch ausgeschlossen; Drittquellen widersprechen sich — unbedingt vorab telefonisch klären.",
+        "Offiziell weder angeboten noch ausgeschlossen; Drittquellen widersprechen sich (vermietete Einheiten ja vs. nein) — unbedingt vorab telefonisch klären.",
+      ekKapitalanlage:
+        "Vollfinanzierung (100%) möglich — für Beamte ohne Aufschlag, sonst +0,40% (Drittquelle).",
       maxBeleihung: "Vollfinanzierung des Kaufpreises möglich (Nebenkosten aus EK)",
       bereitstellungszinsfrei: "3 Monate",
       zinsbindungen: "5–20 Jahre (Drittquelle)",
       selbststaendige: "Laut Drittquelle nicht finanziert",
       besonderheiten: [
+        "Auch endfällige Darlehen im Angebot (Drittquelle).",
         "Gebäudeversicherung Pflicht; Genossenschaftsanteil 5 €; 0,10% Zinsrabatt für Mitglieder.",
         "Mindestdarlehen ca. 50.000 € (Drittquelle).",
       ],
@@ -363,7 +395,7 @@ export const BANKS: Bank[] = [
     finanzierungsInfo: {
       kapitalanlage: "unklar",
       kapitalanlageHinweis:
-        "Privatkundenseiten nur Eigenheim; Mietobjekte laufen über den Firmenkunden-Immobilienkredit (Ertragswertverfahren) — direkt anfragen.",
+        "Beratung ausdrücklich auch zu Mietwohnungen/Anlageobjekten; größere Mietobjekte über den Firmenkunden-Immobilienkredit (Ertragswertverfahren) — harte Kriterien nur im Gespräch.",
       region: "Brandenburg a. d. Havel, westliches Havelland, Potsdam-Mittelmark",
       besonderheiten: [
         "Publiziert praktisch keine harten Kriterien — alles über persönliche Beratung.",
@@ -383,12 +415,14 @@ export const BANKS: Bank[] = [
     contactUrl: "https://www.targobank.de/de/baufinanzierung/index.html",
     finanzierungsInfo: {
       kapitalanlage: "ja",
-      kapitalanlageHinweis: "Kapitalanlage explizit möglich; EK-Empfehlung ~20%.",
+      kapitalanlageHinweis: "Kapitalanlage explizit möglich.",
+      ekKapitalanlage: "EK-Empfehlung ~20% des Kaufpreises.",
       maxBeleihung: "100%, in Einzelfällen bis 110%",
       bereitstellungszinsfrei: "12 Monate (OLB, Drittquelle)",
       zinsbindungen: "Bis 20 Jahre (OLB bis 30, Drittquelle)",
       selbststaendige: "Ja, ohne Zinsaufschlag (OLB, Drittquelle)",
       besonderheiten: [
+        "Auch ganze Mehrfamilienhäuser explizit finanzierbar.",
         "Vertragspartner ist seit 07/2026 exklusiv die OLB (Abwicklung via Europace).",
         "Mindestdarlehen ca. 25.000 € (OLB, Drittquelle).",
       ],
@@ -409,14 +443,17 @@ export const BANKS: Bank[] = [
     },
     finanzierungsInfo: {
       kapitalanlage: "ja",
-      kapitalanlageHinweis:
-        "EK-Empfehlung nur 10–15% des Kaufpreises; Zinsbindung ≥10 Jahre empfohlen.",
+      kapitalanlageHinweis: "Zinsbindung ≥10 Jahre für Kapitalanleger empfohlen.",
+      ekKapitalanlage:
+        "Empfohlen nur 10–15% des Kaufpreises, „über 20% meist nicht erforderlich“; keine 110%-Finanzierung (Drittquelle).",
       maxBeleihung:
-        "100% Beleihungsauslauf (ca. 10% Eigenmittel für Nebenkosten, Drittquelle)",
+        "90–100% Beleihungsauslauf (Drittquellen widersprüchlich; +0,19% Aufschlag bei 90%)",
       bereitstellungszinsfrei: "12 Monate (Drittquelle)",
+      selbststaendige:
+        "Nicht im Eigenbuch — werden an Partnerbanken vermittelt (Drittquelle)",
       besonderheiten: [
         "Eigenprodukt der Frankfurter Sparkasse + Vermittlung von >400 Partnern.",
-        "Mindestdarlehen ca. 50.000 € (Drittquelle); Mindesttilgung 2%.",
+        "Darlehensrahmen ca. 50.000–400.000 € im Eigenprodukt (Drittquelle); Mindesttilgung 2%.",
         "Auslandsimmobilien nicht als Sicherheit akzeptiert.",
       ],
     },
