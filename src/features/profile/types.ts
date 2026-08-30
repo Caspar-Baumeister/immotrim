@@ -67,6 +67,12 @@ export type Haushalt = {
   bankSparguthaben?: number;
   wertpapiere?: number;
   sonstigesVermoegen?: number;
+  /**
+   * Wie viel der liquiden Mittel für den nächsten Kauf eingesetzt werden soll.
+   * Der Rest (Bank/Spar + Wertpapiere − dieser Betrag) ist die Liquiditätsreserve
+   * nach Kauf — für Banken aussagekräftiger als der reine Vermögensbestand.
+   */
+  ekVerfuegbar?: number;
   // Verbindlichkeiten (Gesamthöhe, ohne Immobiliendarlehen)
   sonstigeVerbindlichkeiten?: number;
 };

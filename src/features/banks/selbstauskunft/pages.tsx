@@ -7,13 +7,21 @@
 // (styled by mbs.css — the `sa-*` classes are generic A4 form styles). Bank
 // documents (features/banks/mbs/…) and the generic Immotrim variant compose
 // these pages and add their own bank-specific pages (e.g. the MBS Vollmacht).
+//
+// Editorial line: the Selbstauskunft answers "Kann diese Person den Kredit
+// tragen?" — sober and numbers-driven. The investor story (Über mich,
+// Strategie) deliberately lives in the Investorenbroschüre instead, so the bank
+// never reads the same content twice. Structure by portfolio size:
+//   0 Objekte  → blank object sections, Finanzbedarf trägt den Wunsch
+//   1–2 Objekte → Zusatzblatt mit vollem Detailblock je Objekt
+//   ab 3       → Portfolio-Zusammenfassung + kompakte einzeilige Objektliste
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect } from "react";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
 import type { SelbstauskunftKonzept } from "../types";
-import type { Stammdaten, Haushalt, Strategie } from "@/features/profile/types";
+import type { Stammdaten, Haushalt } from "@/features/profile/types";
 
 // ── formatting helpers ───────────────────────────────────────────────────────
 const nf0 = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 });
@@ -25,6 +33,11 @@ function chunk<T>(arr: T[], size: number): T[][] {
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
   return out;
 }
+
+// From how many properties on the Zusatzblatt switches from full detail blocks
+// to the compact one-line-per-object list (the details then live in the
+// Investorenbroschüre).
+const DETAIL_PROPERTY_LIMIT = 2;
 
 // Per-property loan figures, recomputed the same way the portfolio KPIs do it
 // (balance from the amortization schedule at the elapsed year).
@@ -56,6 +69,53 @@ function deriveLoan(p: PortfolioProperty): LoanFigures {
 
 function marketValue(p: PortfolioProperty): number {
   return p.inputs.report?.marktwert ?? p.inputs.kaufpreis;
+}
+
+function kaufjahr(p: PortfolioProperty): string {
+  const iso = p.inputs.report?.kaufdatum ?? p.inputs.loanStartDate;
+  return iso ? iso.slice(0, 4) : "";
+}
+
+// Bank-style monthly object cash flow, matching how a banker skims the numbers:
+// Kaltmiete − Rate − nicht umlagefähige Kosten (no vacancy/reserve smoothing).
+function objectCashflow(p: PortfolioProperty, loan: LoanFigures): number {
+  return (p.inputs.kaltmiete ?? 0) - loan.monthlyRate - (p.inputs.nichtUmlagefaehig ?? 0);
+}
+
+// Portfolio sums for the summary band + derived household rows.
+export type PortfolioTotals = {
+  count: number;
+  value: number;
+  debt: number;
+  equity: number;
+  rent: number;
+  rate: number;
+  nichtUmlagefaehig: number;
+  cashflow: number;
+};
+
+export function portfolioTotals(properties: PortfolioProperty[]): PortfolioTotals {
+  const t: PortfolioTotals = {
+    count: properties.length,
+    value: 0,
+    debt: 0,
+    equity: 0,
+    rent: 0,
+    rate: 0,
+    nichtUmlagefaehig: 0,
+    cashflow: 0,
+  };
+  for (const p of properties) {
+    const loan = deriveLoan(p);
+    t.value += marketValue(p);
+    t.debt += loan.restschuld;
+    t.rent += p.inputs.kaltmiete ?? 0;
+    t.rate += loan.monthlyRate;
+    t.nichtUmlagefaehig += p.inputs.nichtUmlagefaehig ?? 0;
+  }
+  t.equity = t.value - t.debt;
+  t.cashflow = t.rent - t.rate - t.nichtUmlagefaehig;
+  return t;
 }
 
 // ── primitive form elements ──────────────────────────────────────────────────
@@ -187,47 +247,18 @@ export function ApplicantColumn({
 export function PersonalPage({
   investorName,
   sd,
-  strategie,
   hh,
-  imageDataUrl,
 }: {
   investorName: string;
   sd?: Stammdaten;
   hh?: Haushalt;
-  strategie?: Strategie;
-  imageDataUrl?: string;
 }) {
-  const hasStrategy = !!(strategie?.strategieText || strategie?.ueberMich);
   return (
     <Page n={1}>
       <h1 className="sa-title">Ihre persönlichen Daten</h1>
-      <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 8 }}>
-        {imageDataUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageDataUrl}
-            alt=""
-            style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 6 }}
-          />
-        )}
-        <p className="sa-cap">Antragsteller: {investorName}</p>
-      </div>
-      {hasStrategy && (
-        <div style={{ marginBottom: 8 }}>
-          {strategie?.ueberMich && (
-            <>
-              <div className="sa-subhead">Über mich</div>
-              <p className="sa-legal">{strategie.ueberMich}</p>
-            </>
-          )}
-          {strategie?.strategieText && (
-            <>
-              <div className="sa-subhead">Investmentstrategie</div>
-              <p className="sa-legal">{strategie.strategieText}</p>
-            </>
-          )}
-        </div>
-      )}
+      <p className="sa-cap" style={{ marginBottom: 8 }}>
+        Antragsteller: {investorName}
+      </p>
       <div className="sa-cols">
         <ApplicantColumn n={1} sd={sd} hh={hh} />
         <ApplicantColumn n={2} />
@@ -236,7 +267,10 @@ export function PersonalPage({
   );
 }
 
-export function FinancesPage({
+// Page 2 — the monthly budget: Kinder, Einnahmen, Ausgaben. Rent income from the
+// portfolio is derived and shown split (Kaltmiete vs. nicht umlagefähig), so the
+// bank can apply its own haircut to the anrechenbare Miete.
+export function HouseholdPage({
   properties,
   sd,
   hh,
@@ -245,11 +279,11 @@ export function FinancesPage({
   sd?: Stammdaten;
   hh?: Haushalt;
 }) {
-  const count = properties.length;
-  const totalValue = properties.reduce((s, p) => s + marketValue(p), 0);
-  const totalDebt = properties.reduce((s, p) => s + deriveLoan(p).restschuld, 0);
+  const t = portfolioTotals(properties);
+  const hasPortfolio = t.count > 0;
   return (
     <Page n={2}>
+      <h1 className="sa-title">Ihre monatliche Haushaltsrechnung</h1>
       <Band>Kinder</Band>
       <div className="sa-grid3">
         <Field caption="Anzahl Ihrer Kinder" value={sd?.anzahlKinder} />
@@ -257,32 +291,154 @@ export function FinancesPage({
         <Field caption="Name Kind 2" />
       </div>
 
-      <h2 className="sa-title" style={{ fontSize: 10, margin: "8mm 0 4mm" }}>
-        Ihre finanzielle Situation
-      </h2>
-      <Band>Vermögen, Einnahmen, Ausgaben, Verbindlichkeiten</Band>
+      <Band>Monatliche Einnahmen (neben dem Erwerbseinkommen)</Band>
       <div className="sa-grid2">
-        <Field caption="Bank- und Sparguthaben" value={hh?.bankSparguthaben} eur />
-        <Field caption="Mietausgaben (monatlich)" value={hh?.mietausgaben} eur />
-        <Field caption="Wertpapiere / Aktien" value={hh?.wertpapiere} eur />
-        <Field caption="Private Krankenversicherung (monatlich)" value={hh?.krankenversicherung} eur />
-        <Field caption="Lebens- / Rentenversicherung" value={hh?.versicherungen} eur />
-        <Field caption="Ratenkredit (Rate mtl.)" value={hh?.ratenkredite} eur />
-        <Field caption="Sonstiges Vermögen" value={hh?.sonstigesVermoegen} eur />
-        <Field caption="Sonstige Verbindlichkeiten (Gesamthöhe)" value={hh?.sonstigeVerbindlichkeiten} eur />
-      </div>
-
-      <Band>Weiteres Immobilienvermögen</Band>
-      <div className="sa-grid3">
-        <Field caption="Anzahl der Immobilien" value={String(count)} />
-        <Field caption="Geschätzter Wert aller Immobilien" value={totalValue} eur />
+        <Field caption="Kindergeld (monatlich)" value={hh?.kindergeld} eur />
+        <Field caption="Weitere dauerhafte Einkünfte (monatlich)" value={hh?.weitereEinkuenfte} eur />
         <Field
-          caption="Gesamthöhe ausstehender Darlehen"
-          value={totalDebt}
+          caption="Mieteinnahmen Bestand — Kaltmiete (Summe, monatlich)"
+          value={hasPortfolio ? t.rent : undefined}
+          eur
+        />
+        <Field
+          caption="davon nicht umlagefähige Kosten (Summe, monatlich)"
+          value={hasPortfolio ? t.nichtUmlagefaehig : undefined}
           eur
         />
       </div>
-      <p className="sa-cap">Siehe Zusatzblatt für Immobilienvermögen.</p>
+      {hasPortfolio && (
+        <p className="sa-cap">
+          Kaltmieten laut Immobilienbestand; nicht umlagefähige Kosten mindern den
+          bankseitig anrechenbaren Anteil.
+        </p>
+      )}
+
+      <Band>Monatliche Ausgaben</Band>
+      <div className="sa-grid2">
+        <Field caption="Eigene Miete / Wohnkosten (monatlich)" value={hh?.mietausgaben} eur />
+        <Field caption="Lebenshaltungskosten (monatlich)" value={hh?.lebenshaltung} eur />
+        <Field caption="Private Krankenversicherung (monatlich)" value={hh?.krankenversicherung} eur />
+        <Field caption="Weitere Versicherungen (monatlich)" value={hh?.versicherungen} eur />
+        <Field caption="Ratenkredite / Leasing (Rate monatlich)" value={hh?.ratenkredite} eur />
+        <Field
+          caption="Sonstige Ausgaben inkl. Unterhalt (monatlich)"
+          value={hh?.sonstigeAusgaben}
+          eur
+        />
+        <Field
+          caption="Kapitaldienst Immobiliendarlehen (Summe, monatlich)"
+          value={hasPortfolio ? t.rate : undefined}
+          eur
+        />
+        <div />
+      </div>
+    </Page>
+  );
+}
+
+// The Fall-C table from the spec: what the whole portfolio is worth, owes,
+// earns and costs — the only property information the Selbstauskunft needs
+// once the portfolio has more than a couple of objects.
+function PortfolioSummaryBand({ t }: { t: PortfolioTotals }) {
+  return (
+    <>
+      <Band>Immobilienvermögen im Überblick</Band>
+      {t.count === 0 ? (
+        <p className="sa-cap">Noch kein Immobilienbestand vorhanden.</p>
+      ) : (
+        <>
+          <div className="sa-grid3">
+            <Field caption="Anzahl Immobilien" value={String(t.count)} />
+            <Field caption="Marktwert gesamt" value={t.value} eur />
+            <Field caption="Restschuld gesamt" value={t.debt} eur />
+            <Field caption="Eigenkapital im Bestand" value={t.equity} eur />
+            <Field caption="Kaltmieten (monatlich)" value={t.rent} eur />
+            <Field caption="Kreditraten (monatlich)" value={t.rate} eur />
+            <Field
+              caption="Nicht umlagefähige Kosten (monatlich)"
+              value={t.nichtUmlagefaehig}
+              eur
+            />
+            <Field caption="Cashflow vor Steuer (monatlich)" value={t.cashflow} eur />
+            <div />
+          </div>
+          <p className="sa-cap">
+            {t.count <= DETAIL_PROPERTY_LIMIT
+              ? "Details je Objekt: siehe Zusatzblatt Immobilienvermögen."
+              : "Objektliste: siehe Zusatzblatt. Kennzahlen und Grafiken je Objekt: Investorenbroschüre."}
+          </p>
+        </>
+      )}
+    </>
+  );
+}
+
+// Page 3 — Bestand & Substanz: Vermögen, Verbindlichkeiten, Eigenkapital für den
+// nächsten Erwerb (liquide Mittel vs. einsetzbar vs. Reserve) und die
+// Portfolio-Zusammenfassung.
+export function WealthPage({
+  properties,
+  sd,
+  hh,
+}: {
+  properties: PortfolioProperty[];
+  sd?: Stammdaten;
+  hh?: Haushalt;
+}) {
+  const t = portfolioTotals(properties);
+  const liquide =
+    hh?.bankSparguthaben != null || hh?.wertpapiere != null
+      ? (hh?.bankSparguthaben ?? 0) + (hh?.wertpapiere ?? 0)
+      : undefined;
+  const reserve =
+    liquide != null && hh?.ekVerfuegbar != null
+      ? Math.max(0, liquide - hh.ekVerfuegbar)
+      : undefined;
+  return (
+    <Page n={3}>
+      <h1 className="sa-title">Vermögen, Verbindlichkeiten und Eigenkapital</h1>
+      <Band>Vermögen</Band>
+      <div className="sa-grid2">
+        <Field caption="Bank- und Sparguthaben" value={hh?.bankSparguthaben} eur />
+        <Field caption="Wertpapiere / Aktien" value={hh?.wertpapiere} eur />
+        <Field
+          caption="Sonstiges Vermögen (Bauspar-, Versicherungsguthaben, Beteiligungen)"
+          value={hh?.sonstigesVermoegen}
+          eur
+        />
+        <Field
+          caption="Immobilienvermögen (Marktwert, Summe)"
+          value={t.count > 0 ? t.value : undefined}
+          eur
+        />
+      </div>
+
+      <Band>Verbindlichkeiten</Band>
+      <div className="sa-grid2">
+        <Field
+          caption="Immobiliendarlehen (Restschuld, Summe)"
+          value={t.count > 0 ? t.debt : undefined}
+          eur
+        />
+        <Field
+          caption="Sonstige Verbindlichkeiten (Gesamthöhe, ohne Immobilien)"
+          value={hh?.sonstigeVerbindlichkeiten}
+          eur
+        />
+      </div>
+
+      <Band>Eigenkapital für den nächsten Erwerb</Band>
+      <div className="sa-grid3">
+        <Field caption="Liquide Mittel (Bank/Spar + Wertpapiere)" value={liquide} eur />
+        <Field caption="Davon für den Erwerb einsetzbar" value={hh?.ekVerfuegbar} eur />
+        <Field caption="Liquiditätsreserve nach Kauf" value={reserve} eur />
+      </div>
+      <p className="sa-cap">
+        Die Reserve bleibt nach dem Kauf verfügbar — der Erwerb zieht die Liquidität
+        nicht auf null.
+      </p>
+
+      <PortfolioSummaryBand t={t} />
 
       <Band>Kontoverbindung</Band>
       <div className="sa-grid2">
@@ -295,91 +451,44 @@ export function FinancesPage({
   );
 }
 
-// With a concept, the page describes the TARGET object of the financing request;
-// without one it falls back to the first portfolio property (legacy behavior).
-export function ObjectPage({
-  p,
-  konzept,
-}: {
-  p: PortfolioProperty | undefined;
-  konzept?: SelbstauskunftKonzept;
-}) {
+// Page 4 — the TARGET object of the financing request. Only a concept describes
+// a target; without one the page stays a blank form. Existing properties are
+// deliberately NOT shown here — they are Bestand, not Finanzierungsobjekt, and
+// live on the Zusatzblatt / in der Portfolio-Zusammenfassung.
+export function ObjectPage({ konzept }: { konzept?: SelbstauskunftKonzept }) {
   const o = konzept?.objekt;
   const hasKonzeptObjekt = !!o && Object.values(o).some((v) => v != null && v !== "");
-  if (hasKonzeptObjekt) {
-    const vermietet = (o.erwarteteMiete ?? 0) > 0;
-    return (
-      <Page n={3}>
-        <h1 className="sa-title">Angaben zum Finanzierungsobjekt</h1>
-        <Band>Basisangaben</Band>
-        <div className="sa-grid2">
-          <Field caption="Straße, Hausnummer" value={o.adresse ?? ""} />
-          <Field caption="PLZ, Ort" value={o.ort ?? ""} />
-          <Field caption="Art der Immobilie" value={o.objekttyp ?? ""} />
-          <Field caption="Gesamte Wohnfläche (m²)" value={o.wohnflaeche ?? ""} />
-          <Field caption="Baujahr" value={o.baujahr ?? ""} />
-          <Field caption="Anzahl der Zimmer" value={o.zimmer ?? ""} />
-        </div>
-
-        <Band>Zusätzliche Angaben</Band>
-        <div className="sa-grid2">
-          <div>
-            <Check label="Vermietung geplant (auch Teilvermietung)" on={vermietet} />
-          </div>
-          <Field
-            caption="Erwartete Mieteinnahmen (monatlich)"
-            value={o.erwarteteMiete ?? ""}
-            eur
-          />
-        </div>
-
-        <Band>Kaufpreis</Band>
-        <div className="sa-grid2">
-          <Field caption="Kaufpreis" value={o.kaufpreis ?? ""} eur />
-          <div />
-        </div>
-      </Page>
-    );
-  }
-
-  const r = p?.inputs.report;
-  const loan = p ? deriveLoan(p) : null;
-  const vermietet = (p?.inputs.kaltmiete ?? 0) > 0;
+  const vermietet = hasKonzeptObjekt && (o.erwarteteMiete ?? 0) > 0;
   return (
-    <Page n={3}>
+    <Page n={4}>
       <h1 className="sa-title">Angaben zum Finanzierungsobjekt</h1>
       <Band>Basisangaben</Band>
       <div className="sa-grid2">
-        <Field caption="Straße, Hausnummer" value={p?.address ?? p?.name ?? ""} />
-        <Field caption="PLZ, Ort" value={r?.stadt ?? ""} />
-        <Field caption="Art der Immobilie" value={r?.objekttyp ?? ""} />
-        <Field caption="Gesamte Wohnfläche (m²)" value={r?.wohnflaeche ?? ""} />
-        <Field caption="Baujahr" value={r?.baujahr ?? ""} />
-        <Field caption="Anzahl der Wohneinheiten" value={r?.zimmer ?? ""} />
+        <Field caption="Straße, Hausnummer" value={o?.adresse ?? ""} />
+        <Field caption="PLZ, Ort" value={o?.ort ?? ""} />
+        <Field caption="Art der Immobilie" value={o?.objekttyp ?? ""} />
+        <Field caption="Gesamte Wohnfläche (m²)" value={o?.wohnflaeche ?? ""} />
+        {/* Years are labels, not amounts — never run them through the number format. */}
+        <Field caption="Baujahr" value={o?.baujahr != null ? String(o.baujahr) : ""} />
+        <Field caption="Anzahl der Zimmer" value={o?.zimmer ?? ""} />
       </div>
 
       <Band>Zusätzliche Angaben</Band>
       <div className="sa-grid2">
         <div>
-          <Check label="Die Immobilie ist vermietet (auch Teilvermietung)" on={vermietet} />
+          <Check label="Vermietung geplant (auch Teilvermietung)" on={vermietet} />
         </div>
         <Field
-          caption="Mieteinnahmen (monatlich)"
-          value={p ? p.inputs.kaltmiete : ""}
+          caption="Erwartete Mieteinnahmen (monatlich)"
+          value={o?.erwarteteMiete ?? ""}
           eur
         />
       </div>
 
-      <Band>Marktwert / Bereits bestehende Darlehen</Band>
+      <Band>Kaufpreis</Band>
       <div className="sa-grid2">
-        <Field caption="Marktwert" value={p ? marketValue(p) : ""} eur />
+        <Field caption="Kaufpreis" value={o?.kaufpreis ?? ""} eur />
         <div />
-      </div>
-      <div className="sa-subhead">Immobiliendarlehen</div>
-      <div className="sa-grid3">
-        <Field caption="Rate (mtl.)" value={loan?.monthlyRate ?? ""} eur />
-        <Field caption="Restschuld, aktuell offener Betrag" value={loan?.restschuld ?? ""} eur />
-        <Field caption="Zinsbindung bis" value={loan?.zinsbindungBis ?? ""} />
       </div>
     </Page>
   );
@@ -388,7 +497,7 @@ export function ObjectPage({
 export function FinanceNeedPage({ konzept }: { konzept?: SelbstauskunftKonzept }) {
   const fin = konzept?.finanzierung;
   return (
-    <Page n={4}>
+    <Page n={5}>
       <h1 className="sa-title">Ihr Finanzbedarf</h1>
       {konzept && (
         <div style={{ marginBottom: 6 }}>
@@ -429,8 +538,11 @@ export function FinanceNeedPage({ konzept }: { konzept?: SelbstauskunftKonzept }
 }
 
 // ── Zusatzblatt (variable — scales to the number of properties) ───────────────
+// Full detail block per property — the Fall-B table from the spec: purchase,
+// value, rent, running costs, loan and the resulting monthly cash flow.
 export function PropertyBlock({ p }: { p: PortfolioProperty }) {
   const loan = deriveLoan(p);
+  const r = p.inputs.report;
   const vermietet = (p.inputs.kaltmiete ?? 0) > 0;
   return (
     <div style={{ marginBottom: "6mm" }}>
@@ -440,23 +552,83 @@ export function PropertyBlock({ p }: { p: PortfolioProperty }) {
           caption="Bezeichnung zur Identifikation (z.B. Straße)"
           value={p.address ?? p.name}
         />
-        <Field caption="Wert der Immobilie" value={marketValue(p)} eur />
-        <Field
-          caption="Gesamte Wohnfläche (m²)"
-          value={p.inputs.report?.wohnflaeche ?? ""}
-        />
+        <Field caption="Art der Immobilie" value={r?.objekttyp ?? ""} />
+        <Field caption="Gesamte Wohnfläche (m²)" value={r?.wohnflaeche ?? ""} />
+        <Field caption="Kaufjahr" value={kaufjahr(p)} />
+        <Field caption="Damaliger Kaufpreis" value={p.inputs.kaufpreis} eur />
+        <Field caption="Geschätzter Marktwert (heute)" value={marketValue(p)} eur />
       </div>
-      <div className="sa-grid2">
+      <div className="sa-grid3">
         <Check label="Die Immobilie ist vermietet (auch Teilvermietung)" on={vermietet} />
-        <Field caption="Mieteinnahmen (monatlich)" value={p.inputs.kaltmiete} eur />
+        <Field caption="Kaltmiete (monatlich)" value={p.inputs.kaltmiete} eur />
+        <Field
+          caption="Nicht umlagefähige Kosten (monatlich)"
+          value={p.inputs.nichtUmlagefaehig}
+          eur
+        />
       </div>
       <div className="sa-subhead">Bereits bestehende Darlehen</div>
       <div className="sa-grid3">
-        <Field caption="Grundschuld / Rate (mtl.)" value={loan.monthlyRate} eur />
+        <Field caption="Finanzierende Bank" value={""} />
+        <Field caption="Rate (monatlich)" value={loan.monthlyRate} eur />
         <Field caption="Restschuld, aktuell offener Betrag" value={loan.restschuld} eur />
+        <Field
+          caption="Sollzins (%)"
+          value={p.inputs.zins != null ? p.inputs.zins.toLocaleString("de-DE") : ""}
+        />
         <Field caption="Zinsbindung bis" value={loan.zinsbindungBis} />
+        <Field caption="Cashflow vor Steuer (monatlich)" value={objectCashflow(p, loan)} eur />
       </div>
     </div>
+  );
+}
+
+// Compact one-line-per-object list for larger portfolios: the Selbstauskunft
+// stays sendable on its own without ballooning to one block per object.
+function CompactPortfolioPage({
+  properties,
+  n,
+  pageIndex,
+  pageCount,
+}: {
+  properties: PortfolioProperty[];
+  n: number;
+  pageIndex: number;
+  pageCount: number;
+}) {
+  return (
+    <Page n={n}>
+      <h1 className="sa-title">
+        Zusatzblatt: Objektliste{pageCount > 1 ? ` (${pageIndex + 1}/${pageCount})` : ""}
+      </h1>
+      <Band>Immobilienvermögen — kompakte Übersicht</Band>
+      <div className="sa-table">
+        <div className="sa-table-row sa-table-head">
+          <span>Objekt</span>
+          <span>Marktwert</span>
+          <span>Restschuld</span>
+          <span>Kaltmiete mtl.</span>
+          <span>Rate mtl.</span>
+          <span>Zinsbindung bis</span>
+        </div>
+        {properties.map((p) => {
+          const loan = deriveLoan(p);
+          return (
+            <div key={p.id} className="sa-table-row">
+              <span className="sa-table-name">{p.address ?? p.name}</span>
+              <span>{eur0(marketValue(p))} €</span>
+              <span>{eur0(loan.restschuld)} €</span>
+              <span>{eur0(p.inputs.kaltmiete)} €</span>
+              <span>{eur0(loan.monthlyRate)} €</span>
+              <span>{loan.zinsbindungBis || "—"}</span>
+            </div>
+          );
+        })}
+      </div>
+      <p className="sa-cap" style={{ marginTop: 6 }}>
+        Kennzahlen, Grafiken und Details je Objekt: siehe Investorenbroschüre.
+      </p>
+    </Page>
   );
 }
 
@@ -467,16 +639,37 @@ export function ZusatzblattPages({
   properties: PortfolioProperty[];
   startPage: number;
 }) {
-  const groups = chunk(properties, 3);
+  if (properties.length === 0) return null;
+
+  // Small Bestand → full detail blocks (2 per page). Larger Bestand → the
+  // compact list; the Portfolio-Zusammenfassung on page 3 carries the totals.
+  if (properties.length <= DETAIL_PROPERTY_LIMIT) {
+    const groups = chunk(properties, 2);
+    return (
+      <>
+        {groups.map((group, gi) => (
+          <Page key={gi} n={startPage + gi}>
+            <h1 className="sa-title">Zusatzblatt: Immobilienvermögen</h1>
+            {group.map((p) => (
+              <PropertyBlock key={p.id} p={p} />
+            ))}
+          </Page>
+        ))}
+      </>
+    );
+  }
+
+  const groups = chunk(properties, 18);
   return (
     <>
       {groups.map((group, gi) => (
-        <Page key={gi} n={startPage + gi}>
-          <h1 className="sa-title">Zusatzblatt: Immobilienvermögen</h1>
-          {group.map((p) => (
-            <PropertyBlock key={p.id} p={p} />
-          ))}
-        </Page>
+        <CompactPortfolioPage
+          key={gi}
+          properties={group}
+          n={startPage + gi}
+          pageIndex={gi}
+          pageCount={groups.length}
+        />
       ))}
     </>
   );

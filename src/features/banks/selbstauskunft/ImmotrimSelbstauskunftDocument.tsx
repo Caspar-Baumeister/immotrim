@@ -5,11 +5,12 @@ import {
   Band,
   Field,
   FinanceNeedPage,
-  FinancesPage,
+  HouseholdPage,
   ObjectPage,
   Page,
   PersonalPage,
   useReportReady,
+  WealthPage,
   ZusatzblattPages,
 } from "./pages";
 
@@ -17,7 +18,7 @@ import {
 // no Vermittlungsauftrag, no Auskunftei consent, no bank name.
 function SignaturePage() {
   return (
-    <Page n={5}>
+    <Page n={6}>
       <h1 className="sa-title">Erklärung</h1>
       <Band>Versicherung der Richtigkeit</Band>
       <div className="sa-legal">
@@ -37,7 +38,8 @@ function SignaturePage() {
 // ── document ─────────────────────────────────────────────────────────────────
 // The generic "Private Selbstauskunft" Immotrim generates for the user — same
 // form as the bank variants, addressed to no particular bank. Valid with an
-// empty portfolio (the property sections then render as a blank form).
+// empty portfolio (the property sections then render as a blank form). Sober
+// and numbers-only by design: the investor story lives in the brochure.
 export function ImmotrimSelbstauskunftDocument({
   payload,
 }: {
@@ -49,21 +51,15 @@ export function ImmotrimSelbstauskunftDocument({
 
   useReportReady();
 
-  const primary = properties[0];
-  // Fixed pages are 1..5; the Zusatzblatt starts at page 6 (same as the bank forms).
-  const ZUSATZ_START = 6;
+  // Fixed pages are 1..6; the Zusatzblatt starts at page 7 (same as the bank forms).
+  const ZUSATZ_START = 7;
 
   return (
     <div className="sa-root">
-      <PersonalPage
-        investorName={investorName}
-        sd={sd}
-        hh={hh}
-        strategie={profile?.strategie}
-        imageDataUrl={profile?.imageDataUrl}
-      />
-      <FinancesPage properties={properties} sd={sd} hh={hh} />
-      <ObjectPage p={primary} konzept={konzept} />
+      <PersonalPage investorName={investorName} sd={sd} hh={hh} />
+      <HouseholdPage properties={properties} sd={sd} hh={hh} />
+      <WealthPage properties={properties} sd={sd} hh={hh} />
+      <ObjectPage konzept={konzept} />
       <FinanceNeedPage konzept={konzept} />
       <SignaturePage />
       <ZusatzblattPages properties={properties} startPage={ZUSATZ_START} />

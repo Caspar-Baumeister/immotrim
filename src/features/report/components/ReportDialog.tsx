@@ -254,6 +254,12 @@ export function ReportDialog({ open, onOpenChange, properties }: Props) {
             </h4>
             <div className="divide-y divide-border/50">
               <ToggleRow
+                label="Investorenprofil"
+                hint="Über mich & Investmentstrategie — gepflegt auf der Strategie-Seite"
+                checked={config.includeProfile}
+                onChange={(v) => setToggle("includeProfile", v)}
+              />
+              <ToggleRow
                 label="Portfolio-Grafiken"
                 hint="Entwicklung von Wert, Schulden, Cashflow und Risiko über Zeit"
                 checked={config.includeCharts}

@@ -260,6 +260,15 @@ export const HAUSHALT_GROUPS: ProfileFieldGroup[] = [
       { key: "bankSparguthaben", label: "Bank- und Sparguthaben", type: "number", suffix: "€", info: "Verfügbares Guthaben auf Giro-, Tagesgeld- und Sparkonten. Dieser Bestand (nicht monatlich) zeigt der Bank dein sofort einsetzbares Eigenkapital." },
       { key: "wertpapiere", label: "Wertpapiere / Aktien", type: "number", suffix: "€", info: "Aktueller Depotwert: Aktien, ETFs, Fonds und Anleihen. Grober Kurswert genügt — er zählt als teilweise beleihbares Eigenkapital." },
       { key: "sonstigesVermoegen", label: "Sonstiges Vermögen", type: "number", suffix: "€", description: "Z. B. Bausparverträge, Lebensversicherungen.", info: "Weitere Vermögenswerte: Bausparverträge, Rückkaufswert von Lebensversicherungen, Edelmetalle, Beteiligungen. Deine Immobilien NICHT hier eintragen — die erfasst du unter „Immobilien“." },
+      {
+        key: "ekVerfuegbar",
+        label: "Davon für einen Kauf einsetzbar",
+        type: "number",
+        suffix: "€",
+        fullWidth: true,
+        description: "Wie viel Eigenkapital du beim nächsten Kauf einbringen willst.",
+        info: "Der Teil deiner liquiden Mittel (Bank/Spar + Wertpapiere), den du für den nächsten Erwerb einsetzen würdest. Der Rest erscheint in der Selbstauskunft als Liquiditätsreserve nach Kauf — Banken sehen daran sofort, dass du dich nicht auf null ziehst.",
+      },
     ],
   },
   {
@@ -321,6 +330,7 @@ const HAUSHALT_LABELS: Record<string, string> = {
   bankSparguthaben: "Bank- und Sparguthaben",
   wertpapiere: "Wertpapiere / Aktien",
   sonstigesVermoegen: "Sonstiges Vermögen",
+  ekVerfuegbar: "Davon für einen Kauf einsetzbar",
   sonstigeVerbindlichkeiten: "Sonstige Verbindlichkeiten",
 };
 

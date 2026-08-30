@@ -6,18 +6,19 @@ import {
   Band,
   Field,
   FinanceNeedPage,
-  FinancesPage,
+  HouseholdPage,
   ObjectPage,
   Page,
   PersonalPage,
   useReportReady,
+  WealthPage,
   ZusatzblattPages,
 } from "../selbstauskunft/pages";
 
 // The MBS-specific page: Vermittlungsauftrag/Vollmacht + Auskunftei-Hinweise.
 function DeclarationPage({ bankLabel }: { bankLabel: string }) {
   return (
-    <Page n={5}>
+    <Page n={6}>
       <h1 className="sa-title">Erklärung der Darlehensnehmer, Einwilligungserklärungen</h1>
       <Band>I. Darlehensvermittlung und Anschlussbetreuung</Band>
       <div className="sa-legal">
@@ -74,21 +75,15 @@ export function MbsSelbstauskunftDocument({
 
   useReportReady();
 
-  const primary = properties[0];
-  // Fixed pages are 1..5; the Zusatzblatt starts at page 6.
-  const ZUSATZ_START = 6;
+  // Fixed pages are 1..6; the Zusatzblatt starts at page 7.
+  const ZUSATZ_START = 7;
 
   return (
     <div className="sa-root">
-      <PersonalPage
-        investorName={investorName}
-        sd={sd}
-        hh={hh}
-        strategie={profile?.strategie}
-        imageDataUrl={profile?.imageDataUrl}
-      />
-      <FinancesPage properties={properties} sd={sd} hh={hh} />
-      <ObjectPage p={primary} konzept={konzept} />
+      <PersonalPage investorName={investorName} sd={sd} hh={hh} />
+      <HouseholdPage properties={properties} sd={sd} hh={hh} />
+      <WealthPage properties={properties} sd={sd} hh={hh} />
+      <ObjectPage konzept={konzept} />
       <FinanceNeedPage konzept={konzept} />
       <DeclarationPage bankLabel={bankLabel} />
       <ZusatzblattPages properties={properties} startPage={ZUSATZ_START} />

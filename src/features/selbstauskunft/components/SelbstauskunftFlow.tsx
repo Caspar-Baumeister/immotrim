@@ -36,6 +36,7 @@ type Phase = "loading" | "upload" | "sorting" | "tiles" | "error";
 const REPORT_CONFIG = {
   includeTitleImage: false,
   includePropertyImages: false,
+  includeProfile: true,
   includeCharts: true,
   includeFinancing: true,
   includeTax: false,

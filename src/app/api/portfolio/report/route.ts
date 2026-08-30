@@ -8,7 +8,9 @@ import {
   MAX_DETAIL_PROPERTIES,
   type ReportConfig,
   type ReportPayload,
+  type ReportStrategie,
 } from "@/features/report/report-types";
+import type { Strategie } from "@/features/profile/types";
 import { rankPropertiesForReport } from "@/features/report/report-metrics";
 import type { Property, Json } from "@/lib/supabase";
 
@@ -119,6 +121,25 @@ export async function POST(request: Request) {
     }
   }
 
+  // ── Investor story for the profile page (Über mich + Strategie) ─────────────
+  let strategie: ReportStrategie | undefined;
+  if (safeConfig.includeProfile) {
+    const { data: profileRow } = await sb
+      .from("profiles")
+      .select("strategie")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const s = (profileRow?.strategie as Strategie) ?? {};
+    const imageUrl = s.imagePath ? await sign(s.imagePath) : null;
+    if (s.ueberMich || s.strategieText || imageUrl) {
+      strategie = {
+        ueberMich: s.ueberMich,
+        strategieText: s.strategieText,
+        imageUrl,
+      };
+    }
+  }
+
   const payload: ReportPayload = {
     generatedAt: new Date().toISOString(),
     locale,
@@ -127,6 +148,7 @@ export async function POST(request: Request) {
     properties: portfolio,
     titleImageUrl,
     propertyImageUrls,
+    strategie,
   };
 
   // ── Persist the job under an unguessable token (read by the print page) ──────
