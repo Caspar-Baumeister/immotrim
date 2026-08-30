@@ -16,15 +16,13 @@ import type {
 } from "@/features/banks/types";
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
 import type { Property, Json } from "@/lib/supabase";
-import type { Stammdaten, Haushalt, Strategie } from "@/features/profile/types";
+import type { Stammdaten, Haushalt } from "@/features/profile/types";
 import {
   KONZEPT_TYPE_LABELS,
   normaliseKonzeptType,
   type KonzeptFinanzierung,
   type KonzeptObjekt,
 } from "@/features/konzepte/types";
-
-const BUCKET = "property-documents";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -149,31 +147,21 @@ export async function POST(
     inputs: p.inputs,
   }));
 
-  // ── Fetch the applicant profile + embed the strategy image as a data URL ─────
+  // ── Fetch the applicant profile ──────────────────────────────────────────────
+  // Only Stammdaten + Haushalt: the Selbstauskunft is the sober numbers document;
+  // the investor story (Strategie) lives in the Investorenbroschüre.
   const { data: profileRow } = await sb
     .from("profiles")
-    .select("stammdaten, haushalt, strategie")
+    .select("stammdaten, haushalt")
     .eq("user_id", user.id)
     .maybeSingle();
 
   const stammdaten = (profileRow?.stammdaten as Stammdaten) ?? {};
   const haushalt = (profileRow?.haushalt as Haushalt) ?? {};
-  const strategie = (profileRow?.strategie as Strategie) ?? {};
-
-  let imageDataUrl: string | undefined;
-  if (strategie.imagePath) {
-    const { data: blob } = await sb.storage.from(BUCKET).download(strategie.imagePath);
-    if (blob) {
-      const buf = Buffer.from(await blob.arrayBuffer());
-      imageDataUrl = `data:${blob.type || "image/jpeg"};base64,${buf.toString("base64")}`;
-    }
-  }
 
   const profile: SelbstauskunftProfile = {
     stammdaten,
     haushalt,
-    strategie,
-    imageDataUrl,
   };
 
   // Prefer the Stammdaten name for the header, then the request/metadata fallback.

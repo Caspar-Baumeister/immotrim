@@ -10,6 +10,7 @@ import {
 import { computeReportMetrics, buildRiskSummary } from "../report-metrics";
 import type { ReportPayload } from "../report-types";
 import { CoverPage } from "./pages/CoverPage";
+import { InvestorProfilePage } from "./pages/InvestorProfilePage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { ChartsTimeSeriesPage, ChartsPerObjectPage } from "./pages/ChartsPages";
 import { RiskPage } from "./pages/RiskPage";
@@ -22,8 +23,15 @@ declare global {
 }
 
 export function ReportDocument({ payload }: { payload: ReportPayload }) {
-  const { properties, config, investorName, generatedAt, titleImageUrl, propertyImageUrls } =
-    payload;
+  const {
+    properties,
+    config,
+    investorName,
+    generatedAt,
+    titleImageUrl,
+    propertyImageUrls,
+    strategie,
+  } = payload;
 
   const kpis = calculatePortfolioKpis(properties);
   const metrics = computeReportMetrics(properties);
@@ -63,6 +71,10 @@ export function ReportDocument({ payload }: { payload: ReportPayload }) {
         titleImageUrl={config.includeTitleImage ? titleImageUrl : null}
       />
 
+      {config.includeProfile && strategie && (
+        <InvestorProfilePage strategie={strategie} investorName={investorName} />
+      )}
+
       <OverviewPage
         kpis={kpis}
         includeTax={config.includeTax}
@@ -77,7 +89,11 @@ export function ReportDocument({ payload }: { payload: ReportPayload }) {
             amortization={amortization}
             cashFlow={cashFlow}
           />
-          <ChartsPerObjectPage metrics={metrics.perProperty} />
+          {/* A comparison of one object with itself says nothing — the page only
+              exists once there are at least two properties to compare. */}
+          {properties.length >= 2 && (
+            <ChartsPerObjectPage metrics={metrics.perProperty} />
+          )}
         </>
       )}
 

@@ -162,3 +162,37 @@ hr.sa-rule {
   border-top: 1px solid #e4e7eb;
   margin: 8px 0;
 }
+
+/* Compact one-line-per-object list (Zusatzblatt for larger portfolios). */
+.sa-table {
+  border: 1px solid #d7dbe0;
+}
+
+.sa-table-row {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 0 6px;
+  padding: 4px 8px;
+  border-top: 1px solid #e4e7eb;
+  font-size: 8.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sa-table-row > span {
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sa-table-row > span:first-child,
+.sa-table-row > .sa-table-name {
+  text-align: left;
+}
+
+.sa-table-head {
+  border-top: none;
+  background: #f5f6f8;
+  font-weight: 700;
+  color: #22272e;
+}

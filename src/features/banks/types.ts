@@ -1,15 +1,14 @@
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
-import type { Stammdaten, Haushalt, Strategie } from "@/features/profile/types";
+import type { Stammdaten, Haushalt } from "@/features/profile/types";
 import type { KonzeptFinanzierung, KonzeptObjekt } from "@/features/konzepte/types";
 
-// The applicant's profile, embedded so the previously-blank personal / income /
-// strategy fields on the form get filled. The image is embedded as a data URL so
-// the headless renderer needs no storage auth.
+// The applicant's profile, embedded so the previously-blank personal / income
+// fields on the form get filled. The investor story (Strategie, Über mich,
+// Portrait) deliberately is NOT part of the Selbstauskunft — it lives in the
+// Investorenbroschüre, so the bank never reads the same content twice.
 export type SelbstauskunftProfile = {
   stammdaten: Stammdaten;
   haushalt: Haushalt;
-  strategie: Strategie;
-  imageDataUrl?: string;
 };
 
 // The financing concept behind the request, serialized into the payload. Fills

@@ -12,6 +12,7 @@ export const CONCENTRATION_THRESHOLD = 0.4;
 export type ReportConfig = {
   includeTitleImage: boolean;
   includePropertyImages: boolean;
+  includeProfile: boolean; // investor-profile page (Über mich + Strategie)
   includeCharts: boolean;
   includeFinancing: boolean; // financing-detail rows on property pages
   includeTax: boolean; // tax KPIs / after-tax cash flow
@@ -24,6 +25,7 @@ export function defaultReportConfig(selectedPropertyIds: string[]): ReportConfig
   return {
     includeTitleImage: false,
     includePropertyImages: true,
+    includeProfile: true,
     includeCharts: true,
     includeFinancing: true,
     includeTax: true,
@@ -31,6 +33,16 @@ export function defaultReportConfig(selectedPropertyIds: string[]): ReportConfig
     selectedPropertyIds,
   };
 }
+
+// Investor story shown on the brochure's profile page — the "Investment Credit
+// Story" half of the bank documents. The sober numbers stay in the
+// Selbstauskunft; who the investor is and what they buy lives here.
+export type ReportStrategie = {
+  ueberMich?: string;
+  strategieText?: string;
+  /** Signed URL of the portrait/logo (storage is private; Chromium has no session). */
+  imageUrl?: string | null;
+};
 
 // The serializable payload handed to the headless print page via report_jobs.
 // It carries the RAW portfolio so the page can recompute every KPI/chart with the
@@ -44,6 +56,8 @@ export type ReportPayload = {
   properties: PortfolioProperty[]; // ALL properties in the portfolio
   titleImageUrl: string | null;
   propertyImageUrls: Record<string, string[]>; // propertyId → signed image URLs
+  /** Investor story for the profile page (only set when includeProfile). */
+  strategie?: ReportStrategie;
 };
 
 // Descriptive report-only fields, used by missingReportFields() + the completeness

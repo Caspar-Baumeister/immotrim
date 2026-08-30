@@ -23,10 +23,12 @@ const nextConfig: NextConfig = {
   // @sparticuz/chromium loads its brotli-compressed binary from bin/*.br via a
   // computed path at runtime, so file-tracing can't detect it and drops it from
   // the serverless function (→ "input directory .../@sparticuz/chromium/bin does
-  // not exist" and a 502 from /api/portfolio/report). Force the bin/ payload into
-  // the report route's bundle.
+  // not exist" and a 502). EVERY route that calls launchBrowser() needs its own
+  // entry here — keys are picomatch route globs, and `*` covers the dynamic
+  // [bankId] segment.
   outputFileTracingIncludes: {
     "/api/portfolio/report": ["./node_modules/@sparticuz/chromium/bin/**"],
+    "/api/selbstauskunft/*": ["./node_modules/@sparticuz/chromium/bin/**"],
   },
   // The app was previously served under a /[locale] prefix (/de, /en). It is now
   // German-only with flat URLs, so redirect any legacy locale-prefixed URL

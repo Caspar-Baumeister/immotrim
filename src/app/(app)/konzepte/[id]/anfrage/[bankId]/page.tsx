@@ -23,7 +23,11 @@ import {
 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
-import { getBank, hasBankDocument } from "@/features/banks/registry";
+import {
+  GENERIC_SELBSTAUSKUNFT_ID,
+  getBank,
+  hasBankDocument,
+} from "@/features/banks/registry";
 import {
   BANK_DOC_PROFILES,
   bankCompletion,
@@ -186,16 +190,22 @@ function AnfragePageInner() {
     return bankCompletion(bankId, presentBorrower, presentObject);
   }, [bankId, borrowerDocs, conceptDocs]);
 
+  // Banks without their own form get the bank-neutral Immotrim Selbstauskunft —
+  // same data, no bank branding — so EVERY Anfrage ships with a filled form.
   const withDocument = hasBankDocument(bankId);
-  const pdfName = bank ? `Selbstauskunft-${bank.shortName}.pdf` : "Selbstauskunft.pdf";
+  const documentBankId = withDocument ? bankId : GENERIC_SELBSTAUSKUNFT_ID;
+  const pdfName =
+    withDocument && bank
+      ? `Selbstauskunft-${bank.shortName}.pdf`
+      : "Selbstauskunft-Immotrim.pdf";
 
   const attachmentNames = useMemo(
     () => [
-      ...(withDocument ? [pdfName] : []),
+      pdfName,
       ...borrowerDocs.map((d) => d.file_name),
       ...conceptDocs.map((d) => d.file_name),
     ],
-    [withDocument, pdfName, borrowerDocs, conceptDocs],
+    [pdfName, borrowerDocs, conceptDocs],
   );
 
   const mail: AnfrageEmail | null =
@@ -213,7 +223,7 @@ function AnfragePageInner() {
       : null;
 
   const fetchPdf = async (): Promise<Blob | null> => {
-    const res = await fetch(`/api/selbstauskunft/${bankId}`, {
+    const res = await fetch(`/api/selbstauskunft/${documentBankId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conceptId: id, objectId: selectedObjectId ?? undefined }),
@@ -255,14 +265,12 @@ function AnfragePageInner() {
     setZipNote(null);
     try {
       let pdf: { name: string; blob: Blob } | undefined;
-      if (withDocument) {
-        try {
-          const blob = await fetchPdf();
-          if (blob) pdf = { name: pdfName, blob };
-          else return; // 402 → redirect already running
-        } catch {
-          setZipNote("Selbstauskunft-PDF konnte nicht erzeugt werden — ZIP enthält nur die Dokumente.");
-        }
+      try {
+        const blob = await fetchPdf();
+        if (blob) pdf = { name: pdfName, blob };
+        else return; // 402 → redirect already running
+      } catch {
+        setZipNote("Selbstauskunft-PDF konnte nicht erzeugt werden — ZIP enthält nur die Dokumente.");
       }
       const zipName = `Finanzierungsanfrage-${bank.shortName}-${konzept.title}`
         .replace(/[^a-zA-Z0-9äöüÄÖÜß ._-]/g, "")
@@ -512,35 +520,35 @@ function AnfragePageInner() {
 
         {/* 3. Selbstauskunft-PDF */}
         <Panel title="Selbstauskunft (PDF)">
-          {withDocument ? (
-            <>
-              <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
+            {withDocument ? (
+              <>
                 Das {bank.shortName}-Formular, vorausgefüllt mit deinem Profil, deinem
                 Portfolio und diesem Konzept (inkl. Finanzierungswunsch).
-              </p>
-              <div>
-                <Button
-                  size="sm"
-                  onClick={handlePdfDownload}
-                  disabled={pdfBusy}
-                  className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white gap-1.5"
-                >
-                  {pdfBusy ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Download className="h-3.5 w-3.5" />
-                  )}
-                  PDF erstellen & herunterladen
-                </Button>
-              </div>
-            </>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Für {bank.shortName} gibt es noch kein bankspezifisches
-              Selbstauskunft-Formular. Nutze stattdessen die Investorenbroschüre
-              unten als Anlage.
-            </p>
-          )}
+              </>
+            ) : (
+              <>
+                {bank.shortName} hat kein eigenes Formular — du erhältst die
+                bankneutrale Selbstauskunft, vorausgefüllt mit deinem Profil, deinem
+                Portfolio und diesem Konzept (inkl. Finanzierungswunsch).
+              </>
+            )}
+          </p>
+          <div>
+            <Button
+              size="sm"
+              onClick={handlePdfDownload}
+              disabled={pdfBusy}
+              className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white gap-1.5"
+            >
+              {pdfBusy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
+              PDF erstellen & herunterladen
+            </Button>
+          </div>
         </Panel>
 
         {/* 4. Investorenbroschüre (Portfoliobericht) */}
@@ -584,14 +592,14 @@ function AnfragePageInner() {
         {/* 5. ZIP-Bundle */}
         <Panel title="Unterlagen-Paket (ZIP)">
           <p className="text-xs text-muted-foreground">
-            Alle persönlichen Unterlagen und Objektunterlagen{withDocument ? " sowie die frisch erzeugte Selbstauskunft" : ""} in einem
-            ZIP — bereit zum Anhängen.
+            Alle persönlichen Unterlagen und Objektunterlagen sowie die frisch
+            erzeugte Selbstauskunft in einem ZIP — bereit zum Anhängen.
           </p>
           <div>
             <Button
               size="sm"
               onClick={handleZip}
-              disabled={zipBusy || (borrowerDocs.length === 0 && conceptDocs.length === 0 && !withDocument)}
+              disabled={zipBusy}
               className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white gap-1.5"
             >
               {zipBusy ? (
