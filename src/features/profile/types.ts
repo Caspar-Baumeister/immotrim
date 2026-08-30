@@ -39,6 +39,8 @@ export type Stammdaten = {
   beruf?: string;
   beschaeftigtSeit?: string; // "YYYY-MM"
   anzahlKinder?: number;
+  /** Komma-getrennt, z. B. "Emma (2019), Paul (2022)" — füllt die Kind-Felder der Selbstauskunft. */
+  kinderNamen?: string;
   // Kontoverbindung
   kontoinhaber?: string;
   kreditinstitut?: string;
@@ -75,6 +77,16 @@ export type Haushalt = {
   ekVerfuegbar?: number;
   // Verbindlichkeiten (Gesamthöhe, ohne Immobiliendarlehen)
   sonstigeVerbindlichkeiten?: number;
+  // Finanzierungswunsch / Suchprofil für den nächsten Erwerb — füllt den
+  // Finanzbedarf der Selbstauskunft, solange kein konkretes Konzept gewählt ist
+  // (mit Konzept gewinnen dessen Angaben).
+  fwZweck?: "kauf" | "neubau" | "anschlussfinanzierung" | "kapitalbeschaffung";
+  fwNutzung?: "kapitalanlage" | "eigennutzung";
+  fwRegion?: string;
+  fwKaufpreis?: string; // Spanne als Freitext, z. B. "200.000–300.000 €"
+  fwDarlehen?: number; // gewünschtes Fremdkapital
+  fwZinsbindung?: number; // Jahre
+  fwTilgung?: number; // % anfängliche Tilgung
 };
 
 /** Investor strategy + about-me, fed into the Selbstauskunft cover. */

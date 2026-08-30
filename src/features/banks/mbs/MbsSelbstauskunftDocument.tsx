@@ -80,11 +80,13 @@ export function MbsSelbstauskunftDocument({
 
   return (
     <div className="sa-root">
-      <PersonalPage investorName={investorName} sd={sd} hh={hh} />
-      <HouseholdPage properties={properties} sd={sd} hh={hh} />
-      <WealthPage properties={properties} sd={sd} hh={hh} />
-      <ObjectPage konzept={konzept} />
-      <FinanceNeedPage konzept={konzept} />
+      <PersonalPage investorName={investorName} sd={sd} hh={hh} n={1} />
+      <HouseholdPage properties={properties} sd={sd} hh={hh} n={2} />
+      <WealthPage properties={properties} sd={sd} hh={hh} n={3} />
+      {/* The bank form keeps the object page even without a concept (blank,
+          hand-fillable) — it is part of the MBS form structure. */}
+      <ObjectPage konzept={konzept} n={4} />
+      <FinanceNeedPage konzept={konzept} hh={hh} n={5} />
       <DeclarationPage bankLabel={bankLabel} />
       <ZusatzblattPages properties={properties} startPage={ZUSATZ_START} />
     </div>

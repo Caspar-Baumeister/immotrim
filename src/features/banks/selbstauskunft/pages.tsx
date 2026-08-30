@@ -71,6 +71,14 @@ function marketValue(p: PortfolioProperty): number {
   return p.inputs.report?.marktwert ?? p.inputs.kaufpreis;
 }
 
+// The user-curated object name is the identifier everywhere in the app (and on
+// the report charts); the address field is often partial (e.g. just a PLZ), so
+// it only supplements.
+function objectLabel(p: PortfolioProperty): string {
+  if (!p.address || p.address === p.name) return p.name;
+  return `${p.name}, ${p.address}`;
+}
+
 function kaufjahr(p: PortfolioProperty): string {
   const iso = p.inputs.report?.kaufdatum ?? p.inputs.loanStartDate;
   return iso ? iso.slice(0, 4) : "";
@@ -248,13 +256,15 @@ export function PersonalPage({
   investorName,
   sd,
   hh,
+  n,
 }: {
   investorName: string;
   sd?: Stammdaten;
   hh?: Haushalt;
+  n: number;
 }) {
   return (
-    <Page n={1}>
+    <Page n={n}>
       <h1 className="sa-title">Ihre persönlichen Daten</h1>
       <p className="sa-cap" style={{ marginBottom: 8 }}>
         Antragsteller: {investorName}
@@ -274,21 +284,35 @@ export function HouseholdPage({
   properties,
   sd,
   hh,
+  n,
 }: {
   properties: PortfolioProperty[];
   sd?: Stammdaten;
   hh?: Haushalt;
+  n: number;
 }) {
   const t = portfolioTotals(properties);
   const hasPortfolio = t.count > 0;
+  // "Emma (2019), Paul (2022)" → one form slot per child; at least the two
+  // classic blank slots so the form stays hand-fillable.
+  const kinder = (sd?.kinderNamen ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
   return (
-    <Page n={2}>
+    <Page n={n}>
       <h1 className="sa-title">Ihre monatliche Haushaltsrechnung</h1>
       <Band>Kinder</Band>
       <div className="sa-grid3">
         <Field caption="Anzahl Ihrer Kinder" value={sd?.anzahlKinder} />
-        <Field caption="Name Kind 1" />
-        <Field caption="Name Kind 2" />
+        {kinder.length > 0 ? (
+          kinder.map((name, i) => (
+            <Field key={i} caption={`Name Kind ${i + 1}`} value={name} />
+          ))
+        ) : (
+          <Field caption="Name Kind 1" />
+        )}
+        {kinder.length <= 1 && <Field caption="Name Kind 2" />}
       </div>
 
       <Band>Monatliche Einnahmen (neben dem Erwerbseinkommen)</Band>
@@ -380,10 +404,12 @@ export function WealthPage({
   properties,
   sd,
   hh,
+  n,
 }: {
   properties: PortfolioProperty[];
   sd?: Stammdaten;
   hh?: Haushalt;
+  n: number;
 }) {
   const t = portfolioTotals(properties);
   const liquide =
@@ -395,7 +421,7 @@ export function WealthPage({
       ? Math.max(0, liquide - hh.ekVerfuegbar)
       : undefined;
   return (
-    <Page n={3}>
+    <Page n={n}>
       <h1 className="sa-title">Vermögen, Verbindlichkeiten und Eigenkapital</h1>
       <Band>Vermögen</Band>
       <div className="sa-grid2">
@@ -451,16 +477,30 @@ export function WealthPage({
   );
 }
 
-// Page 4 — the TARGET object of the financing request. Only a concept describes
-// a target; without one the page stays a blank form. Existing properties are
+// True when the concept carries an actual target object. The generic document
+// drops the Finanzierungsobjekt page entirely when this is false (the object
+// details travel separately with the Anfrage); the MBS bank form always renders
+// it, blank form included.
+export function konzeptHasObjekt(konzept?: SelbstauskunftKonzept): boolean {
+  const o = konzept?.objekt;
+  return !!o && Object.values(o).some((v) => v != null && v !== "");
+}
+
+// The TARGET object of the financing request. Only a concept describes a
+// target; without one the page stays a blank form. Existing properties are
 // deliberately NOT shown here — they are Bestand, not Finanzierungsobjekt, and
 // live on the Zusatzblatt / in der Portfolio-Zusammenfassung.
-export function ObjectPage({ konzept }: { konzept?: SelbstauskunftKonzept }) {
+export function ObjectPage({
+  konzept,
+  n,
+}: {
+  konzept?: SelbstauskunftKonzept;
+  n: number;
+}) {
   const o = konzept?.objekt;
-  const hasKonzeptObjekt = !!o && Object.values(o).some((v) => v != null && v !== "");
-  const vermietet = hasKonzeptObjekt && (o.erwarteteMiete ?? 0) > 0;
+  const vermietet = konzeptHasObjekt(konzept) && (o?.erwarteteMiete ?? 0) > 0;
   return (
-    <Page n={4}>
+    <Page n={n}>
       <h1 className="sa-title">Angaben zum Finanzierungsobjekt</h1>
       <Band>Basisangaben</Band>
       <div className="sa-grid2">
@@ -494,10 +534,30 @@ export function ObjectPage({ konzept }: { konzept?: SelbstauskunftKonzept }) {
   );
 }
 
-export function FinanceNeedPage({ konzept }: { konzept?: SelbstauskunftKonzept }) {
+// With a concept, the page carries that concept's financing request. Without
+// one it falls back to the profile-level Finanzierungswunsch (Haushalt fw*
+// fields) — the spec's Fall A: Kaufpreisspanne, gewünschtes Fremdkapital,
+// geplantes Eigenkapital, Nutzung, Region.
+export function FinanceNeedPage({
+  konzept,
+  hh,
+  n,
+}: {
+  konzept?: SelbstauskunftKonzept;
+  hh?: Haushalt;
+  n: number;
+}) {
   const fin = konzept?.finanzierung;
+  // Never mix: a selected concept fully owns this page; the profile wish only
+  // fills in when no concept was chosen at all.
+  const wunsch = konzept ? undefined : hh;
+  const zweck = fin?.zweck ?? wunsch?.fwZweck;
+  const darlehen = fin?.darlehensbetrag ?? wunsch?.fwDarlehen;
+  const zinsbindung = fin?.zinsbindungJahre ?? wunsch?.fwZinsbindung;
+  const tilgung = fin?.tilgungPct ?? wunsch?.fwTilgung;
+  const eigenkapital = fin?.eigenkapital ?? wunsch?.ekVerfuegbar;
   return (
-    <Page n={5}>
+    <Page n={n}>
       <h1 className="sa-title">Ihr Finanzbedarf</h1>
       {konzept && (
         <div style={{ marginBottom: 6 }}>
@@ -510,27 +570,38 @@ export function FinanceNeedPage({ konzept }: { konzept?: SelbstauskunftKonzept }
       )}
       <Band>Geplantes Vorhaben</Band>
       <div className="sa-grid2">
-        <Check label="Neubau" on={fin?.zweck === "neubau"} />
-        <Check label="Kauf" on={fin?.zweck === "kauf"} />
-        <Check label="Anschlussfinanzierung" on={fin?.zweck === "anschlussfinanzierung"} />
-        <Check label="Kapitalbeschaffung" on={fin?.zweck === "kapitalbeschaffung"} />
+        <Check label="Neubau" on={zweck === "neubau"} />
+        <Check label="Kauf" on={zweck === "kauf"} />
+        <Check label="Anschlussfinanzierung" on={zweck === "anschlussfinanzierung"} />
+        <Check label="Kapitalbeschaffung" on={zweck === "kapitalbeschaffung"} />
       </div>
+      {wunsch && (
+        <>
+          <Band>Suchprofil</Band>
+          <div className="sa-grid3">
+            <Field caption="Ziel-Kaufpreis (Spanne)" value={wunsch.fwKaufpreis ?? ""} />
+            <Field caption="Gewünschte Region" value={wunsch.fwRegion ?? ""} />
+            <div>
+              <Check label="Kapitalanlage" on={wunsch.fwNutzung === "kapitalanlage"} />
+              <Check label="Eigennutzung" on={wunsch.fwNutzung === "eigennutzung"} />
+            </div>
+          </div>
+        </>
+      )}
       <Band>Haben Sie schon eine konkrete Vorstellung von Ihrer Finanzierung?</Band>
       <div className="sa-grid3">
-        <Field caption="Gesamtdarlehensbetrag" value={fin?.darlehensbetrag ?? ""} eur />
+        <Field caption="Gesamtdarlehensbetrag" value={darlehen ?? ""} eur />
         <Field
           caption="Zinsbindung"
-          value={fin?.zinsbindungJahre ? `${fin.zinsbindungJahre} Jahre` : ""}
+          value={zinsbindung ? `${zinsbindung} Jahre` : ""}
         />
         <Field
           caption="Anfängliche Tilgung (%)"
-          value={
-            fin?.tilgungPct != null ? fin.tilgungPct.toLocaleString("de-DE") : ""
-          }
+          value={tilgung != null ? tilgung.toLocaleString("de-DE") : ""}
         />
       </div>
       <div className="sa-grid2">
-        <Field caption="Eingebrachtes Eigenkapital" value={fin?.eigenkapital ?? ""} eur />
+        <Field caption="Eingebrachtes Eigenkapital" value={eigenkapital ?? ""} eur />
         <Field caption="Weitere Wünsche" value={fin?.wuensche ?? ""} />
       </div>
     </Page>
@@ -550,7 +621,7 @@ export function PropertyBlock({ p }: { p: PortfolioProperty }) {
       <div className="sa-grid3">
         <Field
           caption="Bezeichnung zur Identifikation (z.B. Straße)"
-          value={p.address ?? p.name}
+          value={objectLabel(p)}
         />
         <Field caption="Art der Immobilie" value={r?.objekttyp ?? ""} />
         <Field caption="Gesamte Wohnfläche (m²)" value={r?.wohnflaeche ?? ""} />
@@ -615,7 +686,7 @@ function CompactPortfolioPage({
           const loan = deriveLoan(p);
           return (
             <div key={p.id} className="sa-table-row">
-              <span className="sa-table-name">{p.address ?? p.name}</span>
+              <span className="sa-table-name">{p.name}</span>
               <span>{eur0(marketValue(p))} €</span>
               <span>{eur0(loan.restschuld)} €</span>
               <span>{eur0(p.inputs.kaltmiete)} €</span>
