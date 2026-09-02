@@ -12,7 +12,7 @@
 // tragen?" — sober and numbers-driven. The investor story (Über mich,
 // Strategie) deliberately lives in the Investorenbroschüre instead, so the bank
 // never reads the same content twice. Structure by portfolio size:
-//   0 Objekte  → blank object sections, Finanzbedarf trägt den Wunsch
+//   0 Objekte  → blank object sections
 //   1–2 Objekte → Zusatzblatt mit vollem Detailblock je Objekt
 //   ab 3       → Portfolio-Zusammenfassung + kompakte einzeilige Objektliste
 // ─────────────────────────────────────────────────────────────────────────────
@@ -113,15 +113,19 @@ export function portfolioTotals(properties: PortfolioProperty[]): PortfolioTotal
     nichtUmlagefaehig: 0,
     cashflow: 0,
   };
+  // Eigenkapital im Bestand rechnet konservativ vom Einkaufswert (Kaufpreis),
+  // nicht vom Marktwert — Wertsteigerungen zählen hier nicht als Eigenkapital.
+  let kaufpreisSumme = 0;
   for (const p of properties) {
     const loan = deriveLoan(p);
     t.value += marketValue(p);
+    kaufpreisSumme += p.inputs.kaufpreis;
     t.debt += loan.restschuld;
     t.rent += p.inputs.kaltmiete ?? 0;
     t.rate += loan.monthlyRate;
     t.nichtUmlagefaehig += p.inputs.nichtUmlagefaehig ?? 0;
   }
-  t.equity = t.value - t.debt;
+  t.equity = kaufpreisSumme - t.debt;
   t.cashflow = t.rent - t.rate - t.nichtUmlagefaehig;
   return t;
 }
@@ -529,80 +533,6 @@ export function ObjectPage({
       <div className="sa-grid2">
         <Field caption="Kaufpreis" value={o?.kaufpreis ?? ""} eur />
         <div />
-      </div>
-    </Page>
-  );
-}
-
-// With a concept, the page carries that concept's financing request. Without
-// one it falls back to the profile-level Finanzierungswunsch (Haushalt fw*
-// fields) — the spec's Fall A: Kaufpreisspanne, gewünschtes Fremdkapital,
-// geplantes Eigenkapital, Nutzung, Region.
-export function FinanceNeedPage({
-  konzept,
-  hh,
-  n,
-}: {
-  konzept?: SelbstauskunftKonzept;
-  hh?: Haushalt;
-  n: number;
-}) {
-  const fin = konzept?.finanzierung;
-  // Never mix: a selected concept fully owns this page; the profile wish only
-  // fills in when no concept was chosen at all.
-  const wunsch = konzept ? undefined : hh;
-  const zweck = fin?.zweck ?? wunsch?.fwZweck;
-  const darlehen = fin?.darlehensbetrag ?? wunsch?.fwDarlehen;
-  const zinsbindung = fin?.zinsbindungJahre ?? wunsch?.fwZinsbindung;
-  const tilgung = fin?.tilgungPct ?? wunsch?.fwTilgung;
-  const eigenkapital = fin?.eigenkapital ?? wunsch?.ekVerfuegbar;
-  return (
-    <Page n={n}>
-      <h1 className="sa-title">Ihr Finanzbedarf</h1>
-      {konzept && (
-        <div style={{ marginBottom: 6 }}>
-          <div className="sa-subhead">
-            Vorhaben: {konzept.titel}
-            {konzept.typLabel ? ` (${konzept.typLabel})` : ""}
-          </div>
-          {konzept.beschreibung && <p className="sa-legal">{konzept.beschreibung}</p>}
-        </div>
-      )}
-      <Band>Geplantes Vorhaben</Band>
-      <div className="sa-grid2">
-        <Check label="Neubau" on={zweck === "neubau"} />
-        <Check label="Kauf" on={zweck === "kauf"} />
-        <Check label="Anschlussfinanzierung" on={zweck === "anschlussfinanzierung"} />
-        <Check label="Kapitalbeschaffung" on={zweck === "kapitalbeschaffung"} />
-      </div>
-      {wunsch && (
-        <>
-          <Band>Suchprofil</Band>
-          <div className="sa-grid3">
-            <Field caption="Ziel-Kaufpreis (Spanne)" value={wunsch.fwKaufpreis ?? ""} />
-            <Field caption="Gewünschte Region" value={wunsch.fwRegion ?? ""} />
-            <div>
-              <Check label="Kapitalanlage" on={wunsch.fwNutzung === "kapitalanlage"} />
-              <Check label="Eigennutzung" on={wunsch.fwNutzung === "eigennutzung"} />
-            </div>
-          </div>
-        </>
-      )}
-      <Band>Haben Sie schon eine konkrete Vorstellung von Ihrer Finanzierung?</Band>
-      <div className="sa-grid3">
-        <Field caption="Gesamtdarlehensbetrag" value={darlehen ?? ""} eur />
-        <Field
-          caption="Zinsbindung"
-          value={zinsbindung ? `${zinsbindung} Jahre` : ""}
-        />
-        <Field
-          caption="Anfängliche Tilgung (%)"
-          value={tilgung != null ? tilgung.toLocaleString("de-DE") : ""}
-        />
-      </div>
-      <div className="sa-grid2">
-        <Field caption="Eingebrachtes Eigenkapital" value={eigenkapital ?? ""} eur />
-        <Field caption="Weitere Wünsche" value={fin?.wuensche ?? ""} />
       </div>
     </Page>
   );

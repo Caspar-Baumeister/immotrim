@@ -23,6 +23,10 @@ import {
   type SaDocType,
   type SaRequirement,
 } from "@/lib/selbstauskunft/requirements";
+import {
+  isRequirementPresent,
+  type ChecklistOptions,
+} from "@/lib/checklist/completeness";
 
 type LevelOverride<T extends string> = Partial<Record<T, ChecklistLevel | "aus">>;
 
@@ -138,12 +142,15 @@ const LEVEL_ORDER: Record<ChecklistLevel, number> = {
  * Document completeness for one bank: which of ITS requirements (borrower +
  * object) are covered by the present doc types. `presentObject` comes from the
  * selected concept's uploads; without a concept pass an empty set — object
- * requirements then all count as missing.
+ * requirements then all count as missing. `opts` marks the app-generated
+ * borrower docs (Selbstauskunft, Portfoliobericht) as present — same rules as
+ * the Unterlagen-Checkliste, so the two views never disagree.
  */
 export function bankCompletion(
   bankId: string,
   presentBorrower: Iterable<ChecklistDocType>,
   presentObject: Iterable<SaDocType>,
+  opts: ChecklistOptions = { selbstauskunftReady: false, portfolioberichtReady: false },
 ): BankCompletion {
   const borrower = bankBorrowerRequirements(bankId);
   const object = bankObjectRequirements(bankId);
@@ -152,7 +159,7 @@ export function bankCompletion(
 
   const missing: BankMissingItem[] = [
     ...borrower
-      .filter((r) => !haveBorrower.has(r.docType))
+      .filter((r) => !isRequirementPresent(r, haveBorrower, opts))
       .map((r) => ({ label: r.label, level: r.level, scope: "borrower" as const })),
     ...object
       .filter((r) => !haveObject.has(r.docType))

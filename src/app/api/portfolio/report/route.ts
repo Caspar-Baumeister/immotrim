@@ -206,8 +206,9 @@ export async function POST(request: Request) {
   return new NextResponse(Buffer.from(pdf), {
     headers: {
       "Content-Type": "application/pdf",
+      // ASCII fallback + RFC-5987 encoding so the umlaut survives the header.
       "Content-Disposition":
-        'attachment; filename="Portfolio-Finanzierungsbericht.pdf"',
+        "attachment; filename=\"Investorenbroschuere.pdf\"; filename*=UTF-8''Investorenbrosch%C3%BCre.pdf",
       "Cache-Control": "no-store",
     },
   });

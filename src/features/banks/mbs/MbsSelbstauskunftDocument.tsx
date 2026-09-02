@@ -5,7 +5,6 @@ import { getBank } from "../registry";
 import {
   Band,
   Field,
-  FinanceNeedPage,
   HouseholdPage,
   ObjectPage,
   Page,
@@ -18,7 +17,7 @@ import {
 // The MBS-specific page: Vermittlungsauftrag/Vollmacht + Auskunftei-Hinweise.
 function DeclarationPage({ bankLabel }: { bankLabel: string }) {
   return (
-    <Page n={6}>
+    <Page n={5}>
       <h1 className="sa-title">Erklärung der Darlehensnehmer, Einwilligungserklärungen</h1>
       <Band>I. Darlehensvermittlung und Anschlussbetreuung</Band>
       <div className="sa-legal">
@@ -75,8 +74,8 @@ export function MbsSelbstauskunftDocument({
 
   useReportReady();
 
-  // Fixed pages are 1..6; the Zusatzblatt starts at page 7.
-  const ZUSATZ_START = 7;
+  // Fixed pages are 1..5; the Zusatzblatt starts at page 6.
+  const ZUSATZ_START = 6;
 
   return (
     <div className="sa-root">
@@ -86,7 +85,6 @@ export function MbsSelbstauskunftDocument({
       {/* The bank form keeps the object page even without a concept (blank,
           hand-fillable) — it is part of the MBS form structure. */}
       <ObjectPage konzept={konzept} n={4} />
-      <FinanceNeedPage konzept={konzept} hh={hh} n={5} />
       <DeclarationPage bankLabel={bankLabel} />
       <ZusatzblattPages properties={properties} startPage={ZUSATZ_START} />
     </div>

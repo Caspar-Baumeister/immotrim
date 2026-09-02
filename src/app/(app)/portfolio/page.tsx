@@ -9,8 +9,7 @@ import { ReportDialog } from "@/features/report/components/ReportDialog";
 import { SharePortfolioDialog } from "@/features/portfolio/components/SharePortfolioDialog";
 import { PortfolioAnalytics } from "@/features/portfolio/components/PortfolioAnalytics";
 import { SectionHeader } from "@/features/profile/components/SectionHeader";
-import { immobilienCompletion, propertyCompletion } from "@/features/profile/completeness";
-import { CompletionBar } from "@/components/shared/CompletionBar";
+import { immobilienCompletion } from "@/features/profile/completeness";
 import { Button } from "@/components/ui/button";
 import { getAllProperties } from "@/lib/property-service";
 import { type Property } from "@/lib/supabase";
@@ -191,9 +190,6 @@ function PropertyCard({
   ]);
   const eur = (v: number) => formatCurrency(v, "de-DE");
 
-  // Share of required documents present — same number the summary bar averages.
-  const docCompletion = propertyCompletion(property.inputs.selbstauskunft);
-
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden hover:border-foreground/15 transition-colors">
       {/* Card header */}
@@ -221,16 +217,6 @@ function PropertyCard({
           </Link>
         </div>
 
-        {/* Per-property document completeness */}
-        <div className="mt-3 flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-muted-foreground">Unterlagen</span>
-            <span className="tabular-nums font-medium text-foreground">
-              {docCompletion}%
-            </span>
-          </div>
-          <CompletionBar value={docCompletion} height="h-1.5" />
-        </div>
       </div>
 
       {/* Metrics grid */}

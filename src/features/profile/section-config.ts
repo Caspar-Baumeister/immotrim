@@ -301,7 +301,7 @@ export const HAUSHALT_GROUPS: ProfileFieldGroup[] = [
     title: "Finanzierungswunsch",
     icon: Target,
     description:
-      "Dein Suchprofil für den nächsten Kauf. Es füllt den Finanzbedarf der Selbstauskunft, solange kein konkretes Konzept gewählt ist — das geplante Eigenkapital kommt aus „Davon für einen Kauf einsetzbar“.",
+      "Dein Suchprofil für den nächsten Kauf — das geplante Eigenkapital kommt aus „Davon für einen Kauf einsetzbar“.",
     fields: [
       {
         key: "fwZweck",

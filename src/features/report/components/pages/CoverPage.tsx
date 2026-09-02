@@ -52,9 +52,7 @@ export function CoverPage({
           Portfolio-Finanzierungsbericht
         </p>
         <h1 className="text-[34px] leading-[1.1] font-semibold mt-3" style={{ color: REPORT_COLORS.text }}>
-          Immobilienportfolio
-          <br />
-          im Überblick
+          Investorenbroschüre
         </h1>
         <div className="flex gap-10 mt-6">
           <div>

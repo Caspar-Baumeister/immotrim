@@ -7,13 +7,8 @@ import { Loader2 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { BankCard } from "@/features/banks/components/BankCard";
 import { BANKS, type Bank } from "@/features/banks/registry";
-import { bankCompletion } from "@/features/banks/requirements";
 import { getAllProperties } from "@/lib/property-service";
 import { getProfile } from "@/lib/profile-service";
-import {
-  listBorrowerDocuments,
-  listConceptDocuments,
-} from "@/lib/document-service";
 import { getAllKonzepte } from "@/features/konzepte/konzept-service";
 import { listConceptObjects } from "@/features/konzepte/objekt-service";
 import { objektLabel, type ConceptObject } from "@/features/konzepte/types";
@@ -25,9 +20,7 @@ import {
 } from "@/features/anfrage/request-service";
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { estimateFinancing, bankFinancingScore } from "@/features/financing/calculations";
-import { CHECKLIST_DOC_TYPES, type ChecklistDocType } from "@/lib/checklist/requirements";
-import { SA_DOC_TYPES, type SaDocType } from "@/lib/selbstauskunft/requirements";
-import type { Property, PropertyDocument } from "@/lib/supabase";
+import type { Property } from "@/lib/supabase";
 import type { Profile } from "@/features/profile/types";
 import type { Konzept } from "@/features/konzepte/types";
 
@@ -52,7 +45,6 @@ function BankenContent() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [konzepte, setKonzepte] = useState<Konzept[]>([]);
-  const [borrowerDocs, setBorrowerDocs] = useState<PropertyDocument[]>([]);
   // Loaded per selected concept; keyed by id so a stale load never leaks into
   // another concept's view (and no state reset is needed on switch).
   const [conceptData, setConceptData] = useState<{
@@ -60,26 +52,17 @@ function BankenContent() {
     objects: ConceptObject[];
     requests: BankRequest[];
   } | null>(null);
-  // Concept docs depend on (concept, selected object) — keyed the same way.
-  const [conceptDocsData, setConceptDocsData] = useState<{
-    key: string;
-    docs: PropertyDocument[];
-  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      getAllProperties(),
-      getProfile(),
-      getAllKonzepte(),
-      listBorrowerDocuments(),
-    ]).then(([ps, pr, ks, docs]) => {
-      setProperties(ps);
-      setProfile(pr);
-      setKonzepte(ks);
-      setBorrowerDocs(docs);
-      setLoading(false);
-    });
+    Promise.all([getAllProperties(), getProfile(), getAllKonzepte()]).then(
+      ([ps, pr, ks]) => {
+        setProperties(ps);
+        setProfile(pr);
+        setKonzepte(ks);
+        setLoading(false);
+      },
+    );
   }, []);
 
   // Selected concept: ?konzept= if valid, else the newest concept.
@@ -129,26 +112,6 @@ function BankenContent() {
     );
   };
 
-  // Concept docs = shared docs + the selected object's exposé (completion scoring).
-  const docsKey = selectedId ? `${selectedId}/${selectedObjectId ?? ""}` : null;
-  const objectsReady = conceptData?.id === selectedId;
-  useEffect(() => {
-    if (!selectedId || !docsKey || !objectsReady) return;
-    let cancelled = false;
-    listConceptDocuments(selectedId, selectedObjectId).then((docs) => {
-      if (cancelled) return;
-      setConceptDocsData({ key: docsKey, docs });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedId, selectedObjectId, docsKey, objectsReady]);
-
-  const conceptDocs = useMemo(
-    () => (conceptDocsData?.key === docsKey ? conceptDocsData.docs : []),
-    [conceptDocsData, docsKey],
-  );
-
   const kpis = calculatePortfolioKpis(
     properties.map((p) => ({
       id: p.id,
@@ -159,29 +122,6 @@ function BankenContent() {
   );
   const haushalt = profile?.haushalt ?? {};
   const est = estimateFinancing(haushalt, kpis.monthlyCashFlowBeforeTax);
-
-  const presentBorrower = useMemo(
-    () =>
-      new Set<ChecklistDocType>(
-        borrowerDocs
-          .map((d) => d.doc_type)
-          .filter((t): t is ChecklistDocType =>
-            (CHECKLIST_DOC_TYPES as readonly string[]).includes(t ?? ""),
-          ),
-      ),
-    [borrowerDocs],
-  );
-  const presentObject = useMemo(
-    () =>
-      new Set<SaDocType>(
-        conceptDocs
-          .map((d) => d.doc_type)
-          .filter((t): t is SaDocType =>
-            (SA_DOC_TYPES as readonly string[]).includes(t ?? ""),
-          ),
-      ),
-    [conceptDocs],
-  );
 
   const statusByBank = useMemo(
     () => new Map(requests.map((r) => [r.bankId, r.status])),
@@ -217,28 +157,23 @@ function BankenContent() {
 
   const renderCards = (banks: Bank[]) => (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {banks.map((bank) => {
-        const completion = bankCompletion(bank.id, presentBorrower, presentObject);
-        return (
-          <BankCard
-            key={bank.id}
-            bank={bank}
-            completeness={completion.pct}
-            score={bankFinancingScore(
-              est,
-              bank.conditions ?? {},
-              haushalt.nettoeinkommen ?? 0,
-            )}
-            missing={completion.missing.map((m) => m.label)}
-            conceptId={selected?.id}
-            objectId={selectedObjectId ?? undefined}
-            status={statusByBank.get(bank.id)}
-            onStatusChange={
-              selected ? (s) => handleStatusChange(bank.id, s) : undefined
-            }
-          />
-        );
-      })}
+      {banks.map((bank) => (
+        <BankCard
+          key={bank.id}
+          bank={bank}
+          score={bankFinancingScore(
+            est,
+            bank.conditions ?? {},
+            haushalt.nettoeinkommen ?? 0,
+          )}
+          conceptId={selected?.id}
+          objectId={selectedObjectId ?? undefined}
+          status={statusByBank.get(bank.id)}
+          onStatusChange={
+            selected ? (s) => handleStatusChange(bank.id, s) : undefined
+          }
+        />
+      ))}
     </div>
   );
 
@@ -252,9 +187,9 @@ function BankenContent() {
               Banken
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5 max-w-2xl">
-              Wähle ein Konzept und sieh pro Bank, welche Unterlagen noch fehlen und
-              wie gut deine Finanzierung passt (Schätzung). Mit einem Klick erstellst
-              du die fertige Finanzierungsanfrage.
+              Wähle ein Konzept und sieh pro Bank, wie gut deine Finanzierung passt
+              (Schätzung). Mit einem Klick erstellst du die fertige
+              Finanzierungsanfrage.
             </p>
           </div>
           {konzepte.length > 0 && (

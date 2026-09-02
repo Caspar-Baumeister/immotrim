@@ -104,6 +104,9 @@ export default function StrategiePage() {
   // undo or regenerate. Cleared when they edit the field manually.
   const [polishOriginals, setPolishOriginals] = useState<Partial<Record<PolishField, string>>>({});
   const inputRef = useRef<HTMLInputElement>(null);
+  // Mirrors `data` so async handlers (image upload) persist the latest edits.
+  const dataRef = useRef(data);
+  dataRef.current = data;
 
   useEffect(() => {
     getProfile().then((p) => {
@@ -123,12 +126,22 @@ export default function StrategiePage() {
     setSaved(false);
   };
 
+  // Image changes are saved immediately — uploading or removing the picture
+  // shouldn't require an extra click on "Speichern".
+  const persistImage = async (imagePath: string | undefined) => {
+    const next = { ...dataRef.current, imagePath };
+    setData(next);
+    await saveProfileSection("strategie", next);
+    setSaved(true);
+    router.refresh();
+  };
+
   const handleImage = async (file: File | undefined) => {
     if (!file || !ACCEPTED_IMAGE.includes(file.type)) return;
     setUploadingImage(true);
     try {
       const row = await uploadDocument(file, { category: "strategie" });
-      setField({ imagePath: row.file_path });
+      await persistImage(row.file_path);
     } finally {
       setUploadingImage(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -251,7 +264,7 @@ export default function StrategiePage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => setField({ imagePath: undefined })}
+                      onClick={() => void persistImage(undefined)}
                       className="gap-1.5 text-muted-foreground hover:text-red-400"
                     >
                       <Trash2 className="h-3.5 w-3.5" /> Entfernen
