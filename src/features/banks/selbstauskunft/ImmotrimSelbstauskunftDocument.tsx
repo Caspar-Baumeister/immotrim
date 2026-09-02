@@ -2,7 +2,6 @@
 
 import type { SelbstauskunftPayload } from "../types";
 import {
-  FinanceNeedPage,
   HouseholdPage,
   konzeptHasObjekt,
   ObjectPage,
@@ -31,7 +30,6 @@ export function ImmotrimSelbstauskunftDocument({
   useReportReady();
 
   const showObjekt = konzeptHasObjekt(konzept);
-  const financeNeedPage = showObjekt ? 5 : 4;
 
   return (
     <div className="sa-root">
@@ -39,8 +37,7 @@ export function ImmotrimSelbstauskunftDocument({
       <HouseholdPage properties={properties} sd={sd} hh={hh} n={2} />
       <WealthPage properties={properties} sd={sd} hh={hh} n={3} />
       {showObjekt && <ObjectPage konzept={konzept} n={4} />}
-      <FinanceNeedPage konzept={konzept} hh={hh} n={financeNeedPage} />
-      <ZusatzblattPages properties={properties} startPage={financeNeedPage + 1} />
+      <ZusatzblattPages properties={properties} startPage={showObjekt ? 5 : 4} />
     </div>
   );
 }

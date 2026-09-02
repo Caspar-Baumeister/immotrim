@@ -77,9 +77,7 @@ export type Haushalt = {
   ekVerfuegbar?: number;
   // Verbindlichkeiten (Gesamthöhe, ohne Immobiliendarlehen)
   sonstigeVerbindlichkeiten?: number;
-  // Finanzierungswunsch / Suchprofil für den nächsten Erwerb — füllt den
-  // Finanzbedarf der Selbstauskunft, solange kein konkretes Konzept gewählt ist
-  // (mit Konzept gewinnen dessen Angaben).
+  // Finanzierungswunsch / Suchprofil für den nächsten Erwerb.
   fwZweck?: "kauf" | "neubau" | "anschlussfinanzierung" | "kapitalbeschaffung";
   fwNutzung?: "kapitalanlage" | "eigennutzung";
   fwRegion?: string;

@@ -57,6 +57,10 @@ import {
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { estimateFinancing } from "@/features/financing/calculations";
 import { CHECKLIST_DOC_TYPES, type ChecklistDocType } from "@/lib/checklist/requirements";
+import {
+  haushaltCompletion,
+  stammdatenCompletion,
+} from "@/features/profile/completeness";
 import { SA_DOC_TYPES, type SaDocType } from "@/lib/selbstauskunft/requirements";
 import { ReportDialog } from "@/features/report/components/ReportDialog";
 import type { Property, PropertyDocument } from "@/lib/supabase";
@@ -187,8 +191,15 @@ function AnfragePageInner() {
           (SA_DOC_TYPES as readonly string[]).includes(t ?? ""),
         ),
     );
-    return bankCompletion(bankId, presentBorrower, presentObject);
-  }, [bankId, borrowerDocs, conceptDocs]);
+    // Selbstauskunft/Portfoliobericht are app-generated — they count as present
+    // once the profile sections resp. the portfolio are complete, not via upload.
+    return bankCompletion(bankId, presentBorrower, presentObject, {
+      selbstauskunftReady:
+        stammdatenCompletion(profile?.stammdaten ?? {}) === 100 &&
+        haushaltCompletion(profile?.haushalt ?? {}) === 100,
+      portfolioberichtReady: properties.length > 0,
+    });
+  }, [bankId, borrowerDocs, conceptDocs, profile, properties]);
 
   // Banks without their own form get the bank-neutral Immotrim Selbstauskunft —
   // same data, no bank branding — so EVERY Anfrage ships with a filled form.

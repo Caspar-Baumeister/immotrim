@@ -45,8 +45,12 @@ export type ChecklistOptions = {
   portfolioberichtReady: boolean;
 };
 
-/** Whether a single requirement counts as present. */
-function isPresent(
+/**
+ * Whether a single requirement counts as present. Exported so per-bank
+ * completeness (features/banks/requirements.ts) applies the same app-generated
+ * rules instead of treating Selbstauskunft/Portfoliobericht as uploads.
+ */
+export function isRequirementPresent(
   r: (typeof CHECKLIST_REQUIREMENTS)[number],
   present: Set<ChecklistDocType>,
   opts: ChecklistOptions,
@@ -66,13 +70,13 @@ export function evaluateChecklist(
   const present = new Set<ChecklistDocType>(presentDocTypes);
 
   const missing: ChecklistMissing[] = CHECKLIST_REQUIREMENTS.filter(
-    (r) => !isPresent(r, present, opts),
+    (r) => !isRequirementPresent(r, present, opts),
   )
     .map((r) => ({ docType: r.docType, level: r.level, label: r.label, hint: r.hint }))
     .sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]);
 
   const presentRequirements = CHECKLIST_REQUIREMENTS.filter((r) =>
-    isPresent(r, present, opts),
+    isRequirementPresent(r, present, opts),
   ).map((r) => r.docType);
 
   return { present: presentRequirements, missing };
@@ -87,6 +91,6 @@ export function checklistCompletion(
   opts: ChecklistOptions,
 ): number {
   const present = new Set<ChecklistDocType>(presentDocTypes);
-  const have = CHECKLIST_REQUIREMENTS.filter((r) => isPresent(r, present, opts)).length;
+  const have = CHECKLIST_REQUIREMENTS.filter((r) => isRequirementPresent(r, present, opts)).length;
   return Math.round((have / CHECKLIST_REQUIREMENTS.length) * 100);
 }

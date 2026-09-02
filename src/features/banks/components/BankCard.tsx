@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   Building2,
-  ChevronDown,
   Download,
   ExternalLink,
   Handshake,
+  Info,
   Loader2,
   Mail,
   Phone,
   Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CompletionBar } from "@/components/shared/CompletionBar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   hasBankDocument,
   type Bank,
@@ -48,26 +51,18 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
   );
 }
 
-// Expandable "Was finanziert diese Bank?" section: structured lending criteria
-// from the registry, collapsed by default to keep the card scannable.
-function FinanzierungsInfoSection({ info }: { info: BankFinanzierungsInfo }) {
-  const [open, setOpen] = useState(false);
+// "Was finanziert diese Bank?" as a popover: the lending criteria open OVER the
+// grid instead of inline, so expanding one card never resizes its neighbours.
+function FinanzierungsInfoPopover({ info }: { info: BankFinanzierungsInfo }) {
   const kap = KAPITALANLAGE_DISPLAY[info.kapitalanlage];
   return (
-    <div className="flex flex-col gap-1.5">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground w-fit"
-      >
-        <ChevronDown
-          className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
-        />
+    <Popover>
+      <PopoverTrigger className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground w-fit cursor-pointer">
+        <Info className="h-3 w-3" />
         Was finanziert diese Bank?
-      </button>
-      {open && (
-        <div className="rounded-lg border border-border bg-muted/10 px-3 py-2 flex flex-col gap-1">
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-80 max-h-96 overflow-auto">
+        <div className="flex flex-col gap-1">
           <div className="flex gap-2 text-[11px]">
             <span className="text-muted-foreground w-32 shrink-0">Kapitalanlage</span>
             <span className={kap.className}>{kap.label}</span>
@@ -112,31 +107,52 @@ function FinanzierungsInfoSection({ info }: { info: BankFinanzierungsInfo }) {
             </ul>
           )}
         </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
-// A card for one bank/Vermittler: per-bank document completeness + financing-fit
-// score for the SELECTED concept, what's still missing, contact channel, outreach
-// status — and the CTA into the compiled Finanzierungsanfrage.
+// Icon-only contact link (mailto/tel/contact form) — the label lives in `title`
+// so long addresses don't blow up the card.
+function ContactIcon({
+  href,
+  title,
+  external,
+  children,
+}: {
+  href: string;
+  title: string;
+  external?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      title={title}
+      aria-label={title}
+      {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
+      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-[#6c5ce7] hover:border-[#6c5ce7]/40 hover:bg-[#6c5ce7]/5 transition-colors"
+    >
+      {children}
+    </a>
+  );
+}
+
+// A card for one bank/Vermittler: financing-fit score for the SELECTED concept,
+// key conditions, contact channel, outreach status — and the CTA into the
+// compiled Finanzierungsanfrage. Deliberately compact and uniform: details live
+// in the popover, so every card keeps the same height.
 export function BankCard({
   bank,
-  completeness,
   score,
-  missing,
   conceptId,
   objectId,
   status,
   onStatusChange,
 }: {
   bank: Bank;
-  /** 0–100 document completeness for THIS bank (and the selected concept). */
-  completeness: number;
   /** 0–100 rule-based financing fit score (estimate). */
   score: number;
-  /** Human labels of what's still missing for this bank. */
-  missing: string[];
   /** Selected concept — without one the Anfrage CTA is disabled. */
   conceptId?: string;
   /** Selected concept object — carried into the Anfrage and the PDF. */
@@ -153,14 +169,13 @@ export function BankCard({
 
   const scoreColor =
     score >= 67 ? "#10b981" : score >= 34 ? "#f59e0b" : "#ef4444";
-  const shownMissing = missing.slice(0, 4);
-  const moreMissing = missing.length - shownMissing.length;
   const Icon = bank.kind === "vermittler" ? Handshake : Building2;
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden hover:border-foreground/15 transition-colors flex flex-col">
-      <div className="px-5 py-4 border-b border-border flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-[#6c5ce7]/10 border border-[#6c5ce7]/20 flex items-center justify-center flex-shrink-0">
+    <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4 shadow-xs hover:shadow-md hover:border-foreground/20 transition-all">
+      {/* Header: identity + score badge */}
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-lg bg-[#6c5ce7]/10 border border-[#6c5ce7]/20 flex items-center justify-center shrink-0">
           <Icon className="h-5 w-5 text-[#6c5ce7]" />
         </div>
         <div className="min-w-0 flex-1">
@@ -169,112 +184,64 @@ export function BankCard({
           </h3>
           <p className="text-xs text-muted-foreground truncate">{bank.name}</p>
         </div>
-        <div className="flex flex-col items-end flex-shrink-0">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+        <span
+          className="shrink-0 inline-flex items-baseline gap-1 rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums"
+          style={{ color: scoreColor, backgroundColor: `${scoreColor}1a` }}
+          title="Finanzierungs-Fit (Schätzung)"
+        >
+          <span className="text-[9px] font-medium uppercase tracking-wide opacity-70">
             Score
           </span>
-          <span
-            className="text-sm font-semibold tabular-nums"
-            style={{ color: scoreColor }}
-          >
-            {Math.round(score)}
-          </span>
-        </div>
+          {Math.round(score)}
+        </span>
       </div>
 
-      <div className="px-5 py-4 flex flex-col gap-3 flex-1">
-        {/* Completeness */}
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Unterlagen für diese Bank</span>
-            <span className="tabular-nums font-medium text-foreground">
-              {Math.round(completeness)}%
-            </span>
-          </div>
-          <CompletionBar value={completeness} height="h-2" />
-        </div>
-
-        {/* Missing / ready */}
-        {missing.length > 0 ? (
+      {/* Key conditions + details popover */}
+      <div className="flex flex-col gap-1.5">
+        {(bank.conditions?.zinsAb != null || bank.conditions?.maxLtv != null) && (
           <p className="text-xs text-muted-foreground">
-            Noch offen:{" "}
-            <span className="text-foreground">
-              {shownMissing.join(", ")}
-              {moreMissing > 0 ? ` +${moreMissing} weitere` : ""}
-            </span>
-          </p>
-        ) : (
-          <p className="text-xs text-emerald-500">
-            Alle Unterlagen vollständig — bereit für die Anfrage.
+            {bank.conditions?.zinsAb != null && (
+              <>
+                Zins ab{" "}
+                <span className="text-foreground font-medium">
+                  {bank.conditions.zinsAb.toLocaleString("de-DE")}%
+                </span>
+              </>
+            )}
+            {bank.conditions?.zinsAb != null && bank.conditions?.maxLtv != null && (
+              <span className="mx-1.5">·</span>
+            )}
+            {bank.conditions?.maxLtv != null && (
+              <>
+                Max. Beleihung{" "}
+                <span className="text-foreground font-medium">
+                  {bank.conditions.maxLtv}%
+                </span>
+              </>
+            )}
           </p>
         )}
-
-        {/* Conditions + contact */}
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground pt-1">
-          {bank.conditions?.zinsAb != null && (
-            <span>
-              Zins ab{" "}
-              <span className="text-foreground font-medium">
-                {bank.conditions.zinsAb.toLocaleString("de-DE")}%
-              </span>
-            </span>
-          )}
-          {bank.conditions?.maxLtv != null && (
-            <span>
-              Max. Beleihung{" "}
-              <span className="text-foreground font-medium">
-                {bank.conditions.maxLtv}%
-              </span>
-            </span>
-          )}
-          {bank.email ? (
-            <a
-              href={`mailto:${bank.email}`}
-              className="inline-flex items-center gap-1 text-[#6c5ce7] hover:underline"
-            >
-              <Mail className="h-3 w-3" /> {bank.email}
-            </a>
-          ) : bank.contactUrl ? (
-            <a
-              href={bank.contactUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center gap-1 text-[#6c5ce7] hover:underline"
-            >
-              <ExternalLink className="h-3 w-3" /> Kontaktformular
-            </a>
-          ) : null}
-          {bank.telefon && (
-            <a
-              href={`tel:${bank.telefon.replace(/[^+\d]/g, "")}`}
-              className="inline-flex items-center gap-1 text-[#6c5ce7] hover:underline"
-            >
-              <Phone className="h-3 w-3" /> {bank.telefon}
-            </a>
-          )}
-        </div>
-
         {bank.ansprechpartner && (
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground truncate">
             Ansprechperson:{" "}
             <span className="text-foreground">{bank.ansprechpartner.name}</span>
             {bank.ansprechpartner.rolle ? ` (${bank.ansprechpartner.rolle})` : ""}
-            {bank.ansprechpartner.telefon ? `, ${bank.ansprechpartner.telefon}` : ""}
           </p>
         )}
-
         {bank.finanzierungsInfo && (
-          <FinanzierungsInfoSection info={bank.finanzierungsInfo} />
+          <FinanzierungsInfoPopover info={bank.finanzierungsInfo} />
         )}
+      </div>
 
-        {/* Outreach status for the selected concept */}
-        {conceptId && onStatusChange && (
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span>Status:</span>
+      {/* Bottom: status + contacts, then the CTA row */}
+      <div className="mt-auto flex flex-col gap-2.5">
+        <div className="flex items-center justify-between gap-2">
+          {conceptId && onStatusChange ? (
             <select
               value={status ?? "entwurf"}
               onChange={(e) => onStatusChange(e.target.value as AnfrageStatus)}
-              className="h-7 rounded-md border border-input bg-transparent px-1.5 text-[11px] text-foreground outline-none"
+              aria-label="Anfrage-Status"
+              className="h-8 rounded-lg border border-input bg-transparent px-2 text-[11px] text-foreground outline-none"
             >
               {ANFRAGE_STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -282,46 +249,69 @@ export function BankCard({
                 </option>
               ))}
             </select>
+          ) : (
+            <span />
+          )}
+          <div className="flex items-center gap-1.5">
+            {bank.email && (
+              <ContactIcon href={`mailto:${bank.email}`} title={bank.email}>
+                <Mail className="h-3.5 w-3.5" />
+              </ContactIcon>
+            )}
+            {bank.telefon && (
+              <ContactIcon
+                href={`tel:${bank.telefon.replace(/[^+\d]/g, "")}`}
+                title={bank.telefon}
+              >
+                <Phone className="h-3.5 w-3.5" />
+              </ContactIcon>
+            )}
+            {!bank.email && bank.contactUrl && (
+              <ContactIcon href={bank.contactUrl} title="Kontaktformular" external>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </ContactIcon>
+            )}
           </div>
-        )}
-      </div>
+        </div>
 
-      <div className="px-5 pb-4 mt-auto space-y-2">
-        {conceptId ? (
-          <Link
-            href={`/konzepte/${conceptId}/anfrage/${bank.id}${objectId ? `?objekt=${objectId}` : ""}`}
-            className="block"
-          >
-            <Button
-              size="sm"
-              className="w-full bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold gap-1.5"
+        <div className="flex gap-2">
+          {conceptId ? (
+            <Link
+              href={`/konzepte/${conceptId}/anfrage/${bank.id}${objectId ? `?objekt=${objectId}` : ""}`}
+              className="flex-1"
             >
+              <Button
+                size="sm"
+                className="w-full bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold gap-1.5"
+              >
+                <Send className="h-3.5 w-3.5" />
+                Finanzierungsanfrage erstellen
+              </Button>
+            </Link>
+          ) : (
+            <Button size="sm" disabled className="flex-1 font-semibold gap-1.5">
               <Send className="h-3.5 w-3.5" />
               Finanzierungsanfrage erstellen
             </Button>
-          </Link>
-        ) : (
-          <Button size="sm" disabled className="w-full font-semibold gap-1.5">
-            <Send className="h-3.5 w-3.5" />
-            Finanzierungsanfrage erstellen
-          </Button>
-        )}
-        {hasBankDocument(bank.id) && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={download}
-            disabled={busy}
-            className="w-full gap-1.5"
-          >
-            {busy ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Download className="h-3.5 w-3.5" />
-            )}
-            Selbstauskunft (PDF)
-          </Button>
-        )}
+          )}
+          {hasBankDocument(bank.id) && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={download}
+              disabled={busy}
+              title="Selbstauskunft (PDF) herunterladen"
+              aria-label="Selbstauskunft (PDF) herunterladen"
+              className="px-2.5"
+            >
+              {busy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          )}
+        </div>
         {error && <p className="text-xs text-destructive">{error}</p>}
         {!conceptId && (
           <p className="text-xs text-muted-foreground">
