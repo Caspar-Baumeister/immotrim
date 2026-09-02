@@ -1,15 +1,15 @@
-// Glue between the exposé AI extraction (mode "konzeptObjekt") and the concept
-// object form: field catalog, diff values for the review panel, and the apply
-// step routing keys into data (KonzeptObjekt) vs details (KonzeptObjektDetails).
-// Mirrors wishlist-extraction-apply.ts; labels are hardcoded German like the
-// rest of the konzepte feature.
+// Glue between the exposé AI extraction (mode "konzeptObjekt" — the mode id is
+// a kept API contract with /api/extract) and the object form: field catalog,
+// diff values for the review panel, and the apply step routing keys into data
+// (ObjektDaten) vs details (ObjektDetails). Mirrors wishlist-extraction-apply.ts;
+// labels are hardcoded German like the rest of the objekte feature.
 
 import type { ExtractedBag } from "@/features/extraction/DocumentUploadCore";
-import type { KonzeptObjekt, KonzeptObjektDetails } from "./types";
+import type { ObjektDaten, ObjektDetails } from "./types";
 
 export type ObjektFieldKey =
-  | keyof KonzeptObjekt
-  | keyof KonzeptObjektDetails;
+  | keyof ObjektDaten
+  | keyof ObjektDetails;
 
 type FieldKind = "text" | "euro" | "area" | "number" | "bool";
 
@@ -83,8 +83,8 @@ export const OBJEKT_FIELD_LABELS: Record<ObjektFieldKey, string> = {
 };
 
 export type ObjektSnapshot = {
-  data: KonzeptObjekt;
-  details: KonzeptObjektDetails;
+  data: ObjektDaten;
+  details: ObjektDetails;
 };
 
 export function currentObjektValue(
@@ -99,9 +99,9 @@ export function currentObjektValue(
         : "false";
   }
   if (DATA_KEYS.has(key)) {
-    return snap.data[key as keyof KonzeptObjekt];
+    return snap.data[key as keyof ObjektDaten];
   }
-  const v = snap.details[key as Exclude<keyof KonzeptObjektDetails, "provisionsfrei">];
+  const v = snap.details[key as Exclude<keyof ObjektDetails, "provisionsfrei">];
   return v ?? undefined;
 }
 
@@ -125,8 +125,8 @@ export function formatObjektValue(
 
 // Patch surface the apply step writes into (the object page's draft state).
 export type ObjektApplyTarget = {
-  patchData: (p: Partial<KonzeptObjekt>) => void;
-  patchDetails: (p: Partial<KonzeptObjektDetails>) => void;
+  patchData: (p: Partial<ObjektDaten>) => void;
+  patchDetails: (p: Partial<ObjektDetails>) => void;
 };
 
 export function applyObjektExtraction(
@@ -134,8 +134,8 @@ export function applyObjektExtraction(
   fields: ExtractedBag,
   target: ObjektApplyTarget,
 ) {
-  const dataPatch: Partial<KonzeptObjekt> = {};
-  const detailsPatch: Partial<KonzeptObjektDetails> = {};
+  const dataPatch: Partial<ObjektDaten> = {};
+  const detailsPatch: Partial<ObjektDetails> = {};
 
   for (const k of selectedKeys) {
     const key = k as ObjektFieldKey;
@@ -148,12 +148,12 @@ export function applyObjektExtraction(
       continue;
     }
     if (DATA_KEYS.has(key)) {
-      const dataKey = key as keyof KonzeptObjekt;
+      const dataKey = key as keyof ObjektDaten;
       (dataPatch as Record<string, string | number>)[dataKey] =
         OBJEKT_FIELD_KIND[key] === "text" ? (v as string) : (v as number);
       continue;
     }
-    const detailKey = key as Exclude<keyof KonzeptObjektDetails, "provisionsfrei">;
+    const detailKey = key as Exclude<keyof ObjektDetails, "provisionsfrei">;
     (detailsPatch as Record<string, string | number>)[detailKey] =
       OBJEKT_FIELD_KIND[key] === "text" ? (v as string) : (v as number);
   }

@@ -66,7 +66,7 @@ export function MbsSelbstauskunftDocument({
 }: {
   payload: SelbstauskunftPayload;
 }) {
-  const { properties, investorName, bankId, profile, konzept } = payload;
+  const { properties, investorName, bankId, profile, objekt } = payload;
   const bank = getBank(bankId);
   const bankLabel = bank ? `${bank.shortName} in ${bank.city}` : "MBS in Potsdam";
   const sd = profile?.stammdaten;
@@ -82,9 +82,9 @@ export function MbsSelbstauskunftDocument({
       <PersonalPage investorName={investorName} sd={sd} hh={hh} n={1} />
       <HouseholdPage properties={properties} sd={sd} hh={hh} n={2} />
       <WealthPage properties={properties} sd={sd} hh={hh} n={3} />
-      {/* The bank form keeps the object page even without a concept (blank,
+      {/* The bank form keeps the object page even without an Objekt (blank,
           hand-fillable) — it is part of the MBS form structure. */}
-      <ObjectPage konzept={konzept} n={4} />
+      <ObjectPage data={objekt?.data} n={4} />
       <DeclarationPage bankLabel={bankLabel} />
       <ZusatzblattPages properties={properties} startPage={ZUSATZ_START} />
     </div>

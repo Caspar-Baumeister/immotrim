@@ -138,14 +138,13 @@ function ContactIcon({
   );
 }
 
-// A card for one bank/Vermittler: financing-fit score for the SELECTED concept,
+// A card for one bank/Vermittler: financing-fit score for the SELECTED object,
 // key conditions, contact channel, outreach status — and the CTA into the
 // compiled Finanzierungsanfrage. Deliberately compact and uniform: details live
 // in the popover, so every card keeps the same height.
 export function BankCard({
   bank,
   score,
-  conceptId,
   objectId,
   status,
   onStatusChange,
@@ -153,17 +152,14 @@ export function BankCard({
   bank: Bank;
   /** 0–100 rule-based financing fit score (estimate). */
   score: number;
-  /** Selected concept — without one the Anfrage CTA is disabled. */
-  conceptId?: string;
-  /** Selected concept object — carried into the Anfrage and the PDF. */
+  /** Selected object — without one the Anfrage CTA is disabled. */
   objectId?: string;
-  /** Outreach status of (concept, bank), if any. */
+  /** Outreach status of (object, bank), if any. */
   status?: AnfrageStatus;
   onStatusChange?: (status: AnfrageStatus) => void;
 }) {
   const { busy, error, download } = useSelbstauskunftDownload(bank.id, {
     fileName: `Selbstauskunft-${bank.shortName}.pdf`,
-    conceptId,
     objectId,
   });
 
@@ -236,7 +232,7 @@ export function BankCard({
       {/* Bottom: status + contacts, then the CTA row */}
       <div className="mt-auto flex flex-col gap-2.5">
         <div className="flex items-center justify-between gap-2">
-          {conceptId && onStatusChange ? (
+          {objectId && onStatusChange ? (
             <select
               value={status ?? "entwurf"}
               onChange={(e) => onStatusChange(e.target.value as AnfrageStatus)}
@@ -275,9 +271,9 @@ export function BankCard({
         </div>
 
         <div className="flex gap-2">
-          {conceptId ? (
+          {objectId ? (
             <Link
-              href={`/konzepte/${conceptId}/anfrage/${bank.id}${objectId ? `?objekt=${objectId}` : ""}`}
+              href={`/objekte/${objectId}/anfrage/${bank.id}`}
               className="flex-1"
             >
               <Button
@@ -313,10 +309,10 @@ export function BankCard({
           )}
         </div>
         {error && <p className="text-xs text-destructive">{error}</p>}
-        {!conceptId && (
+        {!objectId && (
           <p className="text-xs text-muted-foreground">
-            <Link href="/konzepte/new" className="text-[#6c5ce7] hover:underline">
-              Lege zuerst ein Konzept an
+            <Link href="/objekte" className="text-[#6c5ce7] hover:underline">
+              Lege zuerst ein Objekt an
             </Link>
             , um eine Anfrage zu erstellen.
           </p>

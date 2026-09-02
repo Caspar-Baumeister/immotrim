@@ -22,7 +22,7 @@ import { WertSchuldenChart } from "@/features/appreciation/components/WertSchuld
 import { VermoegensaufbauChart } from "@/features/wealth/components/VermoegensaufbauChart";
 import { getAllProperties } from "@/lib/property-service";
 import { getProfile } from "@/lib/profile-service";
-import { getAllKonzepte } from "@/features/konzepte/konzept-service";
+import { listObjekte } from "@/features/objekte/objekt-service";
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import {
   calculatePortfolioCashFlowSeries,
@@ -36,7 +36,7 @@ import { useSelbstauskunftDownload } from "@/features/banks/hooks/useSelbstausku
 import { ReportDialog } from "@/features/report/components/ReportDialog";
 import type { Property } from "@/lib/supabase";
 import type { Profile } from "@/features/profile/types";
-import type { Konzept } from "@/features/konzepte/types";
+import type { Objekt } from "@/features/objekte/types";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 
 const eur = (v: number) => formatCurrency(v, "de-DE");
@@ -56,18 +56,18 @@ const UNTERLAGEN_SECTIONS = [
 export default function DashboardPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [konzepte, setKonzepte] = useState<Konzept[]>([]);
+  const [objekte, setObjekte] = useState<Objekt[]>([]);
   const [loading, setLoading] = useState(true);
   const completion = useCompletion();
   const selbstauskunft = useSelbstauskunftDownload(GENERIC_SELBSTAUSKUNFT_ID);
   const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
-    Promise.all([getAllProperties(), getProfile(), getAllKonzepte()]).then(
-      ([ps, pr, ks]) => {
+    Promise.all([getAllProperties(), getProfile(), listObjekte()]).then(
+      ([ps, pr, os]) => {
         setProperties(ps);
         setProfile(pr);
-        setKonzepte(ks);
+        setObjekte(os);
         setLoading(false);
       },
     );
@@ -247,19 +247,19 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-4">
                   <BankIllustration />
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Lege ein Konzept für dein Vorhaben an und erstelle daraus pro
-                    Bank die fertige Finanzierungsanfrage — inklusive
-                    Selbstauskunft, Investorenbroschüre und aller Unterlagen.
+                    Lege dein Kaufobjekt an und erstelle daraus pro Bank die
+                    fertige Finanzierungsanfrage — inklusive Selbstauskunft,
+                    Investorenbroschüre und aller Unterlagen.
                   </p>
                 </div>
                 <ol className="flex flex-col gap-2 text-sm text-foreground">
-                  <Step n={1} done={konzepte.length > 0}>
-                    <Link href="/konzepte" className="hover:underline">
-                      Konzept anlegen
+                  <Step n={1} done={objekte.length > 0}>
+                    <Link href="/objekte" className="hover:underline">
+                      Objekt anlegen
                     </Link>{" "}
-                    {konzepte.length > 0 && (
+                    {objekte.length > 0 && (
                       <span className="text-xs text-muted-foreground">
-                        ({konzepte.length} vorhanden)
+                        ({objekte.length} vorhanden)
                       </span>
                     )}
                   </Step>
@@ -285,10 +285,10 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <Link
-                  href={konzepte.length === 0 ? "/konzepte/new" : "/banken"}
+                  href={objekte.length === 0 ? "/objekte" : "/banken"}
                   className="mt-auto self-start text-sm font-medium text-[#6c5ce7] hover:underline flex items-center gap-1"
                 >
-                  {konzepte.length === 0 ? "Erstes Konzept anlegen" : "Zu den Banken"}
+                  {objekte.length === 0 ? "Erstes Objekt anlegen" : "Zu den Banken"}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>

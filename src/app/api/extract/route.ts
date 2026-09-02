@@ -294,7 +294,7 @@ Feld-Hinweise (typische ImmoScout24-Labels in Klammern):
 Für jedes Feld: value (Zahl, Text bzw. Wahrheitswert), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
-// ── Konzept-Objekt (candidate object inside a financing concept) ─────────────
+// ── Objekt exposé (mode id "konzeptObjekt" is historical) ────────────────────
 const KONZEPT_OBJEKT_FIELD_ORDER = [
   "adresse",
   "ort",

@@ -25,7 +25,7 @@ import type { Strategie } from "@/features/profile/types";
 
 const ACCEPTED_IMAGE = ["image/png", "image/jpeg", "image/webp"];
 
-type PolishField = "strategieText" | "ueberMich";
+type PolishField = "strategieText" | "ueberMich" | "groesstesRisiko" | "risikoLoesung";
 
 const PILL_CLASS =
   "flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium shadow-sm transition-colors disabled:pointer-events-none disabled:opacity-40";
@@ -209,13 +209,14 @@ export default function StrategiePage() {
       <div className="flex-1 p-4 sm:p-6 flex flex-col gap-6 overflow-auto max-w-5xl w-full">
         <SectionHeader
           title="Strategie & Über mich"
-          description="Deine Investmentstrategie und ein persönlicher Text — beides erscheint auf der Bank-Selbstauskunft und macht deinen Antrag greifbar."
+          description="Deine Investmentstrategie und ein persönlicher Text — beides fließt in die Investorenbroschüre und die Bankanfrage und macht deinen Antrag greifbar."
           completion={completion}
           help={
             <>
               Beschreibe, wie du investierst (Ziele, Objekttypen, Regionen, Horizont)
-              und wer du bist. Ein Profilbild wirkt seriös und wird oben auf der
-              Selbstauskunft eingebunden.
+              und wer du bist. Optional kannst du das größte Risiko aus Banksicht und
+              deine Absicherung benennen — das schafft Vertrauen. Ein Profilbild
+              wirkt seriös.
             </>
           }
         />
@@ -330,6 +331,69 @@ export default function StrategiePage() {
                 />
               </div>
               {polishError?.field === "ueberMich" && (
+                <span className="text-xs text-red-400">{polishError.message}</span>
+              )}
+            </div>
+
+            {/* Optional risk pair: naming the biggest risk plus its mitigation
+                proactively builds credibility with banks. Unweighted in the
+                completeness score; rendered in the Anfrage email. */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="groesstesRisiko" className="text-xs text-muted-foreground">
+                Größtes Risiko aus Banksicht (optional)
+              </Label>
+              <div className="relative">
+                <textarea
+                  id="groesstesRisiko"
+                  value={data.groesstesRisiko ?? ""}
+                  onChange={(e) => {
+                    setField({ groesstesRisiko: e.target.value });
+                    setPolishOriginals((prev) => ({ ...prev, groesstesRisiko: undefined }));
+                  }}
+                  rows={3}
+                  placeholder="z.B. Mietausfall bei möblierter Vermietung, Zinsänderungsrisiko nach Ablauf der Zinsbindung, unerwartete Instandhaltung …"
+                  className="w-full rounded-lg border border-input bg-transparent px-3 py-2 pb-12 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y"
+                />
+                <PolishControls
+                  active={polishing === "groesstesRisiko"}
+                  disabled={!data.groesstesRisiko?.trim() || polishing !== null}
+                  hasResult={polishOriginals.groesstesRisiko !== undefined}
+                  onPolish={() => handlePolish("groesstesRisiko")}
+                  onRegenerate={() => handlePolish("groesstesRisiko")}
+                  onUndo={() => handleUndoPolish("groesstesRisiko")}
+                />
+              </div>
+              {polishError?.field === "groesstesRisiko" && (
+                <span className="text-xs text-red-400">{polishError.message}</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="risikoLoesung" className="text-xs text-muted-foreground">
+                Meine Absicherung (optional)
+              </Label>
+              <div className="relative">
+                <textarea
+                  id="risikoLoesung"
+                  value={data.risikoLoesung ?? ""}
+                  onChange={(e) => {
+                    setField({ risikoLoesung: e.target.value });
+                    setPolishOriginals((prev) => ({ ...prev, risikoLoesung: undefined }));
+                  }}
+                  rows={3}
+                  placeholder="z.B. Liquiditätsreserve von X €, Rücklagenkonto für Instandhaltung, konservative Kalkulation mit Puffer, Berufsunfähigkeitsversicherung …"
+                  className="w-full rounded-lg border border-input bg-transparent px-3 py-2 pb-12 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y"
+                />
+                <PolishControls
+                  active={polishing === "risikoLoesung"}
+                  disabled={!data.risikoLoesung?.trim() || polishing !== null}
+                  hasResult={polishOriginals.risikoLoesung !== undefined}
+                  onPolish={() => handlePolish("risikoLoesung")}
+                  onRegenerate={() => handlePolish("risikoLoesung")}
+                  onUndo={() => handleUndoPolish("risikoLoesung")}
+                />
+              </div>
+              {polishError?.field === "risikoLoesung" && (
                 <span className="text-xs text-red-400">{polishError.message}</span>
               )}
             </div>

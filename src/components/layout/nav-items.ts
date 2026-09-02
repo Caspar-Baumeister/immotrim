@@ -4,8 +4,8 @@ import {
   User,
   Building2,
   Compass,
+  House,
   Landmark,
-  Lightbulb,
   ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -14,7 +14,7 @@ import type { ProfileCompletion } from "@/features/profile/completeness";
 // Single source of truth for the app's primary navigation. `section` links a nav
 // item to a completion key so the sidebar can render its Fortschrittsleiste.
 // Immobilien has no bar: the property count varies per user, so a percentage is
-// meaningless there. Dashboard, Konzepte and Banken summarise / consume, not collect.
+// meaningless there. Dashboard, Objekte and Banken summarise / consume, not collect.
 
 export type NavItemDef = {
   href: string;
@@ -34,6 +34,6 @@ export const NAV_ITEMS: NavItemDef[] = [
   { href: "/stammdaten", labelKey: "stammdaten", icon: User, section: "stammdaten", group: "unterlagen" },
   { href: "/strategie", labelKey: "strategie", icon: Compass, section: "strategie", group: "unterlagen" },
   { href: "/checklist", labelKey: "checklist", icon: ClipboardCheck, section: "checklist", group: "unterlagen" },
-  { href: "/konzepte", labelKey: "konzepte", icon: Lightbulb },
+  { href: "/objekte", labelKey: "objekte", icon: House },
   { href: "/banken", labelKey: "banken", icon: Landmark },
 ];

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { inputClass, NumberField, SectionCard, TextField } from "./fields";
-import type { KonzeptObjekt, KonzeptObjektDetails } from "../types";
+import type { ObjektDaten, ObjektDetails } from "../types";
 
 export function ObjektForm({
   data,
@@ -25,10 +25,10 @@ export function ObjektForm({
   onDataChange,
   onDetailsChange,
 }: {
-  data: KonzeptObjekt;
-  details: KonzeptObjektDetails;
-  onDataChange: (patch: Partial<KonzeptObjekt>) => void;
-  onDetailsChange: (patch: Partial<KonzeptObjektDetails>) => void;
+  data: ObjektDaten;
+  details: ObjektDetails;
+  onDataChange: (patch: Partial<ObjektDaten>) => void;
+  onDetailsChange: (patch: Partial<ObjektDetails>) => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
   const hasDetails = Object.values(details).some((v) => v !== undefined && v !== "");

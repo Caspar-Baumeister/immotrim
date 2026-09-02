@@ -22,6 +22,14 @@ const FIELDS = {
     label: "Über mich",
     hint: "Es geht um eine kurze persönliche Vorstellung des Antragstellers (beruflicher Hintergrund, Erfahrung mit Immobilien, Motivation für die Finanzierung).",
   },
+  groesstesRisiko: {
+    label: "Größtes Risiko aus Banksicht",
+    hint: "Es geht um das größte Risiko des Vorhabens aus Sicht der finanzierenden Bank (z.B. Mietausfall, Zinsänderung, Instandhaltung) — sachlich und ehrlich benennen, nicht kleinreden.",
+  },
+  risikoLoesung: {
+    label: "Meine Absicherung",
+    hint: "Es geht darum, wie der Antragsteller das zuvor genannte Risiko konkret absichert (z.B. Liquiditätsreserve, Rücklagen, Versicherungen, konservative Kalkulation).",
+  },
 } as const;
 
 type Field = keyof typeof FIELDS;

@@ -46,6 +46,18 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: false,
       },
+      // The Konzept layer was removed 2026-09 — objects are top-level now. Old
+      // concept ids don't map to object ids, so everything lands on the overview.
+      {
+        source: "/konzepte/:path*",
+        destination: "/objekte",
+        permanent: false,
+      },
+      {
+        source: "/konzepte",
+        destination: "/objekte",
+        permanent: false,
+      },
     ];
   },
 };

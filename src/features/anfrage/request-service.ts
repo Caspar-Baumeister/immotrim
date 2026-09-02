@@ -1,7 +1,8 @@
 "use client";
 
-// Outreach tracking per (Konzept, Bank): one upserted row in
-// concept_bank_requests holding the status of that inquiry.
+// Outreach tracking per (Objekt, Bank): one upserted row in
+// concept_bank_requests (table name is historical) holding the status of that
+// inquiry.
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase";
@@ -27,10 +28,8 @@ export const ANFRAGE_STATUS_LABELS: Record<AnfrageStatus, string> = {
 };
 
 export type BankRequest = {
-  conceptId: string;
+  objectId: string;
   bankId: string;
-  // Which concept object was sent with the request (concept_objects id).
-  objectId: string | null;
   status: AnfrageStatus;
   sentAt: string | null;
   notes: string | null;
@@ -41,9 +40,8 @@ function fromRow(row: Row): BankRequest {
     ? (row.status as AnfrageStatus)
     : "entwurf";
   return {
-    conceptId: row.concept_id,
-    bankId: row.bank_id,
     objectId: row.object_id,
+    bankId: row.bank_id,
     status,
     sentAt: row.sent_at,
     notes: row.notes,
@@ -51,10 +49,10 @@ function fromRow(row: Row): BankRequest {
 }
 
 export async function upsertRequestStatus(
-  conceptId: string,
+  objectId: string,
   bankId: string,
   status: AnfrageStatus,
-  opts?: { sentAt?: string | null; notes?: string | null; objectId?: string | null },
+  opts?: { sentAt?: string | null; notes?: string | null },
 ): Promise<void> {
   const supabase = getSupabaseBrowserClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -63,30 +61,29 @@ export async function upsertRequestStatus(
   const { error } = await supabase.from("concept_bank_requests").upsert(
     {
       user_id: user.id,
-      concept_id: conceptId,
+      object_id: objectId,
       bank_id: bankId,
       status,
       ...(opts?.sentAt !== undefined ? { sent_at: opts.sentAt } : {}),
       ...(opts?.notes !== undefined ? { notes: opts.notes } : {}),
-      ...(opts?.objectId !== undefined ? { object_id: opts.objectId } : {}),
       updated_at: new Date().toISOString(),
     },
-    { onConflict: "concept_id,bank_id" },
+    { onConflict: "object_id,bank_id" },
   );
   if (error) throw error;
 }
 
-export async function listRequestsForConcept(conceptId: string): Promise<BankRequest[]> {
+export async function listRequestsForObjekt(objectId: string): Promise<BankRequest[]> {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
     .from("concept_bank_requests")
     .select("*")
-    .eq("concept_id", conceptId);
+    .eq("object_id", objectId);
   if (error || !data) return [];
   return (data as Row[]).map(fromRow);
 }
 
-/** All requests of the user, for status chips on concept cards. */
+/** All requests of the user, for status chips on object cards. */
 export async function listAllRequests(): Promise<BankRequest[]> {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase.from("concept_bank_requests").select("*");
