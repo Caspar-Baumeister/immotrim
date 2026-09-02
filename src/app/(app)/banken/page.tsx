@@ -9,11 +9,10 @@ import { BankCard } from "@/features/banks/components/BankCard";
 import { BANKS, type Bank } from "@/features/banks/registry";
 import { getAllProperties } from "@/lib/property-service";
 import { getProfile } from "@/lib/profile-service";
-import { getAllKonzepte } from "@/features/konzepte/konzept-service";
-import { listConceptObjects } from "@/features/konzepte/objekt-service";
-import { objektLabel, type ConceptObject } from "@/features/konzepte/types";
+import { listObjekte } from "@/features/objekte/objekt-service";
+import { objektLabel, type Objekt } from "@/features/objekte/types";
 import {
-  listRequestsForConcept,
+  listRequestsForObjekt,
   upsertRequestStatus,
   type AnfrageStatus,
   type BankRequest,
@@ -22,7 +21,6 @@ import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { estimateFinancing, bankFinancingScore } from "@/features/financing/calculations";
 import type { Property } from "@/lib/supabase";
 import type { Profile } from "@/features/profile/types";
-import type { Konzept } from "@/features/konzepte/types";
 
 // useSearchParams needs a Suspense boundary — the actual page lives below.
 export default function BankenPage() {
@@ -44,73 +42,56 @@ function BankenContent() {
   const searchParams = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [konzepte, setKonzepte] = useState<Konzept[]>([]);
-  // Loaded per selected concept; keyed by id so a stale load never leaks into
-  // another concept's view (and no state reset is needed on switch).
-  const [conceptData, setConceptData] = useState<{
+  const [objekte, setObjekte] = useState<Objekt[]>([]);
+  // Loaded per selected object; keyed by id so a stale load never leaks into
+  // another object's view (and no state reset is needed on switch).
+  const [objektRequests, setObjektRequests] = useState<{
     id: string;
-    objects: ConceptObject[];
     requests: BankRequest[];
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getAllProperties(), getProfile(), getAllKonzepte()]).then(
-      ([ps, pr, ks]) => {
+    Promise.all([getAllProperties(), getProfile(), listObjekte()]).then(
+      ([ps, pr, os]) => {
         setProperties(ps);
         setProfile(pr);
-        setKonzepte(ks);
+        setObjekte(os);
         setLoading(false);
       },
     );
   }, []);
 
-  // Selected concept: ?konzept= if valid, else the newest concept.
-  const requestedId = searchParams.get("konzept");
+  // Selected object: ?objekt= if valid, else the newest object.
+  const requestedId = searchParams.get("objekt");
   const selected =
-    konzepte.find((k) => k.id === requestedId) ?? konzepte[0] ?? null;
+    objekte.find((o) => o.id === requestedId) ?? objekte[0] ?? null;
 
-  const selectKonzept = (id: string) => {
-    router.replace(id ? `/banken?konzept=${id}` : "/banken");
+  const selectObjekt = (id: string) => {
+    router.replace(id ? `/banken?objekt=${id}` : "/banken");
   };
 
-  // Objects + outreach statuses follow the selected concept.
+  // Outreach statuses follow the selected object.
   const selectedId = selected?.id;
   useEffect(() => {
     if (!selectedId) return;
     let cancelled = false;
-    Promise.all([
-      listConceptObjects(selectedId),
-      listRequestsForConcept(selectedId),
-    ]).then(([os, rs]) => {
+    listRequestsForObjekt(selectedId).then((rs) => {
       if (cancelled) return;
-      setConceptData({ id: selectedId, objects: os, requests: rs });
+      setObjektRequests({ id: selectedId, requests: rs });
     });
     return () => {
       cancelled = true;
     };
   }, [selectedId]);
 
-  const objects = useMemo(
-    () => (conceptData && conceptData.id === selectedId ? conceptData.objects : []),
-    [conceptData, selectedId],
-  );
   const requests = useMemo(
-    () => (conceptData && conceptData.id === selectedId ? conceptData.requests : []),
-    [conceptData, selectedId],
+    () =>
+      objektRequests && objektRequests.id === selectedId
+        ? objektRequests.requests
+        : [],
+    [objektRequests, selectedId],
   );
-
-  // Selected object: ?objekt= if valid, else the concept's first object.
-  const requestedObjektId = searchParams.get("objekt");
-  const selectedObjectId =
-    objects.find((o) => o.id === requestedObjektId)?.id ?? objects[0]?.id ?? null;
-
-  const selectObjekt = (objektId: string) => {
-    if (!selectedId) return;
-    router.replace(
-      `/banken?konzept=${selectedId}${objektId ? `&objekt=${objektId}` : ""}`,
-    );
-  };
 
   const kpis = calculatePortfolioKpis(
     properties.map((p) => ({
@@ -130,29 +111,27 @@ function BankenContent() {
 
   const handleStatusChange = useCallback(
     async (bankId: string, status: AnfrageStatus) => {
-      if (!selected) return;
-      const conceptId = selected.id;
-      const objectId = selectedObjectId;
+      if (!selectedId) return;
+      const objectId = selectedId;
       const patch = (requests: BankRequest[]): BankRequest[] => [
         ...requests.filter((r) => r.bankId !== bankId),
-        { conceptId, bankId, objectId, status, sentAt: null, notes: null },
+        { objectId, bankId, status, sentAt: null, notes: null },
       ];
-      setConceptData((prev) =>
-        prev && prev.id === conceptId ? { ...prev, requests: patch(prev.requests) } : prev,
+      setObjektRequests((prev) =>
+        prev && prev.id === objectId ? { ...prev, requests: patch(prev.requests) } : prev,
       );
       try {
-        await upsertRequestStatus(conceptId, bankId, status, {
+        await upsertRequestStatus(objectId, bankId, status, {
           sentAt: status === "angefragt" ? new Date().toISOString() : undefined,
-          objectId,
         });
       } catch {
-        const rs = await listRequestsForConcept(conceptId);
-        setConceptData((prev) =>
-          prev && prev.id === conceptId ? { ...prev, requests: rs } : prev,
+        const rs = await listRequestsForObjekt(objectId);
+        setObjektRequests((prev) =>
+          prev && prev.id === objectId ? { ...prev, requests: rs } : prev,
         );
       }
     },
-    [selected, selectedObjectId],
+    [selectedId],
   );
 
   const renderCards = (banks: Bank[]) => (
@@ -166,11 +145,10 @@ function BankenContent() {
             bank.conditions ?? {},
             haushalt.nettoeinkommen ?? 0,
           )}
-          conceptId={selected?.id}
-          objectId={selectedObjectId ?? undefined}
+          objectId={selectedId}
           status={statusByBank.get(bank.id)}
           onStatusChange={
-            selected ? (s) => handleStatusChange(bank.id, s) : undefined
+            selectedId ? (s) => handleStatusChange(bank.id, s) : undefined
           }
         />
       ))}
@@ -187,55 +165,31 @@ function BankenContent() {
               Banken
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5 max-w-2xl">
-              Wähle ein Konzept und sieh pro Bank, wie gut deine Finanzierung passt
+              Wähle ein Objekt und sieh pro Bank, wie gut deine Finanzierung passt
               (Schätzung). Mit einem Klick erstellst du die fertige
               Finanzierungsanfrage.
             </p>
           </div>
-          {konzepte.length > 0 && (
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <div className="flex flex-col gap-1.5 w-full sm:w-72">
-                <label
-                  htmlFor="konzept-select"
-                  className="text-xs text-muted-foreground"
-                >
-                  Konzept
-                </label>
-                <select
-                  id="konzept-select"
-                  value={selected?.id ?? ""}
-                  onChange={(e) => selectKonzept(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                >
-                  {konzepte.map((k) => (
-                    <option key={k.id} value={k.id}>
-                      {k.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {objects.length > 0 && (
-                <div className="flex flex-col gap-1.5 w-full sm:w-64">
-                  <label
-                    htmlFor="objekt-select"
-                    className="text-xs text-muted-foreground"
-                  >
-                    Objekt
-                  </label>
-                  <select
-                    id="objekt-select"
-                    value={selectedObjectId ?? ""}
-                    onChange={(e) => selectObjekt(e.target.value)}
-                    className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                  >
-                    {objects.map((o) => (
-                      <option key={o.id} value={o.id}>
-                        {objektLabel(o)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+          {objekte.length > 0 && (
+            <div className="flex flex-col gap-1.5 w-full sm:w-72">
+              <label
+                htmlFor="objekt-select"
+                className="text-xs text-muted-foreground"
+              >
+                Objekt
+              </label>
+              <select
+                id="objekt-select"
+                value={selected?.id ?? ""}
+                onChange={(e) => selectObjekt(e.target.value)}
+                className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                {objekte.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {objektLabel(o)}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
         </div>
@@ -246,11 +200,11 @@ function BankenContent() {
           </div>
         ) : (
           <>
-            {konzepte.length === 0 && (
+            {objekte.length === 0 && (
               <p className="text-xs text-muted-foreground bg-muted/10 border border-border rounded-lg px-3 py-2 max-w-2xl">
-                Du hast noch kein Konzept angelegt.{" "}
-                <Link href="/konzepte/new" className="text-[#6c5ce7] hover:underline">
-                  Lege zuerst ein Konzept an
+                Du hast noch kein Objekt angelegt.{" "}
+                <Link href="/objekte" className="text-[#6c5ce7] hover:underline">
+                  Lege zuerst ein Objekt an
                 </Link>
                 , damit die Anfrage und die Objektunterlagen ein konkretes Vorhaben
                 beschreiben.

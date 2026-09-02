@@ -21,14 +21,16 @@ type Target =
   | { draftId: string }
   | { propertyId: string }
   | { category: string }
-  | { conceptId: string; objectId?: string };
+  | { objectId: string };
 
 // Bag of extracted fields keyed by field name, as returned by /api/extract.
 export type ExtractedBag = Record<string, ExtractedLike | undefined>;
 
 // Feature-specific glue so the same upload+extract+review UI serves the property,
-// Objektanalyse, Konzept-Objekt and profile-section (Stammdaten/Haushalt) flows.
+// Objektanalyse, Objekt and profile-section (Stammdaten/Haushalt) flows.
 export type ExtractionAdapter = {
+  // "konzeptObjekt" is the Objekt exposé mode — the id is a kept API contract
+  // with /api/extract.
   mode: "property" | "wishlist" | "konzeptObjekt" | "stammdaten" | "haushalt";
   fieldOrder: string[];
   isPresent: (fields: ExtractedBag, key: string) => boolean;
@@ -58,8 +60,8 @@ export function DocumentUploadCore({ target, adapter }: Props) {
       ? target.draftId
       : "propertyId" in target
         ? target.propertyId
-        : "conceptId" in target
-          ? `${target.conceptId}/${target.objectId ?? ""}`
+        : "objectId" in target
+          ? target.objectId
           : target.category;
 
   useEffect(() => {

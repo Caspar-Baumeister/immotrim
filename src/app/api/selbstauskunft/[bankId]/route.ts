@@ -10,19 +10,14 @@ import {
   isValidBankId,
 } from "@/features/banks/registry";
 import type {
-  SelbstauskunftKonzept,
+  SelbstauskunftObjekt,
   SelbstauskunftPayload,
   SelbstauskunftProfile,
 } from "@/features/banks/types";
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
 import type { Property, Json } from "@/lib/supabase";
 import type { Stammdaten, Haushalt } from "@/features/profile/types";
-import {
-  KONZEPT_TYPE_LABELS,
-  normaliseKonzeptType,
-  type KonzeptFinanzierung,
-  type KonzeptObjekt,
-} from "@/features/konzepte/types";
+import type { ObjektDaten } from "@/features/objekte/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -78,51 +73,27 @@ export async function POST(
   // German-only app: documents are always rendered in German.
   const locale = "de";
   let requestedName: string | undefined;
-  let conceptId: string | undefined;
   let objectId: string | undefined;
   try {
     const body = await request.json();
     if (typeof body?.investorName === "string") requestedName = body.investorName;
-    if (typeof body?.conceptId === "string") conceptId = body.conceptId;
     if (typeof body?.objectId === "string") objectId = body.objectId;
   } catch {
     // Body is optional — defaults are fine.
   }
 
-  // ── Load the financing concept, if one was selected (RLS scopes to this user) ─
-  let konzept: SelbstauskunftKonzept | undefined;
-  if (conceptId) {
-    const { data: row } = await sb
-      .from("financing_concepts")
-      .select("*")
-      .eq("id", conceptId)
+  // ── Load the Objekt, if one was selected (RLS scopes to this user) ───────────
+  let objekt: SelbstauskunftObjekt | undefined;
+  if (objectId) {
+    const { data: objRow } = await sb
+      .from("concept_objects")
+      .select("data")
+      .eq("id", objectId)
       .maybeSingle();
-    if (!row) {
-      return NextResponse.json({ error: "Unknown concept" }, { status: 404 });
+    if (!objRow) {
+      return NextResponse.json({ error: "Unknown object" }, { status: 404 });
     }
-    // The selected concept object; legacy financing_concepts.objekt jsonb is the
-    // fallback for pre-multi-object concepts / callers that send no objectId.
-    let objekt = (row.objekt ?? {}) as KonzeptObjekt;
-    if (objectId) {
-      const { data: objRow } = await sb
-        .from("concept_objects")
-        .select("data")
-        .eq("id", objectId)
-        .eq("concept_id", conceptId)
-        .maybeSingle();
-      if (!objRow) {
-        return NextResponse.json({ error: "Unknown object" }, { status: 404 });
-      }
-      objekt = (objRow.data ?? {}) as KonzeptObjekt;
-    }
-    const typ = normaliseKonzeptType(row.concept_type);
-    konzept = {
-      titel: row.title,
-      typLabel: typ ? KONZEPT_TYPE_LABELS[typ] : undefined,
-      beschreibung: row.description ?? undefined,
-      objekt,
-      finanzierung: (row.finanzierung ?? {}) as KonzeptFinanzierung,
-    };
+    objekt = { data: (objRow.data ?? {}) as ObjektDaten };
   }
 
   // ── Fetch the full portfolio (RLS scopes to this user) ───────────────────────
@@ -131,12 +102,12 @@ export async function POST(
     .select("*")
     .order("created_at", { ascending: false });
   const properties = (rows ?? []) as unknown as Property[];
-  // Without a concept a BANK form has nothing to describe, so an empty portfolio
-  // is a hard error there. WITH a concept the target journey is a NEW acquisition
+  // Without an Objekt a BANK form has nothing to describe, so an empty portfolio
+  // is a hard error there. WITH an Objekt the target journey is a NEW acquisition
   // — first-time buyers legitimately own nothing yet. The generic borrower
   // Selbstauskunft is also valid without properties: the object sections render
   // as a blank form.
-  if (properties.length === 0 && !konzept && !isGeneric) {
+  if (properties.length === 0 && !objekt && !isGeneric) {
     return NextResponse.json({ error: "No properties" }, { status: 400 });
   }
 
@@ -177,7 +148,7 @@ export async function POST(
     investorName: investorNameFrom(requestedName || saName, user),
     properties: portfolio,
     profile,
-    konzept,
+    objekt,
   };
 
   // ── Persist the job under an unguessable token (read by the print page) ──────

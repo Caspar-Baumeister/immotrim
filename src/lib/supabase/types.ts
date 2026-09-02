@@ -161,10 +161,10 @@ type DocumentRowShape = {
   user_id: string;
   property_id: string | null;
   draft_id: string | null;
-  // Object documents of a financing concept (src/features/konzepte). Null otherwise.
+  // DEPRECATED: pre-2026-09 concept scoping. New uploads always leave it null.
   concept_id: string | null;
-  // Documents of a specific concept object (concept_objects). Null = shared
-  // concept document (or non-concept upload).
+  // Documents of an Objekt (concept_objects row, src/features/objekte).
+  // Null = borrower/property upload.
   object_id: string | null;
   // null = property-scoped upload; otherwise a profile section
   // ("haushalt" | "stammdaten" | "strategie" | "checklist").
@@ -214,10 +214,9 @@ type PortfolioShareRowShape = {
   created_at: string;
 };
 
-// One row per financing concept ("Konzept"); finanzierung is jsonb — see
-// src/features/konzepte/types.ts for the parsed shapes. wishlist_property_id
-// and objekt are DEPRECATED (superseded by concept_objects) but still present
-// in the DB until the cleanup migration drops them.
+// DEPRECATED (2026-09): the Konzept layer was removed — objects are standalone
+// (see 20260902_objekte_standalone.sql). Table is dormant, no code reads or
+// writes it; dropped in a follow-up cleanup migration.
 type FinancingConceptRowShape = {
   id: string;
   user_id: string;
@@ -231,14 +230,14 @@ type FinancingConceptRowShape = {
   updated_at: string;
 };
 
-// Outreach status per (concept, bank). bank_id references the TS bank registry.
-// object_id records which concept object was sent with the request.
+// Outreach status per (object, bank). bank_id references the TS bank registry.
+// concept_id is DEPRECATED (pre-2026-09 rows only).
 type ConceptBankRequestRowShape = {
   id: string;
   user_id: string;
-  concept_id: string;
+  concept_id: string | null;
   bank_id: string;
-  object_id: string | null;
+  object_id: string;
   status: string;
   sent_at: string | null;
   notes: string | null;
@@ -246,14 +245,16 @@ type ConceptBankRequestRowShape = {
   updated_at: string;
 };
 
-// One row per candidate object inside a concept; data/details are jsonb — see
-// src/features/konzepte/types.ts for the parsed shapes.
+// One row per standalone Objekt (table keeps its historical "concept_" name);
+// data/details/finanzierung are jsonb — see src/features/objekte/types.ts for
+// the parsed shapes. concept_id is DEPRECATED (pre-2026-09 rows only).
 type ConceptObjectRowShape = {
   id: string;
   user_id: string;
-  concept_id: string;
+  concept_id: string | null;
   data: Json;
   details: Json;
+  finanzierung: Json;
   created_at: string;
   updated_at: string;
 };
@@ -351,10 +352,10 @@ export type Database = {
         Row: ConceptBankRequestRowShape;
         Insert: Omit<
           ConceptBankRequestRowShape,
-          "id" | "object_id" | "status" | "sent_at" | "notes" | "created_at" | "updated_at"
+          "id" | "concept_id" | "status" | "sent_at" | "notes" | "created_at" | "updated_at"
         > & {
           id?: string;
-          object_id?: string | null;
+          concept_id?: string | null;
           status?: string;
           sent_at?: string | null;
           notes?: string | null;
@@ -368,8 +369,12 @@ export type Database = {
       };
       concept_objects: {
         Row: ConceptObjectRowShape;
-        Insert: Omit<ConceptObjectRowShape, "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<
+          ConceptObjectRowShape,
+          "id" | "concept_id" | "created_at" | "updated_at"
+        > & {
           id?: string;
+          concept_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

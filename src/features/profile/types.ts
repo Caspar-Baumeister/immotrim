@@ -91,6 +91,11 @@ export type Haushalt = {
 export type Strategie = {
   strategieText?: string; // Immobilien-/Investmentstrategie
   ueberMich?: string; // Über mich
+  // Bank-facing risk story (optional, unweighted in the completeness score):
+  // naming the biggest risk plus its mitigation proactively builds credibility.
+  // Rendered as the "Risiko & Absicherung" block of the Anfrage email.
+  groesstesRisiko?: string; // größtes Risiko des Vorhabens aus Banksicht
+  risikoLoesung?: string; // wie dieses Risiko abgesichert ist
   /** Storage path in the property-documents bucket (portrait / logo). */
   imagePath?: string;
 };

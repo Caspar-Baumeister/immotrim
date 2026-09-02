@@ -10,7 +10,7 @@ const APP_PATHS = [
   "/strategie",
   "/banken",
   "/checklist",
-  "/konzepte",
+  "/objekte",
   "/portfolio",
   "/wishlist",
   "/property",

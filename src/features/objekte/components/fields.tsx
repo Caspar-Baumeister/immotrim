@@ -1,6 +1,6 @@
 "use client";
 
-// Shared form primitives of the konzepte feature (KonzeptForm + ObjektForm):
+// Shared form primitives of the objekte feature (ObjektForm + Finanzierung card):
 // labelled text/number inputs with an optional semantic icon in the label row,
 // plus the SectionCard wrapper.
 

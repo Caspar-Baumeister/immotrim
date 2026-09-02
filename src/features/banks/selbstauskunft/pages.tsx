@@ -20,7 +20,7 @@
 import { useEffect } from "react";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import type { PortfolioProperty } from "@/features/portfolio/calculations";
-import type { SelbstauskunftKonzept } from "../types";
+import type { ObjektDaten } from "@/features/objekte/types";
 import type { Stammdaten, Haushalt } from "@/features/profile/types";
 
 // ── formatting helpers ───────────────────────────────────────────────────────
@@ -481,28 +481,27 @@ export function WealthPage({
   );
 }
 
-// True when the concept carries an actual target object. The generic document
+// True when the payload carries an actual target object. The generic document
 // drops the Finanzierungsobjekt page entirely when this is false (the object
 // details travel separately with the Anfrage); the MBS bank form always renders
 // it, blank form included.
-export function konzeptHasObjekt(konzept?: SelbstauskunftKonzept): boolean {
-  const o = konzept?.objekt;
-  return !!o && Object.values(o).some((v) => v != null && v !== "");
+export function hasObjektData(data?: ObjektDaten): boolean {
+  return !!data && Object.values(data).some((v) => v != null && v !== "");
 }
 
-// The TARGET object of the financing request. Only a concept describes a
-// target; without one the page stays a blank form. Existing properties are
-// deliberately NOT shown here — they are Bestand, not Finanzierungsobjekt, and
-// live on the Zusatzblatt / in der Portfolio-Zusammenfassung.
+// The TARGET object of the financing request. Without one the page stays a
+// blank form. Existing properties are deliberately NOT shown here — they are
+// Bestand, not Finanzierungsobjekt, and live on the Zusatzblatt / in der
+// Portfolio-Zusammenfassung.
 export function ObjectPage({
-  konzept,
+  data,
   n,
 }: {
-  konzept?: SelbstauskunftKonzept;
+  data?: ObjektDaten;
   n: number;
 }) {
-  const o = konzept?.objekt;
-  const vermietet = konzeptHasObjekt(konzept) && (o?.erwarteteMiete ?? 0) > 0;
+  const o = data;
+  const vermietet = hasObjektData(data) && (o?.erwarteteMiete ?? 0) > 0;
   return (
     <Page n={n}>
       <h1 className="sa-title">Angaben zum Finanzierungsobjekt</h1>

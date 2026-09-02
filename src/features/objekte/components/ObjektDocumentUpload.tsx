@@ -1,10 +1,10 @@
 "use client";
 
-// Exposé upload + AI extraction for one concept object. Thin adapter over
-// DocumentUploadCore: uploads land as documents with concept_id + object_id
-// (so they reach the bank ZIP's Objektunterlagen), extraction runs in mode
-// "konzeptObjekt" and applies into the object page's draft state — the fields
-// stay editable, persisted on Speichern.
+// Exposé upload + AI extraction for one object. Thin adapter over
+// DocumentUploadCore: uploads land as documents with object_id (so they reach
+// the bank ZIP's Objektunterlagen), extraction runs in mode "konzeptObjekt"
+// (mode id is a kept API contract with /api/extract) and applies into the
+// object page's draft state — the fields stay editable, persisted on Speichern.
 
 import {
   DocumentUploadCore,
@@ -19,20 +19,18 @@ import {
   type ObjektFieldKey,
   type ObjektSnapshot,
 } from "../objekt-extraction-apply";
-import type { KonzeptObjekt, KonzeptObjektDetails } from "../types";
+import type { ObjektDaten, ObjektDetails } from "../types";
 
 export function ObjektDocumentUpload({
-  conceptId,
   objectId,
   snapshot,
   onPatchData,
   onPatchDetails,
 }: {
-  conceptId: string;
   objectId: string;
   snapshot: ObjektSnapshot;
-  onPatchData: (patch: Partial<KonzeptObjekt>) => void;
-  onPatchDetails: (patch: Partial<KonzeptObjektDetails>) => void;
+  onPatchData: (patch: Partial<ObjektDaten>) => void;
+  onPatchDetails: (patch: Partial<ObjektDetails>) => void;
 }) {
   const adapter: ExtractionAdapter = {
     mode: "konzeptObjekt",
@@ -49,5 +47,5 @@ export function ObjektDocumentUpload({
       }),
   };
 
-  return <DocumentUploadCore target={{ conceptId, objectId }} adapter={adapter} />;
+  return <DocumentUploadCore target={{ objectId }} adapter={adapter} />;
 }

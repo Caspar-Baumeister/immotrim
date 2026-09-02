@@ -74,7 +74,7 @@ export async function saveProfileSection<S extends ProfileSection>(
  * limit/busy from generic failure (same contract as classifyDocuments).
  */
 export async function polishStrategieText(
-  field: "strategieText" | "ueberMich",
+  field: "strategieText" | "ueberMich" | "groesstesRisiko" | "risikoLoesung",
   text: string,
 ): Promise<string> {
   const res = await fetch("/api/strategie/polish", {

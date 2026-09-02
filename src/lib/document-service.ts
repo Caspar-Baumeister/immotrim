@@ -20,15 +20,12 @@ function safeName(name: string): string {
 
 // A document belongs to exactly one of: a property, a pre-save draft, a
 // per-user profile category (Haushalt/Stammdaten/Strategie — no property FK),
-// or a financing concept (Objektunterlagen eines Konzepts). Concept documents
-// may additionally target one of the concept's objects (objectId) — e.g. the
-// exposé of a specific candidate object; without objectId they count as shared
-// concept documents.
+// or an Objekt (Objektunterlagen: exposé, Kaufvertrag, Teilungserklärung, …).
 type Target =
   | { draftId: string }
   | { propertyId: string }
   | { category: string }
-  | { conceptId: string; objectId?: string };
+  | { objectId: string };
 
 export async function uploadDocument(
   file: File,
@@ -42,8 +39,8 @@ export async function uploadDocument(
       ? target.draftId
       : "propertyId" in target
         ? target.propertyId
-        : "conceptId" in target
-          ? target.conceptId
+        : "objectId" in target
+          ? target.objectId
           : target.category;
   const path = `${userId}/${group}/${uuidv4()}-${safeName(file.name)}`;
 
@@ -59,8 +56,7 @@ export async function uploadDocument(
       property_id: "propertyId" in target ? target.propertyId : null,
       draft_id: "draftId" in target ? target.draftId : null,
       category: "category" in target ? target.category : null,
-      concept_id: "conceptId" in target ? target.conceptId : null,
-      object_id: "conceptId" in target ? (target.objectId ?? null) : null,
+      object_id: "objectId" in target ? target.objectId : null,
       file_name: file.name,
       file_path: path,
       mime_type: file.type || null,
@@ -86,10 +82,8 @@ export async function listDocuments(target: Target): Promise<PropertyDocument[]>
       ? await query.eq("property_id", target.propertyId)
       : "draftId" in target
         ? await query.eq("draft_id", target.draftId)
-        : "conceptId" in target
-          ? target.objectId
-            ? await query.eq("concept_id", target.conceptId).eq("object_id", target.objectId)
-            : await query.eq("concept_id", target.conceptId)
+        : "objectId" in target
+          ? await query.eq("object_id", target.objectId)
           : await query.eq("category", target.category).is("property_id", null);
 
   if (error || !data) return [];
@@ -97,7 +91,7 @@ export async function listDocuments(target: Target): Promise<PropertyDocument[]>
 }
 
 // All borrower/personal documents: user-level uploads not tied to a property, a
-// pre-save draft or a concept (i.e. the Stammdaten/Haushalt/Strategie/Checklist
+// pre-save draft or an object (i.e. the Stammdaten/Haushalt/Strategie/Checklist
 // categories). This is what the Unterlagen-Checkliste aggregates across sections.
 export async function listBorrowerDocuments(): Promise<PropertyDocument[]> {
   const supabase = getSupabaseBrowserClient();
@@ -107,30 +101,24 @@ export async function listBorrowerDocuments(): Promise<PropertyDocument[]> {
     .is("property_id", null)
     .is("draft_id", null)
     .is("concept_id", null)
+    .is("object_id", null)
     .order("created_at", { ascending: false });
   if (error || !data) return [];
   return data as unknown as PropertyDocument[];
 }
 
-// Documents of a concept. Without objectId: everything attached to the concept
-// (used by the Unterlagen section and concept deletion). With objectId: the
-// shared concept documents (object_id null — includes pre-multi-object legacy
-// uploads) plus the selected object's own documents (its exposé) — this is what
-// goes to the bank (completion scoring, ZIP bundle).
-export async function listConceptDocuments(
-  conceptId: string,
-  objectId?: string | null,
+// All documents of one object — Unterlagen section, completion scoring and the
+// bank ZIP bundle. (Legacy pre-2026-09 "shared concept" documents were assigned
+// an object_id by migration 20260902.)
+export async function listObjektDocuments(
+  objectId: string,
 ): Promise<PropertyDocument[]> {
   const supabase = getSupabaseBrowserClient();
-  let query = supabase
+  const { data, error } = await supabase
     .from("documents")
     .select("*")
-    .eq("concept_id", conceptId)
+    .eq("object_id", objectId)
     .order("created_at", { ascending: false });
-  if (objectId) {
-    query = query.or(`object_id.is.null,object_id.eq.${objectId}`);
-  }
-  const { data, error } = await query;
   if (error || !data) return [];
   return data as unknown as PropertyDocument[];
 }

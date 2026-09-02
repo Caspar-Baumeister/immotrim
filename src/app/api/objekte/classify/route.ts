@@ -146,7 +146,7 @@ export async function POST(request: Request) {
     items = text ? ((JSON.parse(text).documents as ClassifyItem[]) ?? []) : [];
     await consumeMonthlyUsage(sb);
   } catch (e) {
-    console.error("Konzept document classification failed:", e);
+    console.error("Objekt document classification failed:", e);
     if (e instanceof ApiError && (e.status === 503 || e.status === 429)) {
       return NextResponse.json({ error: "busy" }, { status: 503 });
     }

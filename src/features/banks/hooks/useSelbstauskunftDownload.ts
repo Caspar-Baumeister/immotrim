@@ -9,11 +9,11 @@ import { useCallback, useState } from "react";
 // pricing, mirroring the Portfolio-Report gate.
 export function useSelbstauskunftDownload(
   bankId: string,
-  opts?: { fileName?: string; conceptId?: string; objectId?: string },
+  opts?: { fileName?: string; objectId?: string },
 ): { busy: boolean; error: string | null; download: () => Promise<void> } {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { fileName, conceptId, objectId } = opts ?? {};
+  const { fileName, objectId } = opts ?? {};
 
   const download = useCallback(async () => {
     setBusy(true);
@@ -22,7 +22,7 @@ export function useSelbstauskunftDownload(
       const res = await fetch(`/api/selbstauskunft/${bankId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(conceptId ? { conceptId, objectId } : {}),
+        body: JSON.stringify(objectId ? { objectId } : {}),
       });
       if (res.status === 402) {
         setError("Bezahlter Tarif nötig. Weiterleitung …");
@@ -44,7 +44,7 @@ export function useSelbstauskunftDownload(
     } finally {
       setBusy(false);
     }
-  }, [bankId, conceptId, objectId, fileName]);
+  }, [bankId, objectId, fileName]);
 
   return { busy, error, download };
 }

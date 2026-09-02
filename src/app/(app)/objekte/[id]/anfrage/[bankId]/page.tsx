@@ -1,14 +1,14 @@
 "use client";
 
-// The compile screen for one (Konzept, Bank) pair: generated German email text
+// The compile screen for one (Objekt, Bank) pair: generated German email text
 // (copy-paste / mailto), the pre-filled Selbstauskunft-PDF, the Portfoliobericht
 // (Investorenbroschüre), a ZIP of all documents and the per-bank checklist of
 // what's still missing — everything the user needs to send the
 // Finanzierungsanfrage in one place.
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   ArrowLeft,
   Check,
@@ -33,9 +33,8 @@ import {
   bankCompletion,
   type BankMissingItem,
 } from "@/features/banks/requirements";
-import { getKonzept } from "@/features/konzepte/konzept-service";
-import { listConceptObjects } from "@/features/konzepte/objekt-service";
-import { objektLabel, type ConceptObject, type Konzept } from "@/features/konzepte/types";
+import { getObjekt } from "@/features/objekte/objekt-service";
+import { objektLabel, type Objekt } from "@/features/objekte/types";
 import {
   buildAnfrageEmail,
   buildMailtoUrl,
@@ -44,7 +43,7 @@ import {
 import { downloadAnfrageZip } from "@/features/anfrage/zip-bundle";
 import {
   ANFRAGE_STATUS_LABELS,
-  listRequestsForConcept,
+  listRequestsForObjekt,
   upsertRequestStatus,
   type AnfrageStatus,
 } from "@/features/anfrage/request-service";
@@ -52,7 +51,7 @@ import { getAllProperties } from "@/lib/property-service";
 import { getProfile } from "@/lib/profile-service";
 import {
   listBorrowerDocuments,
-  listConceptDocuments,
+  listObjektDocuments,
 } from "@/lib/document-service";
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { estimateFinancing } from "@/features/financing/calculations";
@@ -100,19 +99,15 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-function AnfragePageInner() {
+export default function AnfragePage() {
   const { id, bankId } = useParams<{ id: string; bankId: string }>();
-  const searchParams = useSearchParams();
-  const paramObjektId = searchParams.get("objekt");
   const bank = getBank(bankId);
 
-  const [konzept, setKonzept] = useState<Konzept | null>(null);
-  const [objects, setObjects] = useState<ConceptObject[]>([]);
-  const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
+  const [objekt, setObjekt] = useState<Objekt | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [borrowerDocs, setBorrowerDocs] = useState<PropertyDocument[]>([]);
-  const [conceptDocs, setConceptDocs] = useState<PropertyDocument[]>([]);
+  const [objectDocs, setObjectDocs] = useState<PropertyDocument[]>([]);
   const [status, setStatus] = useState<AnfrageStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -124,52 +119,32 @@ function AnfragePageInner() {
 
   useEffect(() => {
     let cancelled = false;
-    getKonzept(id).then(async (k) => {
+    getObjekt(id).then(async (o) => {
       if (cancelled) return;
-      setKonzept(k);
-      if (!k) {
+      setObjekt(o);
+      if (!o) {
         setLoading(false);
         return;
       }
-      const [pr, ps, bd, os, rs] = await Promise.all([
+      const [pr, ps, bd, od, rs] = await Promise.all([
         getProfile(),
         getAllProperties(),
         listBorrowerDocuments(),
-        listConceptObjects(k.id),
-        listRequestsForConcept(k.id),
+        listObjektDocuments(o.id),
+        listRequestsForObjekt(o.id),
       ]);
       if (cancelled) return;
       setProfile(pr);
       setProperties(ps);
       setBorrowerDocs(bd);
-      setObjects(os);
-      const request = rs.find((r) => r.bankId === bankId);
-      setStatus(request?.status ?? null);
-      // Object selection: URL param → object stored on the request → first object.
-      const valid = (oid: string | null | undefined) =>
-        oid && os.some((o) => o.id === oid) ? oid : null;
-      setSelectedObjectId(valid(paramObjektId) ?? valid(request?.objectId) ?? os[0]?.id ?? null);
+      setObjectDocs(od);
+      setStatus(rs.find((r) => r.bankId === bankId)?.status ?? null);
       setLoading(false);
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, bankId]);
-
-  // Concept docs depend on the selected object: shared docs + that object's exposé.
-  useEffect(() => {
-    if (!konzept) return;
-    let cancelled = false;
-    listConceptDocuments(konzept.id, selectedObjectId).then((cd) => {
-      if (!cancelled) setConceptDocs(cd);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [konzept, selectedObjectId]);
-
-  const selectedObject = objects.find((o) => o.id === selectedObjectId) ?? null;
 
   const kpis = calculatePortfolioKpis(
     properties.map((p) => ({ id: p.id, name: p.name, address: p.address, inputs: p.inputs })),
@@ -185,7 +160,7 @@ function AnfragePageInner() {
         ),
     );
     const presentObject = new Set<SaDocType>(
-      conceptDocs
+      objectDocs
         .map((d) => d.doc_type)
         .filter((t): t is SaDocType =>
           (SA_DOC_TYPES as readonly string[]).includes(t ?? ""),
@@ -199,7 +174,7 @@ function AnfragePageInner() {
         haushaltCompletion(profile?.haushalt ?? {}) === 100,
       portfolioberichtReady: properties.length > 0,
     });
-  }, [bankId, borrowerDocs, conceptDocs, profile, properties]);
+  }, [bankId, borrowerDocs, objectDocs, profile, properties]);
 
   // Banks without their own form get the bank-neutral Immotrim Selbstauskunft —
   // same data, no bank branding — so EVERY Anfrage ships with a filled form.
@@ -214,17 +189,16 @@ function AnfragePageInner() {
     () => [
       pdfName,
       ...borrowerDocs.map((d) => d.file_name),
-      ...conceptDocs.map((d) => d.file_name),
+      ...objectDocs.map((d) => d.file_name),
     ],
-    [pdfName, borrowerDocs, conceptDocs],
+    [pdfName, borrowerDocs, objectDocs],
   );
 
   const mail: AnfrageEmail | null =
-    bank && konzept
+    bank && objekt
       ? buildAnfrageEmail({
           bank,
-          konzept,
-          objekt: selectedObject?.data,
+          objekt,
           stammdaten: profile?.stammdaten ?? {},
           strategie: profile?.strategie ?? {},
           est,
@@ -237,7 +211,7 @@ function AnfragePageInner() {
     const res = await fetch(`/api/selbstauskunft/${documentBankId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conceptId: id, objectId: selectedObjectId ?? undefined }),
+      body: JSON.stringify({ objectId: id }),
     });
     if (res.status === 402) {
       setError("Für die PDF-Erstellung ist ein bezahlter Tarif nötig. Weiterleitung …");
@@ -270,7 +244,7 @@ function AnfragePageInner() {
   };
 
   const handleZip = async () => {
-    if (!bank || !konzept) return;
+    if (!bank || !objekt) return;
     setZipBusy(true);
     setError(null);
     setZipNote(null);
@@ -283,12 +257,12 @@ function AnfragePageInner() {
       } catch {
         setZipNote("Selbstauskunft-PDF konnte nicht erzeugt werden — ZIP enthält nur die Dokumente.");
       }
-      const zipName = `Finanzierungsanfrage-${bank.shortName}-${konzept.title}`
+      const zipName = `Finanzierungsanfrage-${bank.shortName}-${objektLabel(objekt)}`
         .replace(/[^a-zA-Z0-9äöüÄÖÜß ._-]/g, "")
         .slice(0, 80);
       const failed = await downloadAnfrageZip({
         borrowerDocs,
-        objectDocs: conceptDocs,
+        objectDocs,
         pdf,
         zipName: `${zipName}.zip`,
       });
@@ -303,12 +277,11 @@ function AnfragePageInner() {
   };
 
   const markRequested = async () => {
-    if (!konzept) return;
+    if (!objekt) return;
     setStatus("angefragt");
     try {
-      await upsertRequestStatus(konzept.id, bankId, "angefragt", {
+      await upsertRequestStatus(objekt.id, bankId, "angefragt", {
         sentAt: new Date().toISOString(),
-        objectId: selectedObjectId,
       });
     } catch {
       setStatus(null);
@@ -342,14 +315,14 @@ function AnfragePageInner() {
     );
   }
 
-  if (!konzept) {
+  if (!objekt) {
     return (
       <div className="flex flex-col min-h-screen">
         <TopBar title="Finanzierungsanfrage" />
         <div className="flex-1 p-6">
           <p className="text-sm text-muted-foreground">
-            Konzept nicht gefunden.{" "}
-            <Link href="/konzepte" className="text-[#6c5ce7] hover:underline">
+            Objekt nicht gefunden.{" "}
+            <Link href="/objekte" className="text-[#6c5ce7] hover:underline">
               Zur Übersicht
             </Link>
           </p>
@@ -368,7 +341,7 @@ function AnfragePageInner() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <Link
-              href={`/banken?konzept=${konzept.id}`}
+              href={`/banken?objekt=${objekt.id}`}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> zurück zu den Banken
@@ -377,28 +350,8 @@ function AnfragePageInner() {
               Finanzierungsanfrage an {bank.name}
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Konzept: <span className="text-foreground">{konzept.title}</span>
+              Objekt: <span className="text-foreground">{objektLabel(objekt)}</span>
             </p>
-            {objects.length >= 2 ? (
-              <label className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-                Objekt:
-                <select
-                  value={selectedObjectId ?? ""}
-                  onChange={(e) => setSelectedObjectId(e.target.value || null)}
-                  className="h-8 rounded-lg border border-input bg-transparent px-2 text-xs text-foreground outline-none"
-                >
-                  {objects.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {objektLabel(o)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : selectedObject ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Objekt: <span className="text-foreground">{objektLabel(selectedObject)}</span>
-              </p>
-            ) : null}
           </div>
           <div className="flex items-center gap-3">
             {status && (
@@ -450,10 +403,10 @@ function AnfragePageInner() {
                     />
                     <span className="text-foreground">{m.label}</span>
                     <Link
-                      href={m.scope === "borrower" ? "/checklist" : `/konzepte/${konzept.id}`}
+                      href={m.scope === "borrower" ? "/checklist" : `/objekte/${objekt.id}`}
                       className="ml-auto text-[#6c5ce7] hover:underline"
                     >
-                      {m.scope === "borrower" ? "zur Checkliste" : "zum Konzept"}
+                      {m.scope === "borrower" ? "zur Checkliste" : "zum Objekt"}
                     </Link>
                   </li>
                 ))}
@@ -535,13 +488,13 @@ function AnfragePageInner() {
             {withDocument ? (
               <>
                 Das {bank.shortName}-Formular, vorausgefüllt mit deinem Profil, deinem
-                Portfolio und diesem Konzept (inkl. Finanzierungswunsch).
+                Portfolio und diesem Objekt.
               </>
             ) : (
               <>
                 {bank.shortName} hat kein eigenes Formular — du erhältst die
                 bankneutrale Selbstauskunft, vorausgefüllt mit deinem Profil, deinem
-                Portfolio und diesem Konzept (inkl. Finanzierungswunsch).
+                Portfolio und diesem Objekt.
               </>
             )}
           </p>
@@ -632,9 +585,9 @@ function AnfragePageInner() {
               <Link href="/checklist" className="text-[#6c5ce7] hover:underline">
                 Checkliste
               </Link>{" "}
-              und im{" "}
-              <Link href={`/konzepte/${konzept.id}`} className="text-[#6c5ce7] hover:underline">
-                Konzept
+              und beim{" "}
+              <Link href={`/objekte/${objekt.id}`} className="text-[#6c5ce7] hover:underline">
+                Objekt
               </Link>{" "}
               hoch.
             </p>
@@ -651,23 +604,5 @@ function AnfragePageInner() {
         </Panel>
       </div>
     </div>
-  );
-}
-
-// useSearchParams needs a Suspense boundary during prerender.
-export default function AnfragePage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex flex-col min-h-screen">
-          <TopBar title="Finanzierungsanfrage" />
-          <div className="flex-1 flex items-center justify-center py-24">
-            <Loader2 className="h-6 w-6 animate-spin text-[#6c5ce7]" />
-          </div>
-        </div>
-      }
-    >
-      <AnfragePageInner />
-    </Suspense>
   );
 }

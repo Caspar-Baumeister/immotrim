@@ -1,7 +1,7 @@
 "use client";
 
-// Objektunterlagen of one concept: drop-zone upload, AI classification into the
-// Selbstauskunft doc types (via /api/konzepte/classify) and requirement tiles —
+// Objektunterlagen of one object: drop-zone upload, AI classification into the
+// Selbstauskunft doc types (via /api/objekte/classify) and requirement tiles —
 // the same interaction as the Unterlagen-Checkliste, but with the OBJECT
 // vocabulary and a manual doc-type select as correction fallback.
 
@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import {
   deleteDocument,
   getDownloadUrl,
-  listConceptDocuments,
+  listObjektDocuments,
   setDocumentType,
   uploadDocument,
 } from "@/lib/document-service";
@@ -48,10 +48,10 @@ const LEVEL_LABEL: Record<SaLevel, string> = {
   optional: "Optional",
 };
 
-async function classifyKonzeptDocuments(
+async function classifyObjektDocuments(
   docs: { id: string; path: string; name: string }[],
 ): Promise<{ id: string; docType: string; fileName: string }[]> {
-  const res = await fetch("/api/konzepte/classify", {
+  const res = await fetch("/api/objekte/classify", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ docs }),
@@ -72,7 +72,7 @@ async function classifyKonzeptDocuments(
   return data.results ?? [];
 }
 
-export function KonzeptUnterlagen({ conceptId }: { conceptId: string }) {
+export function ObjektUnterlagen({ objectId }: { objectId: string }) {
   const [docs, setDocs] = useState<PropertyDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -94,7 +94,7 @@ export function KonzeptUnterlagen({ conceptId }: { conceptId: string }) {
     if (targets.length === 0) return;
     setClassifying(targets.map((d) => d.id), true);
     try {
-      const results = await classifyKonzeptDocuments(
+      const results = await classifyObjektDocuments(
         targets.map((d) => ({ id: d.id, path: d.file_path, name: d.file_name })),
       );
       const byId = new Map(results.map((r) => [r.id, r]));
@@ -122,7 +122,7 @@ export function KonzeptUnterlagen({ conceptId }: { conceptId: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    listConceptDocuments(conceptId).then((rows) => {
+    listObjektDocuments(objectId).then((rows) => {
       if (cancelled) return;
       setDocs(rows);
       setLoading(false);
@@ -132,7 +132,7 @@ export function KonzeptUnterlagen({ conceptId }: { conceptId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [conceptId, runClassify]);
+  }, [objectId, runClassify]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -149,7 +149,7 @@ export function KonzeptUnterlagen({ conceptId }: { conceptId: string }) {
           setError(`${file.name}: zu groß (max. 50 MB).`);
           continue;
         }
-        const row = await uploadDocument(file, { conceptId });
+        const row = await uploadDocument(file, { objectId });
         fresh.push(row);
         setDocs((prev) => [row, ...prev]);
       }
@@ -168,7 +168,7 @@ export function KonzeptUnterlagen({ conceptId }: { conceptId: string }) {
       await deleteDocument(doc);
     } catch {
       setError("Löschen fehlgeschlagen.");
-      listConceptDocuments(conceptId).then(setDocs);
+      listObjektDocuments(objectId).then(setDocs);
     }
   };
 

@@ -47,6 +47,8 @@ export const HAUSHALT_FIELDS: FieldReq<Haushalt>[] = [
   { key: "sonstigeVerbindlichkeiten", label: "Sonstige Verbindlichkeiten", weight: 0.5 },
 ];
 
+// groesstesRisiko/risikoLoesung are deliberately NOT listed: the risk pair is
+// optional, and weighting it would keep 100% out of reach for users who skip it.
 export const STRATEGIE_FIELDS: FieldReq<Strategie>[] = [
   { key: "strategieText", label: "Investmentstrategie", weight: 2 },
   { key: "ueberMich", label: "Über mich" },

@@ -2,15 +2,15 @@
 // FINANZIERUNGSANFRAGE — E-MAIL-BUILDER
 //
 // Pure template function: builds the German subject + body of a financing
-// request for one (Konzept, Bank) pair from data the app already has. No AI —
+// request for one (Objekt, Bank) pair from data the app already has. No AI —
 // deterministic, unit-testable, and always a faithful rendering of the inputs.
 // Empty fields are omitted rather than rendered as blanks. The text also works
 // pasted into a bank's contact form (many institutions accept no email).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Bank } from "@/features/banks/registry";
-import type { Konzept, KonzeptObjekt } from "@/features/konzepte/types";
-import { KONZEPT_TYPE_LABELS, KONZEPT_ZWECK_LABELS } from "@/features/konzepte/types";
+import type { Objekt } from "@/features/objekte/types";
+import { ZWECK_LABELS, objektLabel } from "@/features/objekte/types";
 import type { Stammdaten, Strategie } from "@/features/profile/types";
 import type { FinancingEstimate } from "@/features/financing/calculations";
 
@@ -20,9 +20,7 @@ const eur = (v: number | null | undefined): string | null =>
 
 export type AnfrageEmailInput = {
   bank: Bank;
-  konzept: Konzept;
-  /** The selected concept object; the Objekt block is omitted when absent. */
-  objekt?: KonzeptObjekt;
+  objekt: Objekt;
   stammdaten: Stammdaten;
   strategie: Strategie;
   est: FinancingEstimate;
@@ -45,19 +43,16 @@ function block(title: string, lines: (string | null)[]): string | null {
 }
 
 export function buildAnfrageEmail(input: AnfrageEmailInput): AnfrageEmail {
-  const { bank, konzept, stammdaten, strategie, est, propertyCount, attachmentNames } =
+  const { bank, objekt, stammdaten, strategie, est, propertyCount, attachmentNames } =
     input;
-  const o = input.objekt ?? {};
-  const fin = konzept.finanzierung;
+  const o = objekt.data;
+  const fin = objekt.finanzierung;
 
   const name = [stammdaten.vorname, stammdaten.nachname].filter(Boolean).join(" ").trim();
-  const typLabel = konzept.conceptType
-    ? KONZEPT_TYPE_LABELS[konzept.conceptType]
-    : undefined;
 
   const subject = [
     "Finanzierungsanfrage",
-    konzept.title,
+    objektLabel(objekt),
     o.ort ? `in ${o.ort}` : null,
     name ? `— ${name}` : null,
   ]
@@ -68,7 +63,7 @@ export function buildAnfrageEmail(input: AnfrageEmailInput): AnfrageEmail {
   // Intro differs: a Vermittler compares banks, a bank finances directly.
   const intro =
     bank.kind === "vermittler"
-      ? `ich suche eine Baufinanzierung für ein konkretes Vorhaben und bitte Sie um einen Vergleich passender Bankangebote. Damit Sie geeignete Banken vorauswählen können, beschreibe ich das Konzept unten so konkret wie möglich.`
+      ? `ich suche eine Baufinanzierung für ein konkretes Objekt und bitte Sie um einen Vergleich passender Bankangebote. Damit Sie geeignete Banken vorauswählen können, beschreibe ich das Vorhaben unten so konkret wie möglich.`
       : `ich interessiere mich für eine Baufinanzierung bei Ihrem Haus und sende Ihnen dazu meine Eckdaten und Unterlagen.`;
 
   const beruf = [stammdaten.beruf, stammdaten.arbeitgeber ? `bei ${stammdaten.arbeitgeber}` : null]
@@ -78,11 +73,6 @@ export function buildAnfrageEmail(input: AnfrageEmailInput): AnfrageEmail {
     line("Name", name || null),
     line("Beruf", beruf || null),
     strategie.ueberMich ? `- ${strategie.ueberMich.trim()}` : null,
-  ]);
-
-  const konzeptBlock = block("Das Konzept:", [
-    line("Vorhaben", [konzept.title, typLabel ? `(${typLabel})` : null].filter(Boolean).join(" ")),
-    konzept.description ? `- ${konzept.description.trim()}` : null,
   ]);
 
   const objektBlock = block("Das Objekt:", [
@@ -96,7 +86,7 @@ export function buildAnfrageEmail(input: AnfrageEmailInput): AnfrageEmail {
   ]);
 
   const finBlock = block("Finanzierungswunsch:", [
-    line("Zweck", fin.zweck ? KONZEPT_ZWECK_LABELS[fin.zweck] : null),
+    line("Zweck", fin.zweck ? ZWECK_LABELS[fin.zweck] : null),
     line("Darlehensbetrag", eur(fin.darlehensbetrag)),
     line("Eigenkapital", eur(fin.eigenkapital)),
     line("Zinsbindung", fin.zinsbindungJahre ? `${fin.zinsbindungJahre} Jahre` : null),
@@ -117,6 +107,13 @@ export function buildAnfrageEmail(input: AnfrageEmailInput): AnfrageEmail {
           }`,
         )
       : null,
+  ]);
+
+  // Optional bank-facing risk story from the Strategie profile section —
+  // naming the main risk plus its mitigation proactively builds credibility.
+  const risiko = block("Risiko & Absicherung:", [
+    line("Größtes Risiko aus Banksicht", strategie.groesstesRisiko?.trim() || null),
+    line("Meine Absicherung", strategie.risikoLoesung?.trim() || null),
   ]);
 
   const anlagen =
@@ -143,7 +140,7 @@ export function buildAnfrageEmail(input: AnfrageEmailInput): AnfrageEmail {
     "",
     intro,
     "",
-    [konzeptBlock, objektBlock, finBlock, ueberMich, bonitaet, anlagen]
+    [objektBlock, finBlock, ueberMich, bonitaet, risiko, anlagen]
       .filter(Boolean)
       .join("\n\n"),
     "",
