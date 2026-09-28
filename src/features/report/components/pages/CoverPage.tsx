@@ -1,11 +1,18 @@
 "use client";
 
 import type { PortfolioKpis } from "@/features/portfolio/calculations";
+import type { ReportVariant } from "../../report-types";
 import { Wordmark } from "../ReportLayout";
 import { REPORT_COLORS, eur, formatDateDE } from "../../report-theme";
 
 const DISCLAIMER =
   "Dieser Bericht basiert auf den vom Nutzer eingegebenen Daten und den durch Immotrim berechneten Kennzahlen. Er dient als strukturierte Portfolioübersicht und ersetzt keine Originalunterlagen, formale Wertermittlung, Steuerberatung oder Rechtsberatung.";
+
+// Cover wording per report variant (see ReportConfig.variant).
+const COVER_TEXTS: Record<ReportVariant, { eyebrow: string; title: string }> = {
+  brochure: { eyebrow: "Portfolio-Finanzierungsbericht", title: "Investorenbroschüre" },
+  portfolio: { eyebrow: "Portfolio-Übersicht", title: "Immobilienübersicht" },
+};
 
 function HeadlineStat({ label, value }: { label: string; value: string }) {
   return (
@@ -25,12 +32,15 @@ export function CoverPage({
   investorName,
   generatedAt,
   titleImageUrl,
+  variant = "brochure",
 }: {
   kpis: PortfolioKpis;
   investorName: string;
   generatedAt: string;
   titleImageUrl: string | null;
+  variant?: ReportVariant;
 }) {
+  const texts = COVER_TEXTS[variant];
   return (
     <div className="report-page">
       <div className="flex items-center justify-between">
@@ -49,10 +59,10 @@ export function CoverPage({
 
       <div className={titleImageUrl ? "mt-8" : "mt-[40mm]"}>
         <p className="text-[12px] uppercase tracking-[0.2em]" style={{ color: REPORT_COLORS.cashflow }}>
-          Portfolio-Finanzierungsbericht
+          {texts.eyebrow}
         </p>
         <h1 className="text-[34px] leading-[1.1] font-semibold mt-3" style={{ color: REPORT_COLORS.text }}>
-          Investorenbroschüre
+          {texts.title}
         </h1>
         <div className="flex gap-10 mt-6">
           <div>

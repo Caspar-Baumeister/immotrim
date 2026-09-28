@@ -269,6 +269,13 @@ type SubscriptionRowShape = {
   plan_interval: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
+  // Which billing system owns this row: "stripe" (web, default) or "revenuecat"
+  // (iPhone app). The RevenueCat webhook never downgrades an entitled stripe row.
+  source: string;
+  // RevenueCat identifiers (null on stripe rows). rc_app_user_id is the Supabase
+  // user id the app registers with RevenueCat; rc_product_id the App Store product.
+  rc_app_user_id: string | null;
+  rc_product_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -444,10 +451,28 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      ai_chat_usage: {
+        // Per-user monthly AI chat counter (iPhone app). Mutated only via the
+        // consume_ai_chat RPC; users can read their own row.
+        Row: {
+          user_id: string;
+          period: string;
+          count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       consume_ai_extraction: {
+        Args: { p_limit: number };
+        Returns: { allowed: boolean; used: number }[];
+      };
+      consume_ai_chat: {
         Args: { p_limit: number };
         Returns: { allowed: boolean; used: number }[];
       };

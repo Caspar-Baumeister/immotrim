@@ -8,6 +8,12 @@ export const MAX_DETAIL_PROPERTIES = 10;
 // the portfolio's total value, debt or rental income.
 export const CONCENTRATION_THRESHOLD = 0.4;
 
+// Which document the report renders as.
+//   brochure  (default): the web "Investorenbroschüre" with profile page.
+//   portfolio: the iPhone app's "Immobilienübersicht" for the bank: no profile
+//              page, plus the BankKpiPage (Kapitaldienst und Sicherheiten).
+export type ReportVariant = "brochure" | "portfolio";
+
 // What the user chose to include in the report.
 export type ReportConfig = {
   includeTitleImage: boolean;
@@ -19,6 +25,8 @@ export type ReportConfig = {
   includeNotes: boolean; // per-property notes
   // Up to MAX_DETAIL_PROPERTIES ids that get a detail page.
   selectedPropertyIds: string[];
+  // Optional; older payloads and the web dialog omit it (= "brochure").
+  variant?: ReportVariant;
 };
 
 export function defaultReportConfig(selectedPropertyIds: string[]): ReportConfig {

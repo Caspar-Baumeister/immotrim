@@ -7,11 +7,12 @@ import {
   calculatePortfolioAmortizationSeries,
   calculatePortfolioCashFlowSeries,
 } from "@/features/portfolio/chart-calculations";
-import { computeReportMetrics, buildRiskSummary } from "../report-metrics";
+import { computeReportMetrics, buildRiskSummary, computeBankKpis } from "../report-metrics";
 import type { ReportPayload } from "../report-types";
 import { CoverPage } from "./pages/CoverPage";
 import { InvestorProfilePage } from "./pages/InvestorProfilePage";
 import { OverviewPage } from "./pages/OverviewPage";
+import { BankKpiPage } from "./pages/BankKpiPage";
 import { ChartsTimeSeriesPage, ChartsPerObjectPage } from "./pages/ChartsPages";
 import { RiskPage } from "./pages/RiskPage";
 import { PropertyPage } from "./pages/PropertyPage";
@@ -33,9 +34,14 @@ export function ReportDocument({ payload }: { payload: ReportPayload }) {
     strategie,
   } = payload;
 
+  // "brochure" (web) or "portfolio" (iPhone app, bank-facing Immobilienübersicht).
+  const variant = config.variant ?? "brochure";
+  const isPortfolio = variant === "portfolio";
+
   const kpis = calculatePortfolioKpis(properties);
   const metrics = computeReportMetrics(properties);
   const risk = buildRiskSummary(properties);
+  const bank = isPortfolio ? computeBankKpis(properties) : null;
   const appreciation = calculatePortfolioAppreciationSeries(properties);
   const amortization = calculatePortfolioAmortizationSeries(properties);
   const cashFlow = calculatePortfolioCashFlowSeries(properties);
@@ -69,9 +75,12 @@ export function ReportDocument({ payload }: { payload: ReportPayload }) {
         investorName={investorName}
         generatedAt={generatedAt}
         titleImageUrl={config.includeTitleImage ? titleImageUrl : null}
+        variant={variant}
       />
 
-      {config.includeProfile && strategie && (
+      {/* The investor story belongs to the brochure only; the bank-facing
+          portfolio overview has no profile page. */}
+      {!isPortfolio && config.includeProfile && strategie && (
         <InvestorProfilePage strategie={strategie} investorName={investorName} />
       )}
 
@@ -81,6 +90,8 @@ export function ReportDocument({ payload }: { payload: ReportPayload }) {
         detailCount={selected.length}
         totalCount={properties.length}
       />
+
+      {bank && <BankKpiPage bank={bank} />}
 
       {config.includeCharts && properties.length > 0 && (
         <>

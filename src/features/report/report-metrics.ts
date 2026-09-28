@@ -1,5 +1,8 @@
 import type { PropertyInputs } from "@/lib/supabase";
-import type { PortfolioProperty } from "@/features/portfolio/calculations";
+import {
+  calculatePortfolioKpis,
+  type PortfolioProperty,
+} from "@/features/portfolio/calculations";
 import { calculateMortgage } from "@/features/mortgage/calculations";
 import { calculateCashFlow } from "@/features/cash-flow/calculations";
 import { calculateTax } from "@/features/tax/calculations";
@@ -344,5 +347,74 @@ export function buildRiskSummary(properties: PortfolioProperty[]): RiskSummary {
       remainingFixedYears: m.remainingFixedYears,
     })),
     concentrationFlags,
+  };
+}
+
+// ─── Bank KPIs (Kapitaldienst und Sicherheiten, "portfolio" report variant) ──
+// Portfolio-level lending ratios the way a bank reads them. All ratios use the
+// same value base: the owner's stated market values where given (falling back
+// to the appreciation model per property, see calculatePortfolioKpis).
+
+export type BankZinsbindung = {
+  name: string;
+  // Calendar year the fixed-rate period ends (loan start year + zinsbindung);
+  // null when no Zinsbindung is recorded.
+  endYear: number | null;
+  remainingYears: number | null;
+};
+
+export type BankKpis = {
+  // Kapitaldienstdeckung: (Kaltmiete − Leerstand − nicht umlagefähig − Rücklagen) / Kapitaldienst.
+  dscr: number;
+  // Mietdeckung: Kaltmiete / Kapitaldienst.
+  rentCover: number;
+  // Beleihungsauslauf %: Restschuld / Portfoliowert.
+  ltv: number;
+  // Eigenkapitalquote %: (Portfoliowert − Restschuld) / Portfoliowert.
+  equityRatio: number;
+  weightedInterestRate: number;
+  weightedRepaymentRate: number;
+  zinsbindungen: BankZinsbindung[];
+  monthlyRent: number;
+  monthlyDebtService: number;
+  // Monatlicher Nettoertrag: Kaltmiete − Leerstand − nicht umlagefähige Kosten.
+  monthlyNoi: number;
+};
+
+export function computeBankKpis(properties: PortfolioProperty[]): BankKpis {
+  const kpis = calculatePortfolioKpis(properties);
+  const { perProperty } = computeReportMetrics(properties);
+
+  const value = kpis.manualMarketValue ?? kpis.estimatedPortfolioValue;
+  const debt = kpis.outstandingLoanBalance;
+  const debtService = kpis.annualDebtService;
+
+  const annualNoi =
+    kpis.annualColdRent - kpis.annualVacancyLoss - kpis.annualNonRecoverableCosts;
+  const annualDscrIncome = annualNoi - kpis.annualReserveContributions;
+
+  const zinsbindungen: BankZinsbindung[] = perProperty.map((m) => {
+    const startYear = m.loanStartDate
+      ? parseInt(m.loanStartDate.split("-")[0], 10)
+      : new Date().getFullYear();
+    const hasFixed = m.zinsbindung > 0 && Number.isFinite(startYear);
+    return {
+      name: m.name,
+      endYear: hasFixed ? startYear + m.zinsbindung : null,
+      remainingYears: m.remainingFixedYears,
+    };
+  });
+
+  return {
+    dscr: debtService > 0 ? annualDscrIncome / debtService : 0,
+    rentCover: debtService > 0 ? kpis.annualColdRent / debtService : 0,
+    ltv: value > 0 ? (debt / value) * 100 : 0,
+    equityRatio: value > 0 ? ((value - debt) / value) * 100 : 0,
+    weightedInterestRate: kpis.weightedInterestRate,
+    weightedRepaymentRate: kpis.weightedRepaymentRate,
+    zinsbindungen,
+    monthlyRent: kpis.annualColdRent / 12,
+    monthlyDebtService: debtService / 12,
+    monthlyNoi: annualNoi / 12,
   };
 }

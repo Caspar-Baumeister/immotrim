@@ -1,7 +1,10 @@
 import "server-only";
-import type { createServerSupabase } from "./supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./supabase/types";
 
-type ServerSupabase = Awaited<ReturnType<typeof createServerSupabase>>;
+// Any user-scoped client: the cookie SSR client (web) or the Bearer-token client
+// (iPhone app, see supabase/request.ts). Both run under RLS as the caller.
+type ServerSupabase = SupabaseClient<Database>;
 
 // Monthly cap on AI document extractions per user — the only usage restriction.
 // Env-overridable so it can be tuned without a deploy.

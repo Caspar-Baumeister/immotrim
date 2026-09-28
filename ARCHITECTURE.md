@@ -41,7 +41,9 @@ Supabase projects are fully isolated — staging payments/users never touch prod
 | `STRIPE_SECRET_KEY` | Canonical Stripe secret (per scope) | Preferred. Falls back to `STRIPE_SECRET_KEY_TEST` / `_LIVE` keyed off `VERCEL_ENV` (NOT `NODE_ENV` — Vercel sets that to `production` on every deploy incl. previews). See [stripe.ts](src/lib/stripe.ts). |
 | `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY` | Price IDs | Must match the key's mode (test vs live) or `prices.retrieve` throws and pricing cards render blank. |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret (`whsec_…`) | Per scope; must match the signing secret of *that* environment's Stripe webhook endpoint. |
-| `GEMINI_API_KEY` / `GEMINI_MODEL` | AI document analysis | — |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | AI document analysis + mobile portfolio chat | — |
+| `REVENUECAT_WEBHOOK_SECRET` | Auth header value RevenueCat sends to `/api/revenuecat/webhook` | iPhone app billing, see §9. Route returns 503 while unset. |
+| `AI_CHAT_MONTHLY_LIMIT` | Monthly cap on `/api/mobile/chat` calls per user (default 300) | Enforced by the `consume_ai_chat` RPC, see §9. |
 | `VERCEL_ENV`, `VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_URL` | Set automatically by Vercel | Used as `getBaseUrl()` fallbacks. |
 
 `getBaseUrl()` preference order: `NEXT_PUBLIC_APP_URL` → `VERCEL_PROJECT_PRODUCTION_URL`
@@ -218,5 +220,70 @@ Live mode is **fully separate** from test mode — nothing carries over. Before/
 | [src/app/[locale]/billing/actions.ts](src/app/[locale]/billing/actions.ts) | checkout + customer portal |
 | [src/app/api/stripe/webhook/route.ts](src/app/api/stripe/webhook/route.ts) | Stripe webhook → subscription row |
 | [src/app/[locale]/(app)/layout.tsx](src/app/[locale]/(app)/layout.tsx) | authoritative paywall gate |
+| [src/lib/supabase/request.ts](src/lib/supabase/request.ts) | Bearer-or-cookie Supabase client for API routes (`getRequestUser`) |
+| [src/lib/entitlement.ts](src/lib/entitlement.ts) | `isEntitled` (mobile routes) |
+| [src/app/api/revenuecat/webhook/route.ts](src/app/api/revenuecat/webhook/route.ts) | RevenueCat webhook → subscription row |
+| [src/app/api/mobile/*](src/app/api/mobile) | iPhone app routes (chat, extract, report, account delete) |
+| [src/lib/extraction/core.ts](src/lib/extraction/core.ts) | Gemini document extraction shared by web + mobile |
+| [src/lib/report/render.ts](src/lib/report/render.ts) | PDF report pipeline shared by web + mobile |
+
+---
+
+## 9. Mobile app (iPhone)
+
+The Flutter iPhone app talks to the same Supabase project directly (auth, `properties`,
+storage) and to this Next.js deployment for everything that needs a server secret. Nothing
+here replaces the web flows; the mobile routes sit next to them.
+
+### Auth: Bearer tokens instead of cookies
+- The app sends `Authorization: Bearer <supabase access token>` on every API call.
+- [request.ts](src/lib/supabase/request.ts) builds an **anon-key** client with that header
+  (`createBearerSupabase`), so RLS applies exactly as for that user, and verifies the user
+  with `sb.auth.getUser(token)`. Without a Bearer header it falls back to the cookie client,
+  so `getRequestUser(request)` works for web and app alike.
+- Entitlement for mobile routes is [entitlement.ts](src/lib/entitlement.ts) `isEntitled`:
+  `status ∈ {active, trialing}` AND (`current_period_end` null or in the future). Same rule
+  as §4; the trial counts, unlike the web bank report (`hasPaidPlan`).
+
+### Routes (all `runtime = "nodejs"`, JSON errors `{ error: "<code>" }`)
+
+| Route | Purpose | Errors |
+|-------|---------|--------|
+| `POST /api/mobile/chat` | Portfolio chat (Gemini, function calling). Body `{ messages: [{ role, content }], locale }`, last 20 messages. Returns `{ reply, updates: [{ propertyId, propertyName, field, value }] }`. The model may call `update_property_field`; the row is updated through the user's RLS client (`inputs` jsonb, or the `name`/`address` columns). Max 4 tool rounds. | 401 `unauthorized`, 402 `payment_required`, 429 `limit` (monthly cap `AI_CHAT_MONTHLY_LIMIT`, default 300, via `consume_ai_chat` RPC + table `ai_chat_usage`), 400 `bad_request`, 502 `upstream`, 503 `not_configured` |
+| `POST /api/mobile/extract` | Same Gemini extraction as `/api/extract` in mode `property`, Bearer auth + entitlement. Body `{ docs: [{ path, name }] }`. Shares the `ai_extraction_usage` quota. | 401, 402, 429 `limit`, 400, 403 `forbidden`, 404 `not_found`, 413 `too_large`, 502 `upstream`, 503 `busy`/`not_configured` |
+| `POST /api/mobile/report` | Bank-facing PDF "Immobilienübersicht" (report variant `portfolio`: cover texts, no profile page, extra `BankKpiPage` with DSCR, Mietdeckung, LTV, Eigenkapitalquote, Ø Zins/Tilgung, Zinsbindungen). Body `{ investorName, propertyIds, includeTax, includeImages }`. Trial allowed. | 401, 402, 400 `bad_request`, 500 `server_error`, 502 `upstream` |
+| `POST /api/mobile/account/delete` | App Store account deletion. Removes storage objects under `<uid>/` in `property-documents`, then rows in properties, documents, report_images, profiles, subscriptions, wishlist_properties, concept_objects, portfolio_shares, then `auth.admin.deleteUser`. | 401, 500 `server_error` |
+
+Shared internals: [extraction/core.ts](src/lib/extraction/core.ts) (`extractFromDocs`) and
+[report/render.ts](src/lib/report/render.ts) (`renderPortfolioReport`) are used by both the
+web routes and the mobile routes. The web routes' behaviour (auth, `hasPaidPlan`, error
+messages, file names) is unchanged.
+
+### Billing: RevenueCat webhook
+- The app sells the subscription through the App Store via RevenueCat and registers the
+  **Supabase user id as the RevenueCat app user id**.
+- [api/revenuecat/webhook/route.ts](src/app/api/revenuecat/webhook/route.ts) verifies the
+  `Authorization` header against `REVENUECAT_WEBHOOK_SECRET` (raw value or `Bearer <value>`)
+  and upserts the `subscriptions` row (`onConflict: user_id`) with the service-role client.
+- Columns added by `20260928_subscriptions_source.sql`: `source` (`stripe` default,
+  `revenuecat`), `rc_app_user_id`, `rc_product_id`. `plan_interval` is `yearly` when the
+  product id ends with `_yearly`, else `monthly`.
+- Event mapping: `INITIAL_PURCHASE`, `RENEWAL`, `PRODUCT_CHANGE`, `UNCANCELLATION`,
+  `NON_RENEWING_PURCHASE` → `trialing` (period_type `TRIAL`) or `active`, `current_period_end`
+  from `expiration_at_ms`, `cancel_at_period_end=false`. `CANCELLATION` → `cancel_at_period_end=true`
+  (status unchanged). `EXPIRATION` → `canceled`. `BILLING_ISSUE` → `past_due`. `TEST` and
+  anonymous ids (`$RCAnonymousID:`) → 200 no-op.
+- **A currently entitled `source='stripe'` row is never touched by RevenueCat events**
+  (a lapsed App Store trial must not cancel a paying web customer).
+- The entitlement rule stays the same for both sources: `active|trialing` and period end
+  null or in the future.
+
+### Migrations
+- `20260928_subscriptions_source.sql`: `source`, `rc_app_user_id`, `rc_product_id` on
+  `subscriptions` (idempotent; the UNIQUE constraints on the Stripe ids stay, NULLs are
+  distinct).
+- `20260928_ai_chat_usage.sql`: table `ai_chat_usage` (user_id, period `YYYY-MM`, count) with
+  select-own RLS and the security-definer RPC `consume_ai_chat(p_limit int)`, same contract
+  as `consume_ai_extraction`.
 </content>
 </invoke>

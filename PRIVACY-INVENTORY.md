@@ -34,10 +34,24 @@ No tracking, advertising, or third-party cookies are set. Vercel Web Analytics
 | Vercel Web Analytics (`@vercel/analytics`) | `layout.tsx`, **production only** | Yes (first-party-proxied script at `/_vercel/insights/*`) | Cookieless / anonymized → treated as legitimate interest, no banner — **⚠ verify legal posture** | Kept, documented |
 | Supabase (`NEXT_PUBLIC_SUPABASE_URL`) | Auth / DB / storage | Yes | No (strictly necessary) | Essential |
 | Stripe | `src/lib/stripe.ts`, billing actions | **No** — server-side only; payment via Stripe-hosted Checkout/Portal redirect | No client-side `stripe.js` loaded | Essential |
-| Google Gemini API (`@google/genai`) | `src/app/api/extract/*`, server | **No** — server-side document extraction only | No browser connection | Essential |
+| Google Gemini API (`@google/genai`) | `src/app/api/extract/*`, `src/app/api/mobile/extract`, `src/app/api/mobile/chat`, server | **No** — server-side document extraction and the iPhone app's portfolio chat | No browser connection | Essential |
+| RevenueCat (webhook only) | `src/app/api/revenuecat/webhook/route.ts` | **No** — RevenueCat calls our server; the iPhone app talks to RevenueCat directly | Part of the App Store purchase | Essential (iPhone app) |
 
 Non-loaded references (links/placeholder strings only, no resource fetched):
 `ec.europa.eu` (ODR link in Impressum), `immobilienscout24.de` (example URL text).
+
+## 3a. iPhone app backend (`/api/mobile/*`, `/api/revenuecat/webhook`)
+
+The iPhone app authenticates with a Supabase access token (`Authorization: Bearer`) and
+uses the same Supabase project; the routes below add no cookies or browser storage.
+
+| Data flow | What leaves our infrastructure | Stored? |
+|-----------|--------------------------------|---------|
+| Portfolio chat (`/api/mobile/chat`) | The user's chat messages (last 20), the properties of that user (name, address, inputs) and the computed KPIs are sent to the **Google Gemini API** (paid tier, no training on data) to generate the answer. | **Chat text is not stored** anywhere on our side, neither in the database nor in logs. Only a per-user monthly counter (`ai_chat_usage`: user id, month, count) is written. When the model calls `update_property_field`, the stated value is written to that user's `properties` row, which the user sees and controls in the app. |
+| Document extraction (`/api/mobile/extract`) | Same as the web `/api/extract`: the user's uploaded documents are sent to Gemini for field extraction. | Extracted fields are returned to the app only; the monthly counter `ai_extraction_usage` is incremented. |
+| Bank report (`/api/mobile/report`) | Nothing leaves our infrastructure (headless Chromium renders our own print page). | A short-lived `report_jobs` row (deleted right after rendering). |
+| Account deletion (`/api/mobile/account/delete`) | Nothing. | Deletes the user's storage objects, table rows and the auth user. |
+| Subscription (RevenueCat) | The app registers the **Supabase user id as the RevenueCat app user id**; RevenueCat therefore holds that id together with the App Store purchase data, and sends it back to our webhook. | `subscriptions` row: status, period end, `source='revenuecat'`, `rc_app_user_id` (= the Supabase user id), `rc_product_id`. No payment details reach us. |
 
 ## 4. YouTube two-click consent solution
 
