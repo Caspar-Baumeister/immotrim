@@ -49,9 +49,18 @@ export default async function DatenschutzPage() {
         </li>
         <li>
           <strong>Google (Gemini API)</strong> – KI-gestützte Auslesung Ihrer
-          hochgeladenen Dokumente. Hochgeladene Exposés und Unterlagen werden zur
-          Datenextraktion an Google übermittelt und können dabei in den USA
-          verarbeitet werden.
+          hochgeladenen Dokumente und der KI-Chat in der iPhone-App. Hochgeladene
+          Exposés und Unterlagen sowie die für eine Chat-Antwort nötigen
+          Immobiliendaten und Ihre Nachrichten werden zur Verarbeitung an Google
+          übermittelt und können dabei in den USA verarbeitet werden.
+        </li>
+        <li>
+          <strong>RevenueCat, Inc.</strong>: Abonnementverwaltung für Käufe in der
+          iPhone-App über den Apple App Store (siehe Abschnitt 12).
+        </li>
+        <li>
+          <strong>PostHog (PostHog Inc., EU-Hosting in Frankfurt)</strong>: anonyme
+          Nutzungsstatistik der iPhone-App (siehe Abschnitt 12).
         </li>
       </ul>
       <p>
@@ -163,6 +172,55 @@ export default async function DatenschutzPage() {
           caspar.baumeister.privat@gmail.com
         </a>
         .
+      </p>
+
+      <h2>12. Immotrim iPhone-App</h2>
+      <p>
+        Für die Immotrim-App für iPhone gelten die vorstehenden Abschnitte
+        entsprechend; die App nutzt dasselbe Konto und dieselbe Datenbank wie die
+        Website. Ergänzend gilt:
+      </p>
+      <p>
+        <strong>Anmeldung mit Apple oder Google.</strong> Sie können sich in der App
+        wahlweise mit E-Mail und Passwort, mit Apple (&bdquo;Mit Apple anmelden&ldquo;)
+        oder mit Google anmelden. Dabei erhalten wir vom jeweiligen Anbieter Ihre
+        E-Mail-Adresse (bei Apple auf Wunsch eine anonymisierte Weiterleitungsadresse)
+        und ggf. Ihren Namen, um Ihr Konto anzulegen. Rechtsgrundlage ist die
+        Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO).
+      </p>
+      <p>
+        <strong>Käufe und Abonnements (Apple, RevenueCat).</strong> Immotrim Plus wird
+        in der App als Abonnement über den Apple App Store abgeschlossen; die
+        Zahlungsabwicklung übernimmt Apple. Zur Verwaltung des Abonnements setzen wir
+        <strong> RevenueCat, Inc.</strong> (San Francisco, USA) ein. RevenueCat erhält
+        eine pseudonyme Nutzerkennung (Ihre Konto-ID) sowie die Kaufbelege von Apple,
+        um festzustellen, ob Ihr Abonnement aktiv ist, und teilt uns diesen Status mit.
+        Zahlungsdaten wie Kartennummern erhalten weder wir noch RevenueCat. Die
+        Übermittlung in die USA ist über die EU-Standardvertragsklauseln abgesichert.
+        Rechtsgrundlage ist die Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b
+        DSGVO).
+      </p>
+      <p>
+        <strong>Nutzungsstatistik (PostHog).</strong> Um zu verstehen, welche Funktionen
+        der App genutzt werden und wo Nutzer abbrechen, setzen wir
+        <strong> PostHog</strong> ein, gehostet in der EU (Frankfurt). Erfasst werden
+        Ereignisse wie das Öffnen eines Bildschirms, das Beantworten einer Frage oder
+        der Start eines Kaufs, zusammen mit einer zufällig erzeugten Gerätekennung,
+        App-Version, Gerätetyp und Betriebssystem. Ihre IP-Adresse wird anonymisiert
+        gespeichert; Name, E-Mail-Adresse, Immobiliendaten und Chat-Inhalte werden nicht
+        an PostHog übermittelt, und es findet keine Zusammenführung mit Daten Dritter
+        oder Werbetracking statt. Rechtsgrundlage ist unser berechtigtes Interesse an der
+        Verbesserung der App (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO).
+      </p>
+      <p>
+        <strong>Benachrichtigungen.</strong> Erinnerungen an offene Fragen zu Ihren
+        Immobilien werden lokal auf Ihrem Gerät geplant; es werden dafür keine Daten
+        an uns oder Dritte übertragen. Sie können die Benachrichtigungen jederzeit in
+        den App-Einstellungen oder in den iOS-Einstellungen abschalten.
+      </p>
+      <p>
+        <strong>Konto löschen.</strong> In den App-Einstellungen können Sie Ihr Konto
+        samt aller Immobiliendaten und Dokumente unwiderruflich löschen.
       </p>
     </LegalShell>
   );
