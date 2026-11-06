@@ -1,13 +1,20 @@
-import { signInWithGoogleAction } from "./actions";
+"use client";
+
+import { useState } from "react";
+import { signInWithGoogle } from "./client-auth";
 
 type Props = {
   label: string;
   dividerLabel: string;
+  next?: string;
 };
 
-// Neutral/outline button that kicks off the Google OAuth server action. Rendered
-// below the email/password form on both the login and signup pages.
-export function GoogleSignInButton({ label, dividerLabel }: Props) {
+// Neutral/outline button that signs in with a Google popup. Rendered below the
+// email/password form on both the login and signup pages.
+export function GoogleSignInButton({ label, dividerLabel, next }: Props) {
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -16,19 +23,26 @@ export function GoogleSignInButton({ label, dividerLabel }: Props) {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form action={signInWithGoogleAction}>
-        <button
-          type="submit"
-          className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
-        >
-          <GoogleIcon />
-          {label}
-        </button>
-      </form>
+      <button
+        type="button"
+        disabled={pending}
+        onClick={async () => {
+          setPending(true);
+          setError(null);
+          const err = await signInWithGoogle(next);
+          // On success the page navigates away; only failures land here.
+          if (err !== null) setPending(false);
+          setError(err);
+        }}
+        className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60 transition-colors"
+      >
+        <GoogleIcon />
+        {label}
+      </button>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
-
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">

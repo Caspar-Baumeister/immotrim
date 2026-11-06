@@ -13,7 +13,6 @@ export async function SiteFooter() {
         <nav className="flex items-center gap-4">
           <Link href={`/impressum`} className="hover:text-foreground transition-colors">{tl("impressum.title")}</Link>
           <Link href={`/datenschutz`} className="hover:text-foreground transition-colors">{tl("datenschutz.title")}</Link>
-          <Link href={`/privacy-settings`} className="hover:text-foreground transition-colors">{tl("privacySettings.title")}</Link>
           <Link href={`/agb`} className="hover:text-foreground transition-colors">{tl("agb.title")}</Link>
         </nav>
       </div>

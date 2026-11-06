@@ -4,23 +4,17 @@
     "tagline": "Immobilienanalyse"
   },
   "seo": {
-    "siteTitle": "Immotrim — Portfolio Manager für Immobilieninvestoren",
-    "siteDescription": "Immotrim ist der Portfolio Manager für private Immobilieninvestoren: Behalte Kaltmiete, Zinsen, Tilgung, Cashflow, AfA, Restschuld und Vermögensaufbau deines gesamten Portfolios im Blick."
+    "siteTitle": "Immotrim: Portfolio Manager für Immobilieninvestoren",
+    "siteDescription": "Immotrim macht dein Immobilienportfolio so übersichtlich wie ein Depot: Cashflow, Tilgung, Wertsteigerung, Inflation, Hebel und Restschuld aller Objekte auf einen Blick. Unterlagen hochladen, Kennzahlen sehen, Bankenübersicht herunterladen."
   },
   "nav": {
     "portfolio": "Portfolio",
-    "wishlist": "Objektanalyse",
     "newProperty": "Neue Immobilie",
     "insights": "Analyse",
-    "dashboard": "Dashboard",
-    "haushalt": "Haushaltsrechnung",
-    "stammdaten": "Stammdaten",
+    "dashboard": "Übersicht",
     "immobilien": "Immobilien",
-    "strategie": "Strategie",
-    "checklist": "Checkliste",
-    "objekte": "Objekte",
-    "banken": "Banken",
-    "unterlagen": "Unterlagen"
+    "bank": "Bankenübersicht",
+    "upgrade": "Auf Plus upgraden"
   },
   "property": {
     "new": "Neue Immobilie",
@@ -89,7 +83,7 @@
   "portfolio": {
     "title": "Portfolio",
     "empty": "Noch keine Immobilien",
-    "emptyDesc": "Fügen Sie Ihre erste Immobilie hinzu, um Ihr Portfolio zu verfolgen.",
+    "emptyDesc": "Lege deine erste Immobilie an, um dein Portfolio zu verfolgen.",
     "addFirst": "Immobilie hinzufügen",
     "totalValue": "Gesamtportfoliowert",
     "totalInvested": "Gesamteigenkapital",
@@ -97,23 +91,6 @@
     "monthlyCashFlow": "Monatlicher Cashflow",
     "avgCapRate": "Ø Brutto-Rendite",
     "properties": "Immobilien"
-  },
-  "share": {
-    "button": "Teilen",
-    "dialogTitle": "Portfolio teilen",
-    "dialogSubtitle": "Jeder mit diesem Link sieht dein Gesamt-Portfolio als Dashboard – ohne Zugang zu einzelnen Objekten.",
-    "loading": "Link wird erstellt…",
-    "copy": "Kopieren",
-    "copied": "Kopiert",
-    "error": "Link konnte nicht erstellt werden. Bitte versuche es erneut.",
-    "privacyNote": "Der Link zeigt nur aggregierte Kennzahlen und Diagramme. Adresse, Zimmer, Wohnfläche und weitere Objektdetails werden nicht angezeigt, und es kann nichts bearbeitet werden.",
-    "pageTitle": "Immobilien-Portfolio",
-    "pageSubtitle": "Aggregierte Kennzahlen und Entwicklung des gesamten Portfolios. Einzelne Objektdaten sind ausgeblendet.",
-    "objektLabel": "Objekt",
-    "empty": "Dieses Portfolio enthält noch keine Immobilien.",
-    "cta": "Eigenes Portfolio analysieren",
-    "ctaTitle": "Analysiere dein eigenes Immobilien-Portfolio",
-    "ctaSubtitle": "Lade deine Unterlagen hoch und behalte Cashflow, Rendite und Vermögensaufbau im Blick."
   },
   "actions": {
     "viewInsights": "Analyse anzeigen",
@@ -136,193 +113,141 @@
   "deleteConfirm": "Möchten Sie diese Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
   "landing": {
     "hero": {
-      "eyebrow": "Für Immobilien-Investoren — ohne Finanzierungsvermittler",
-      "title": "Immobilienfinanzierung direkt bei Banken vorbereiten — <mark>ohne Finanzierungsvermittler</mark>.",
-      "subtitle": "Lade deine Unterlagen hoch und Immotrim zeigt dir, welche Banken passen, was ihnen noch fehlt und wie sie rechnen — inklusive fertiger Selbstauskunft auf Knopfdruck.",
-      "ctaPrimary": "Kostenlos loslegen",
+      "eyebrow": "Portfolio-Monitoring für Immobilieninvestoren",
+      "title": "Mach deine Immobilien so übersichtlich wie <mark>Aktien</mark>.",
+      "subtitle": "Bei Immobilien wirken viele Kräfte gleichzeitig: Tilgung, Wertsteigerung, Mieterhöhungen, Inflation auf deine Schulden und der Hebel deines Eigenkapitals. Immotrim rechnet alles zusammen, damit du siehst, was dein Portfolio wirklich leistet.",
+      "ctaPrimary": "Kostenlos starten",
       "ctaSecondary": "Anmelden",
-      "trialNote": "14 Tage kostenlos testen — keine Kreditkarte nötig.",
-      "imageAlt": "Hand hält vorbereitete Finanzierungsunterlagen"
+      "freeNote": "Eine Immobilie kostenlos, ohne Kreditkarte."
+    },
+    "showcase": {
+      "prev": "Vorherige Grafik",
+      "next": "Nächste Grafik",
+      "goto": "Zu Grafik {index}",
+      "whyLabel": "Warum das wichtig ist",
+      "wealth": {
+        "title": "Vermögensaufbau pro Jahr",
+        "what": "Tilgung, Cashflow und Wertsteigerung aller Objekte, Jahr für Jahr.",
+        "why": "Zeigt, wie viel Vermögen dein Portfolio wirklich aufbaut, auch wenn auf dem Konto wenig ankommt."
+      },
+      "cashflow": {
+        "title": "Cashflow",
+        "what": "Was nach Zins, Tilgung, Rücklagen und Kosten übrig bleibt.",
+        "why": "So erkennst du früh, ob ein Objekt dich Geld kostet und wann es kippt."
+      },
+      "amortization": {
+        "title": "Zins und Tilgung",
+        "what": "Wie sich deine Rate über die Jahre von Zins zu Tilgung verschiebt.",
+        "why": "Jeder Monat mit mehr Tilgung ist Vermögen, das du nicht siehst, aber besitzt."
+      },
+      "equity": {
+        "title": "Eigenkapitalrendite",
+        "what": "Rendite auf dein eingesetztes Eigenkapital über die Zeit.",
+        "why": "Der Hebel macht aus einer mittleren Mietrendite eine starke Rendite auf dein Geld."
+      },
+      "value": {
+        "title": "Wert und Schulden",
+        "what": "Immobilienwert, Restschuld und dein Nettovermögen im Verlauf.",
+        "why": "Zeigt, wann du nachbeleihen kannst und wie schnell dein Eigenkapital wächst."
+      },
+      "yield": {
+        "title": "Mietrendite",
+        "what": "Brutto- und Nettomietrendite mit steigenden Mieten.",
+        "why": "Hilft dir zu entscheiden, ob du eine Strategie weiterführst oder umsteuerst."
+      }
     },
     "problem": {
-      "eyebrow": "Warum ohne Vermittler",
-      "title": "Wer Immobilien als Investment sieht, baut Beziehungen zu Banken auf.",
-      "body": "Wenn du Immobilien als Investment betrachtest statt als Eigenheim, solltest du keinen Finanzierungsvermittler nutzen — sondern eigene Beziehungen zu Banken aufbauen. Immotrim hilft dir dabei, deine Unterlagen zu prüfen und sauber aufzuarbeiten.",
-      "highlight": "Damit bist du anderen Investoren einen Schritt voraus."
+      "eyebrow": "Warum die Bierdeckelrechnung nicht reicht",
+      "title": "Miete minus Rate sagt dir nicht, ob deine Strategie aufgeht.",
+      "body": "Eine Wohnung mit 50 € Cashflow kann dein Vermögen jedes Jahr um zehntausende Euro wachsen lassen. Oder sie kostet dich Geld, das du nicht siehst. Erst wenn alle Kräfte zusammen auf einer Seite stehen, verstehst du dein Portfolio.",
+      "highlight": "Immotrim zeigt dir jede dieser Kräfte in Euro, für jedes Objekt und für das ganze Portfolio."
+    },
+    "forces": {
+      "principal": {
+        "title": "Schuldenabbau",
+        "body": "Mit jeder Rate tilgst du einen Teil deines Kredits. Das ist Vermögen, das auf keinem Kontoauszug auftaucht."
+      },
+      "appreciation": {
+        "title": "Wertsteigerung",
+        "body": "Schon ein Prozent Wertzuwachs pro Jahr bewegt bei einem Portfolio mehr als die Miete."
+      },
+      "rent": {
+        "title": "Mieterhöhungen",
+        "body": "Indexmiete oder Mietspiegel: Jede Erhöhung verbessert Cashflow und Wert gleichzeitig."
+      },
+      "inflation": {
+        "title": "Inflation auf die Schulden",
+        "body": "Deine Restschuld bleibt nominal gleich, verliert aber jedes Jahr an Kaufkraft. Real ist das ein Gewinn für dich."
+      },
+      "leverage": {
+        "title": "Eigenkapitalhebel",
+        "body": "Mit Kredit arbeitet mehr Geld für dich, als du eingesetzt hast. Immotrim zeigt die Rendite mit und ohne Hebel."
+      },
+      "refinance": {
+        "title": "Nachbeleihung",
+        "body": "Steigender Wert und sinkende Schuld schaffen Spielraum für das nächste Objekt. Immotrim zeigt, wie viel."
+      }
+    },
+    "steps": {
+      "title": "So funktioniert es",
+      "subtitle": "Von deinen Unterlagen zur Übersicht in wenigen Minuten.",
+      "s1Title": "Unterlagen hochladen",
+      "s1Desc": "Kaufvertrag, Darlehensvertrag und Mietvertrag als PDF oder Foto hochladen. Immotrim liest Kaufpreis, Zins, Tilgung, Miete und mehr aus.",
+      "s2Title": "Portfolio verstehen",
+      "s2Desc": "Alle Kennzahlen aller Objekte auf einen Blick: Cashflow, Restschuld, Rendite, Vermögensaufbau und die Kräfte dahinter."
     },
     "bankreport": {
-      "eyebrow": "Selbstauskunft für die Bank",
-      "title": "Die Selbstauskunft, an der andere Investoren scheitern",
-      "subtitle": "Lade deine Unterlagen hoch – Immotrim liest sie aus und erstellt daraus eine saubere, vollständige Selbstauskunft, die jede Bank versteht.",
-      "download": "Beispiel-PDF herunterladen",
-      "cta": "Selbstauskunft erstellen",
-      "note": "Liest Kaufverträge, Mietverträge & Finanzierungen automatisch aus.",
-      "animUpload": "Unterlagen",
-      "animProcess": "Immotrim liest aus",
-      "animResult": "Fertige Selbstauskunft",
       "doc1": "Kaufvertrag",
       "doc2": "Mietvertrag",
-      "doc3": "Finanzierung"
+      "doc3": "Darlehen"
+    },
+    "bank": {
+      "eyebrow": "Bankenübersicht",
+      "title": "Deine Kennzahlen auf einer Seite für die Bank",
+      "body": "Mit einem Klick lädst du eine saubere Übersicht deines Portfolios als PDF herunter: Werte, Restschulden, Mieten, Raten und Beleihungsauslauf je Objekt, so wie es heute steht."
     },
     "pricing": {
       "title": "Einfache Preise",
-      "subtitle": "Ein Plan. Monatlich oder mit Jahresabo sparen.",
-      "monthly": "Monatlich",
-      "yearly": "Jährlich",
+      "subtitle": "Starte kostenlos mit einer Immobilie. Für dein ganzes Portfolio gibt es Plus.",
+      "freeTitle": "Kostenlos",
+      "freeDesc": "Für deine erste Immobilie.",
+      "freeCta": "Kostenlos starten",
+      "freeIncludes": "Enthalten:",
+      "free1": "1 Immobilie mit allen Kennzahlen",
+      "free2": "Alle Grafiken und die Kräfte-Übersicht",
+      "free3": "Dokumente speichern",
+      "free4": "3 Dokumentauswertungen pro Monat",
+      "monthly": "Plus monatlich",
+      "yearly": "Plus jährlich",
       "perMonth": "/Monat",
       "perYear": "/Jahr",
-      "monthlyDesc": "Monatlich abgerechnet. Jederzeit kündbar.",
-      "yearlyDesc": "Zwei Monate gratis vs. Monatsabo.",
-      "lifetime": "Lifetime",
-      "lifetimeDesc": "Einmalzahlung. Für immer.",
-      "perOnce": "einmalig",
-      "lifetimeBadge": "Bestes Angebot · nur kurze Zeit",
-      "lifetimeCta": "Lifetime kaufen",
-      "cta": "Abonnieren",
-      "includes": "Alles inklusive:",
-      "f1": "Unbegrenzte Immobilien in deinem Portfolio",
-      "f2": "Unbegrenzte Immobilien in der Objektanalyse",
-      "f3": "500 KI-Dokumentenauswertungen pro Monat",
-      "f4": "Cashflow-, Rendite- & Return-Analysen",
-      "f5": "Mehrsprachig (DE/EN)"
+      "monthlyDesc": "Monatlich kündbar.",
+      "yearlyDesc": "Spare gegenüber dem Monatsabo.",
+      "yearlyBadge": "Beliebt",
+      "cta": "Plus wählen",
+      "includes": "Alles aus Kostenlos und:",
+      "f1": "Unbegrenzt viele Immobilien",
+      "f2": "300 Dokumentauswertungen pro Monat",
+      "f3": "Bankenübersicht als PDF",
+      "f4": "Rechnung und Kündigung jederzeit im Kundenportal"
     },
     "footer": "Immotrim"
   },
-  "selbstauskunft": {
-    "meta": {
-      "title": "Selbstauskunft erstellen – sauber & bankgeprüft | Immotrim",
-      "description": "Erstelle eine von Banken überprüfte Selbstauskunft – sauber, vollständig und einfach. Lade deine Unterlagen hoch, die KI sortiert alles und zeigt dir, was noch fehlt."
-    },
-    "nav": {
-      "login": "Anmelden",
-      "cta": "Selbstauskunft erstellen"
-    },
-    "hero": {
-      "eyebrow": "Selbstauskunft für Immobilieninvestoren",
-      "title": "Bekomme eine Finanzierung, wo andere Investoren <mark>scheitern</mark>",
-      "subtitle": "Eine von Banken überprüfte Selbstauskunft – sauber, vollständig und einfach erstellt. Sei den anderen Investoren einen Schritt voraus.",
-      "cta": "Jetzt Selbstauskunft erstellen",
-      "ctaNote": "Ohne Registrierung starten – lade einfach deine Unterlagen hoch.",
-      "secondary": "Beispiel-PDF ansehen"
-    },
-    "trust": {
-      "line": "Zusammen mit Finanzierungsberatern und Bankberatern entwickelt.",
-      "b1": "Von Banken überprüftes Format",
-      "b2": "Sauber & vollständig",
-      "b3": "In Minuten erstellt"
-    },
-    "how": {
-      "title": "In wenigen Minuten zur fertigen Selbstauskunft",
-      "subtitle": "Kein Formular-Chaos mehr. Lade hoch, die KI erledigt den Rest.",
-      "s1Title": "Unterlagen hochladen",
-      "s1Desc": "Lade alle Dokumente an einem Ort hoch – die KI sortiert sie automatisch den richtigen Objekten zu.",
-      "s2Title": "Lücken sofort erkennen",
-      "s2Desc": "Pro Objekt siehst du sofort, welche Unterlagen noch fehlen – farblich markiert von der KI.",
-      "s3Title": "Selbstauskunft erstellen",
-      "s3Desc": "Sobald alles vollständig ist, erstellst du mit einem Klick deine bankfertige Selbstauskunft."
-    },
-    "cta": {
-      "title": "Sei den anderen Investoren einen Schritt voraus",
-      "subtitle": "Starte jetzt – ganz ohne Registrierung.",
-      "button": "Jetzt Selbstauskunft erstellen"
-    },
-    "flow": {
-      "loading": "Einen Moment …",
-      "startError": "Wir konnten keine Sitzung starten.",
-      "startErrorHint": "Bitte aktiviere anonyme Anmeldungen in Supabase oder lade die Seite neu.",
-      "uploadTitle": "Lade deine Unterlagen hoch",
-      "uploadSubtitle": "Alle Dokumente an einem Ort – die KI sortiert sie automatisch deinen Objekten zu.",
-      "dropHint": "Dateien hierher ziehen oder",
-      "browse": "Dateien auswählen",
-      "uploading": "Wird hochgeladen …",
-      "inboxTitle": "Hochgeladene Dokumente",
-      "inboxEmpty": "Noch keine Dokumente hochgeladen.",
-      "remove": "Entfernen",
-      "analyze": "Jetzt analysieren",
-      "analyzeHint": "Die KI ordnet die Dokumente deinen Objekten zu und prüft die Vollständigkeit.",
-      "needFiles": "Lade zuerst mindestens ein Dokument hoch.",
-      "sortingTitle": "Deine Unterlagen werden sortiert …",
-      "sortingSubtitle": "Die KI liest die Dokumente, ordnet sie den Objekten zu und prüft, was noch fehlt.",
-      "tilesTitle": "Deine Objekte",
-      "tilesSubtitle": "Pro Objekt siehst du, was für die Selbstauskunft noch fehlt.",
-      "addMore": "Weitere Unterlagen hochladen",
-      "docCount": "{count, plural, one {# Dokument} other {# Dokumente}}",
-      "statusGreen": "Vollständig",
-      "statusRed": "Pflichtunterlagen fehlen",
-      "statusOrange": "Empfohlene Unterlagen fehlen",
-      "statusYellow": "Optionale Unterlagen fehlen",
-      "missingTitle": "Es fehlt noch",
-      "unsortedNote": "{count, plural, one {# Dokument konnte nicht zugeordnet werden} other {# Dokumente konnten nicht zugeordnet werden}}",
-      "busy": "Die KI ist gerade ausgelastet. Bitte versuche es gleich noch einmal.",
-      "limit": "Dein KI-Kontingent für diesen Monat ist aufgebraucht.",
-      "sortFailed": "Die Analyse ist fehlgeschlagen. Bitte versuche es erneut.",
-      "saveDocs": "Dokumente speichern",
-      "saveDocsHint": "Lege ein kostenloses Konto an (14 Tage gratis), um deine Unterlagen zu speichern.",
-      "createSa": "Selbstauskunft erstellen",
-      "createSaHint": "Erstelle deine bankfertige Selbstauskunft als PDF.",
-      "needComplete": "Vervollständige zuerst alle Objekte (alle grün).",
-      "reportStarting": "Selbstauskunft wird erstellt …",
-      "reportFailed": "Die Selbstauskunft konnte nicht erstellt werden. Bitte versuche es erneut.",
-      "deleteProperty": "Objekt entfernen",
-      "deleteConfirm": "Dieses Objekt und seine zugeordneten Dokumente wirklich entfernen?",
-      "manualFill": "Manuell ausfüllen",
-      "createAnywayConfirm": "Es fehlen noch Unterlagen. Selbstauskunft trotzdem erstellen?",
-      "proceedHint": "Du kannst auch mit fehlenden Unterlagen abschließen."
-    },
-    "conv": {
-      "title": "Konto erstellen & speichern",
-      "subtitle": "Lege ein kostenloses Konto an – deine hochgeladenen Unterlagen und Objekte bleiben erhalten.",
-      "email": "E-Mail",
-      "password": "Passwort",
-      "passwordHint": "Mindestens 8 Zeichen.",
-      "submit": "Konto erstellen & speichern",
-      "submitting": "Wird gespeichert …",
-      "successTitle": "Gespeichert!",
-      "successDesc": "Deine Unterlagen sind gesichert. Du kannst dich künftig mit dieser E-Mail anmelden.",
-      "goPortfolio": "Zum Portfolio",
-      "cancel": "Abbrechen",
-      "paidTitle": "Bezahltes Konto erforderlich",
-      "paidDesc": "Die Erstellung der Selbstauskunft ist Teil eines bezahlten Tarifs. Wähle einen Tarif, um fortzufahren.",
-      "goPricing": "Tarife ansehen"
-    },
-    "manual": {
-      "title": "Manuell ausfüllen",
-      "intro": "Trage fehlende Angaben selbst ein oder markiere Unterlagen, die du manuell bereitstellst bzw. nachreichst.",
-      "dataTitle": "Angaben",
-      "docsTitle": "Fehlende Unterlagen",
-      "markPresent": "Liegt vor / wird nachgereicht",
-      "save": "Speichern",
-      "saving": "Wird gespeichert …",
-      "cancel": "Abbrechen",
-      "fields": {
-        "kaufpreis": "Kaufpreis (€)",
-        "eigenanteil": "Eigenkapital (€)",
-        "zins": "Zins (% p.a.)",
-        "tilgung": "Tilgung (% p.a.)",
-        "zinsbindung": "Zinsbindung (Jahre)",
-        "kaltmiete": "Kaltmiete (€/Monat)",
-        "nichtUmlagefaehig": "Nicht umlagefähig (€/Monat)",
-        "ruecklagen": "Rücklagen (€/Monat)"
-      }
-    }
-  },
   "auth": {
     "loginTitle": "Willkommen zurück",
-    "loginSubtitle": "Melde dich bei deinem Immotrim-Account an.",
-    "signupTitle": "Account erstellen",
-    "signupSubtitle": "14 Tage kostenlos testen. Keine Kreditkarte erforderlich.",
+    "loginSubtitle": "Melde dich bei deinem Immotrim-Konto an.",
+    "signupTitle": "Konto erstellen",
+    "signupSubtitle": "Eine Immobilie ist kostenlos. Keine Kreditkarte nötig.",
     "email": "E-Mail",
     "password": "Passwort",
     "passwordHint": "Mindestens 8 Zeichen",
     "submitLogin": "Anmelden",
-    "submitSignup": "14 Tage kostenlos testen",
+    "submitSignup": "Kostenlos starten",
     "submitting": "Bitte warten…",
-    "noAccount": "Noch kein Account?",
-    "haveAccount": "Schon ein Account?",
+    "noAccount": "Noch kein Konto?",
+    "haveAccount": "Schon ein Konto?",
     "signupLink": "Registrieren",
     "loginLink": "Anmelden",
-    "checkEmailTitle": "Bitte E-Mails prüfen",
-    "checkEmailDesc": "Wir haben dir einen Bestätigungslink geschickt. Klicke ihn an, um dein Konto zu aktivieren und deine kostenlose Testphase zu starten.",
     "forgotPassword": "Passwort vergessen?",
     "forgotTitle": "Passwort zurücksetzen",
     "forgotSubtitle": "Gib deine E-Mail ein und wir senden dir einen Link zum Zurücksetzen.",
@@ -330,212 +255,39 @@
     "resetSentTitle": "Bitte E-Mails prüfen",
     "resetSentDesc": "Falls ein Konto mit dieser E-Mail existiert, erhältst du einen Link zum Zurücksetzen deines Passworts.",
     "backToLogin": "Zurück zur Anmeldung",
-    "resetTitle": "Neues Passwort festlegen",
-    "resetSubtitle": "Wähle ein neues Passwort für dein Konto.",
-    "newPassword": "Neues Passwort",
-    "submitReset": "Passwort aktualisieren",
     "or": "oder",
     "continueWithGoogle": "Mit Google fortfahren"
   },
   "account": {
-    "title": "Account",
+    "title": "Konto",
     "subscription": "Abonnement",
     "plan": "Plan",
-    "status": "Status",
     "renewsOn": "Verlängert am",
     "endsOn": "Endet am",
     "monthly": "Monatlich",
     "yearly": "Jährlich",
-    "noSubscription": "Kein aktives Abonnement.",
     "managePortal": "Abonnement verwalten",
     "logout": "Abmelden",
-    "trialPlan": "Kostenlose Testphase",
-    "trialEndsOn": "Testphase endet am",
-    "upgrade": "Jetzt upgraden"
-  },
-  "wishlist": {
-    "title": "Objektanalyse",
-    "editTitle": "Objekt bearbeiten",
-    "empty": "Noch keine Objekte",
-    "emptyDesc": "Füge deine erste Kandidat-Immobilie hinzu, um sie zu vergleichen.",
-    "addFirst": "Erste Immobilie hinzufügen",
-    "propertySingular": "Immobilie",
-    "propertyPlural": "Immobilien",
-    "backToList": "Zurück zur Liste",
-    "save": "Speichern",
-    "notFound": "Diese Immobilie konnte nicht gefunden werden.",
-    "openExpose": "Expose öffnen",
-    "delete": "Löschen",
-    "global": {
-      "title": "Globale Annahmen",
-      "interest": "Zinssatz",
-      "amortization": "Tilgung",
-      "vacancy": "Leerstand",
-      "vacancyFull": "Leerstand",
-      "reserves": "Rücklagen",
-      "reservesFull": "Rücklagen",
-      "nonAllocable": "Nicht umlegb.",
-      "nonAllocableFull": "Nicht umlegbare NK",
-      "ofRent": "der Miete",
-      "editDefaults": "Annahmen bearbeiten",
-      "rentIst": "Ist",
-      "rentSoll": "Soll"
-    },
-    "columns": {
-      "name": "Name",
-      "address": "Adresse",
-      "lage": "Lage",
-      "price": "Kaufpreis",
-      "area": "Wohnfläche",
-      "pricePerSqm": "€/m²",
-      "rent": "Kaltmiete",
-      "grossYield": "Brutto-Rendite",
-      "netYield": "Netto-Rendite",
-      "cashflow": "Cashflow",
-      "ekReturn": "EK-Rendite"
-    },
-    "colSettings": {
-      "yield": {
-        "title": "Renditeberechnung",
-        "brutto": "Brutto",
-        "netto": "Netto",
-        "nettoFormula": "(Kaltmiete − Leerstand − Rücklagen − NK) × 12 ÷ Kaufpreis"
-      },
-      "cashflow": {
-        "title": "Cashflow-Berechnung",
-        "subtractReserves": "Rücklagen abziehen",
-        "subtractNonAllocable": "Nicht umlegbare NK abziehen",
-        "subtractVacancy": "Leerstand abziehen"
-      },
-      "ekReturn": {
-        "title": "EK-Rendite",
-        "includeTilgung": "Tilgung einrechnen"
-      }
-    },
-    "sections": {
-      "identification": "Identifikation",
-      "basics": "Eckdaten",
-      "financials": "Finanzen",
-      "notes": "Notizen",
-      "nebenkosten": "Kaufnebenkosten",
-      "financing": "Finanzierung",
-      "rent": "Miete & Bewirtschaftung",
-      "tax": "Steuer (optional)",
-      "growth": "Wachstum (optional)",
-      "details": "Exposé-Details"
-    },
-    "fields": {
-      "rooms": "Zimmer",
-      "yearBuilt": "Baujahr",
-      "lage": "Lage",
-      "equityPlaceholder": "Standard: {pct}% des Kaufpreises",
-      "nebenkostenPct": "Kaufnebenkosten (%)",
-      "globalAssumptionsHint": "Leerstand, Rücklagen und nicht umlegbare NK werden in den globalen Annahmen oben gesetzt.",
-      "notesPlaceholder": "z.B. Lage-Notizen, Renovierungsbedarf, Termine ...",
-      "name": "Bezeichnung",
-      "address": "Adresse",
-      "kaufpreis": "Kaufpreis",
-      "wohnflaeche": "Wohnfläche",
-      "zimmer": "Zimmer",
-      "schlafzimmer": "Schlafzimmer",
-      "badezimmer": "Badezimmer",
-      "etage": "Etage",
-      "etagenGesamt": "Etagen gesamt",
-      "istMiete": "Ist-Miete (€/Monat)",
-      "sollMiete": "Soll-Miete (€/Monat)",
-      "istMieteInfo": "Aktuelle tatsächliche Kaltmiete des Mieters.",
-      "sollMieteInfo": "Angestrebte bzw. marktübliche Kaltmiete.",
-      "hausgeld": "Hausgeld",
-      "stellplaetze": "Stellplätze",
-      "provisionsfrei": "Provisionsfrei",
-      "objektzustand": "Objektzustand",
-      "heizungsart": "Heizungsart",
-      "energietraeger": "Energieträger",
-      "energieausweistyp": "Energieausweistyp",
-      "energieKennwert": "Energiekennwert (kWh/m²a)",
-      "energieKlasse": "Energieklasse",
-      "nichtUmlagefaehig": "Nicht umlegbare NK",
-      "ruecklagen": "Rücklagen / Monat",
-      "leerstand": "Leerstand",
-      "grunderwerbsteuer": "Grunderwerbsteuer",
-      "notarGrundbuch": "Notar + Grundbuch",
-      "maklerprovision": "Maklerprovision",
-      "sonstiges": "Sonstiges",
-      "equityInfo": "Eigenkapital, das du einbringst. Über den €/%-Schalter auch als Prozent des Kaufpreises eingebbar.",
-      "financingGlobalHint": "Zins und Tilgung gelten global für alle Objekte (oben einstellbar).",
-      "zins": "Zinssatz",
-      "tilgung": "Tilgung",
-      "monthlyRate": "Monatliche Rate",
-      "darlehensbetrag": "Darlehensbetrag",
-      "gesamtkapital": "Gesamtkapital",
-      "taxToggle": "Steuerberechnung aktivieren",
-      "bemessungsgrundlage": "Bemessungsgrundlage",
-      "gebaeudeanteil": "Gebäudeanteil",
-      "afa": "AfA-Satz",
-      "steuersatz": "Grenzsteuersatz",
-      "growthToggle": "Wachstumsprognose aktivieren",
-      "mietentwicklung": "Mietentwicklung p.a.",
-      "wertentwicklung": "Wertentwicklung p.a.",
-      "exposeUrl": "Expose-URL",
-      "wohnungstyp": "Wohnungstyp",
-      "ausstattung": "Ausstattung",
-      "maklerName": "Anbieter / Makler",
-      "maklerTelefon": "Telefon Anbieter",
-      "baujahr": "Baujahr"
-    },
-    "add": {
-      "title": "Immobilie hinzufügen",
-      "cta": "Hinzufügen",
-      "manual": "Manuell",
-      "expose": "Exposé",
-      "name": "Name",
-      "namePlaceholder": "z.B. Wohnung Berlin Friedrichshain",
-      "address": "Adresse",
-      "addressPlaceholder": "z.B. Musterstraße 1, 10115 Berlin",
-      "price": "Kaufpreis (€)",
-      "area": "Wohnfläche (m²)",
-      "rent": "Kaltmiete (€/Monat)",
-      "equity": "Eigenanteil (€)",
-      "exposeUrl": "Expose-URL (optional)",
-      "lage": "Lage",
-      "save": "Speichern",
-      "saving": "Speichern ...",
-      "cancel": "Abbrechen",
-      "nameRequired": "Bitte gib einen Namen ein.",
-      "saveFailed": "Speichern fehlgeschlagen. Bitte prüfe die Supabase-Konfiguration.",
-      "rooms": "Zimmer",
-      "yearBuilt": "Baujahr"
-    },
-    "expose": {
-      "upload": "Exposé hochladen",
-      "uploadHint": "Verkaufs-Exposé als PDF oder Bild, max. 50 MB",
-      "fields": {
-        "name": "Bezeichnung",
-        "address": "Adresse",
-        "kaufpreis": "Kaufpreis",
-        "wohnflaeche": "Wohnfläche",
-        "zimmer": "Zimmer",
-        "baujahr": "Baujahr",
-        "kaltmiete": "Kaltmiete"
-      }
-    },
-    "livePreview": "Live-Vorschau"
+    "upgrade": "Auf Plus upgraden",
+    "freePlan": "Kostenlos (1 Immobilie)",
+    "lifetime": "Lifetime",
+    "portalHint": "Im Kundenportal von Stripe änderst oder kündigst du dein Abo und findest alle Rechnungen."
   },
   "documents": {
     "navButton": "Dokumente",
     "upload": "Dokumente hochladen",
-    "uploadHint": "Kaufvertrag, Mietvertrag, Wohngeldabrechnung … — PDF oder Bild, max. 50 MB",
+    "uploadHint": "Kaufvertrag, Darlehensvertrag, Mietvertrag, Hausgeldabrechnung: PDF oder Bild, bis 25 MB",
     "uploadFailed": "Upload fehlgeschlagen.",
     "deleteFailed": "Löschen fehlgeschlagen.",
     "typeError": "{name}: nur PDF oder Bilder (PNG/JPG/WebP).",
-    "sizeError": "{name}: zu groß (max. 50 MB).",
+    "sizeError": "{name}: zu groß (bis 25 MB).",
     "download": "Herunterladen",
     "delete": "Löschen",
     "extract": "Werte aus Dokumenten auslesen",
     "extracting": "Werte werden ausgelesen…",
     "extractFailed": "Extraktion fehlgeschlagen.",
     "sectionTitle": "Dokumente & Auslesen",
-    "sectionHint": "Lade weitere Dokumente hoch und übernimm extrahierte Werte — die Kennzahlen werden neu berechnet.",
+    "sectionHint": "Lade weitere Dokumente hoch und übernimm ausgelesene Werte. Die Kennzahlen werden sofort neu berechnet.",
     "review": {
       "title": "Extrahierte Werte ({count})",
       "subtitle": "aus den hochgeladenen Dokumenten",
@@ -569,7 +321,8 @@
       "marktwert": "Marktwert"
     },
     "extractBusy": "Der Auslese-Dienst ist gerade ausgelastet. Bitte versuche es gleich noch einmal.",
-    "extractLimit": "Du hast dein monatliches Limit von {limit} KI-Dokumentenauswertungen erreicht. Es wird zum Monatsanfang zurückgesetzt."
+    "extractLimit": "Du hast dein monatliches Limit von {limit} KI-Dokumentenauswertungen erreicht. Es wird zum Monatsanfang zurückgesetzt.",
+    "extractPlus": "Deine kostenlosen Auswertungen für diesen Monat sind aufgebraucht. Mit Immotrim Plus liest Immotrim alle deine Unterlagen aus."
   },
   "legal": {
     "impressum": {
@@ -585,25 +338,14 @@
       "title": "AGB"
     }
   },
-  "youtube": {
-    "posterAlt": "Vorschaubild des Immotrim-Demovideos",
-    "notice": "Durch das Laden des Videos erklären Sie sich damit einverstanden, dass Daten an YouTube übertragen werden können. Weitere Informationen finden Sie in unserer <link>Datenschutzerklärung</link>.",
-    "loadVideo": "YouTube-Video laden",
-    "openOnYouTube": "Auf YouTube öffnen",
-    "remember": "Meine Auswahl merken und Videos künftig automatisch laden"
-  },
   "privacySettings": {
     "title": "Datenschutz-Einstellungen",
     "intro": "Hier können Sie Ihre Entscheidung zum Laden externer YouTube-Videos jederzeit überprüfen, ändern oder zurücksetzen. Alle anderen auf dieser Website genutzten Technologien sind technisch notwendig.",
     "youtubeTitle": "YouTube-Videos",
     "youtubeDesc": "Wenn Sie zustimmen, werden eingebettete Videos künftig automatisch über youtube-nocookie.com geladen. Dabei können Daten an YouTube/Google übertragen werden. Ohne Zustimmung wird vor jedem Video zunächst ein lokaler Hinweis angezeigt.",
     "statusGranted": "Automatisches Laden aktiv",
-    "statusNotGranted": "Nicht zugestimmt – Videos werden nicht automatisch geladen",
+    "statusNotGranted": "Nicht zugestimmt. Videos werden nicht automatisch geladen.",
     "allow": "YouTube-Videos automatisch laden",
     "revoke": "Zustimmung widerrufen"
-  },
-  "trial": {
-    "banner": "{days, plural, =0 {Letzter Tag deiner kostenlosen Testphase} one {Noch # Tag in deiner kostenlosen Testphase} other {Noch # Tage in deiner kostenlosen Testphase}}",
-    "upgrade": "Upgraden"
   }
 }

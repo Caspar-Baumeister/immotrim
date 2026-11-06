@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { signupAction, type AuthFormState } from "../auth/actions";
+import { signupAction, type AuthFormState } from "../auth/client-auth";
 
 export function SignupForm({ plan }: { plan: "monthly" | "yearly" }) {
   const t = useTranslations("auth");

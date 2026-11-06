@@ -1,36 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "./lib/supabase/middleware";
 
-// Paths that require an authenticated session (optimistic check).
-// Secure entitlement check happens in src/app/(app)/layout.tsx.
-const APP_PATHS = [
-  "/dashboard",
-  "/haushalt",
-  "/stammdaten",
-  "/strategie",
-  "/banken",
-  "/checklist",
-  "/objekte",
-  "/portfolio",
-  "/wishlist",
-  "/property",
-  "/account",
-];
+// Paths that require a login (optimistic check on the cookie only; the (app)
+// layout verifies the session for real).
+const APP_PATHS = ["/dashboard", "/portfolio", "/property", "/bankuebersicht", "/account"];
 
-export default async function proxy(req: NextRequest) {
-  const { response, user } = await updateSession(req);
-
+export default function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isAppPath = APP_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
-
-  // Optimistic gate: unauthenticated user trying to enter a gated path → bounce to landing.
-  if (isAppPath && !user) {
-    return NextResponse.redirect(new URL("/", req.nextUrl));
+  if (isAppPath && !req.cookies.has("__session")) {
+    const url = new URL("/login", req.nextUrl);
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
   }
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|_vercel|__|.*\\..*).*)"],
 };

@@ -1,4 +1,4 @@
-import type { PropertyInputs } from "@/lib/supabase";
+import type { PropertyInputs } from "@/lib/types";
 
 // A single extracted value with provenance, shown in the review/diff panel.
 export type ExtractedField<T> = {

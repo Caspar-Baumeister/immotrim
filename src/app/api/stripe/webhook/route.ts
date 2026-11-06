@@ -1,18 +1,20 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { findUidByStripeCustomer, writeSubscription } from "@/lib/data/users";
 import { subscriptionToUpdate, syncSubscriptionFromCheckoutSession, type SubUpdate } from "@/lib/stripe-sync";
 
 export const runtime = "nodejs";
 
-async function upsertSubscriptionByCustomer(customerId: string, update: SubUpdate) {
-  const admin = getSupabaseAdmin();
-  const { error } = await admin
-    .from("subscriptions")
-    .update(update)
-    .eq("stripe_customer_id", customerId);
-  if (error) console.error("[stripe webhook] failed to update subscription", error);
+// Finds the user by Stripe customer id, falling back to the user_id the
+// subscription carries in its metadata.
+async function upsertSubscriptionByCustomer(customerId: string, update: SubUpdate, metaUid?: string) {
+  const uid = (await findUidByStripeCustomer(customerId)) ?? metaUid ?? null;
+  if (!uid) {
+    console.error("[stripe webhook] no user for customer", customerId);
+    return;
+  }
+  await writeSubscription(uid, { stripe_customer_id: customerId, ...update });
 }
 
 export async function POST(req: Request) {
@@ -46,7 +48,7 @@ export async function POST(req: Request) {
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
-        await upsertSubscriptionByCustomer(customerId, subscriptionToUpdate(sub));
+        await upsertSubscriptionByCustomer(customerId, subscriptionToUpdate(sub), sub.metadata?.user_id);
         break;
       }
 
@@ -54,10 +56,7 @@ export async function POST(req: Request) {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
         if (customerId) {
-          await upsertSubscriptionByCustomer(customerId, {
-            status: "past_due",
-            updated_at: new Date().toISOString(),
-          });
+          await upsertSubscriptionByCustomer(customerId, { status: "past_due" });
         }
         break;
       }

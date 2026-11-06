@@ -1,7 +1,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import { getStripe, planFromPriceId } from "@/lib/stripe";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { writeSubscription } from "@/lib/data/users";
 
 export type SubUpdate = {
   status: string;
@@ -30,24 +30,22 @@ export function subscriptionToUpdate(sub: Stripe.Subscription): SubUpdate {
   };
 }
 
-// Given a completed Checkout Session, upserts the user's subscriptions row directly —
+// Given a completed Checkout Session, writes the user's subscription directly —
 // the same write the webhook's checkout.session.completed handler performs. Called from
 // both the webhook (async, eventual) and the checkout-return route (synchronous, on
 // redirect back from Stripe) so a paying user is never stuck waiting on webhook delivery.
-// Idempotent via onConflict: "user_id" — safe to call more than once for the same session.
+// Idempotent: safe to call more than once for the same session.
 export async function syncSubscriptionFromCheckoutSession(
   session: Stripe.Checkout.Session,
 ): Promise<void> {
   const userId = session.metadata?.user_id;
   const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
   if (!userId || !customerId) return;
-  const admin = getSupabaseAdmin();
 
   // One-time purchase (lifetime): no subscription object. A null current_period_end
   // makes the entitlement gate in dal.ts grant access permanently.
   if (session.mode === "payment") {
-    await admin.from("subscriptions").upsert({
-      user_id: userId,
+    await writeSubscription(userId, {
       stripe_customer_id: customerId,
       status: "active",
       stripe_subscription_id: null,
@@ -55,8 +53,7 @@ export async function syncSubscriptionFromCheckoutSession(
       plan_interval: "lifetime",
       current_period_end: null,
       cancel_at_period_end: false,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id" });
+    });
     return;
   }
 
@@ -70,9 +67,8 @@ export async function syncSubscriptionFromCheckoutSession(
     ? (subField as Stripe.Subscription)
     : await getStripe().subscriptions.retrieve(subId);
 
-  await admin.from("subscriptions").upsert({
-    user_id: userId,
+  await writeSubscription(userId, {
     stripe_customer_id: customerId,
     ...subscriptionToUpdate(subscription),
-  }, { onConflict: "user_id" });
+  });
 }

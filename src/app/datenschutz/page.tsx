@@ -8,8 +8,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("datenschutz.title"), alternates: alternates("/datenschutz") };
 }
 
-// The sub-processor list below reflects the actual services Immotrim uses —
-// keep it accurate if you add/remove vendors.
+// The sub-processor list below reflects the services Immotrim actually uses.
+// Keep it accurate when adding or removing vendors.
 export default async function DatenschutzPage() {
   const t = await getTranslations("legal");
 
@@ -18,7 +18,7 @@ export default async function DatenschutzPage() {
       <h2>1. Verantwortlicher</h2>
       <p>
         Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br />
-        Caspar Baumeister, Fürbringerstr. 27, 10961 Berlin, Deutschland,{" "}
+        Caspar Baumeister, Dernburgstraße 7, 14057 Berlin, Deutschland,{" "}
         <a href="mailto:caspar.baumeister.privat@gmail.com">
           caspar.baumeister.privat@gmail.com
         </a>
@@ -27,112 +27,89 @@ export default async function DatenschutzPage() {
 
       <h2>2. Welche Daten wir verarbeiten</h2>
       <p>
-        Bei der Nutzung von Immotrim verarbeiten wir Ihre E-Mail-Adresse und Ihr
-        Passwort (verschlüsselt) zur Kontoführung, die von Ihnen eingegebenen bzw.
-        hochgeladenen Immobiliendaten und Dokumente sowie Zahlungs- und
-        Abonnementdaten. Beim Aufruf der Website werden zudem technisch notwendige
+        Bei der Nutzung von Immotrim verarbeiten wir Ihre E-Mail-Adresse und Ihr Passwort
+        (nur als Hashwert gespeichert) oder Ihr Google-Konto zur Anmeldung, die von Ihnen
+        eingegebenen Immobiliendaten, die von Ihnen hochgeladenen Dokumente sowie Zahlungs-
+        und Abonnementdaten. Beim Aufruf der Website werden zudem technisch notwendige
         Server-Logdaten verarbeitet.
       </p>
 
-      <h2>3. Eingesetzte Dienste / Auftragsverarbeiter</h2>
+      <h2>3. Eingesetzte Dienste und Auftragsverarbeiter</h2>
       <p>Zur Bereitstellung des Dienstes setzen wir folgende Dienstleister ein:</p>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Vercel Inc.</strong> – Hosting der Anwendung.
+          <strong>Vercel Inc.</strong>: Hosting der Website und der Anwendung.
         </li>
         <li>
-          <strong>Supabase</strong> – Datenbank, Authentifizierung und
-          Dokumentenspeicher (Speicherung Ihrer Konto- und Immobiliendaten).
+          <strong>Google Firebase (Google Ireland Limited)</strong>: Anmeldung
+          (Firebase Authentication), Datenbank (Cloud Firestore) und Dokumentenspeicher
+          (Cloud Storage). Ihre Konto- und Immobiliendaten und Ihre Dokumente werden in
+          Rechenzentren in Frankfurt am Main gespeichert.
         </li>
         <li>
-          <strong>Stripe</strong> – Zahlungsabwicklung und Abonnementverwaltung.
+          <strong>Stripe</strong>: Zahlungsabwicklung und Abonnementverwaltung.
         </li>
         <li>
-          <strong>Google (Gemini API)</strong> – KI-gestützte Auslesung Ihrer
-          hochgeladenen Dokumente und der KI-Chat in der iPhone-App. Hochgeladene
-          Exposés und Unterlagen sowie die für eine Chat-Antwort nötigen
-          Immobiliendaten und Ihre Nachrichten werden zur Verarbeitung an Google
-          übermittelt und können dabei in den USA verarbeitet werden.
-        </li>
-        <li>
-          <strong>RevenueCat, Inc.</strong>: Abonnementverwaltung für Käufe in der
-          iPhone-App über den Apple App Store (siehe Abschnitt 12).
-        </li>
-        <li>
-          <strong>PostHog (PostHog Inc., EU-Hosting in Frankfurt)</strong>: anonyme
-          Nutzungsstatistik der iPhone-App (siehe Abschnitt 12).
+          <strong>Google (Gemini API)</strong>: KI-gestützte Auslesung der Dokumente, die
+          Sie zur Auswertung freigeben (siehe Abschnitt&nbsp;6).
         </li>
       </ul>
       <p>
-        Mit allen genannten Dienstleistern bestehen, soweit erforderlich, Verträge
-        zur Auftragsverarbeitung (Art. 28 DSGVO). Bei Übermittlungen in Drittländer
-        (z. B. USA) erfolgt die Absicherung über die EU-Standardvertragsklauseln.
+        Mit allen genannten Dienstleistern bestehen, soweit erforderlich, Verträge zur
+        Auftragsverarbeitung (Art.&nbsp;28 DSGVO). Bei Übermittlungen in Drittländer
+        (z.&nbsp;B. USA) erfolgt die Absicherung über das EU-US Data Privacy Framework
+        bzw. die EU-Standardvertragsklauseln.
       </p>
 
       <h2>4. Rechtsgrundlagen</h2>
       <p>
-        Die Verarbeitung erfolgt zur Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO),
-        zur Erfüllung rechtlicher Pflichten (lit. c) sowie auf Grundlage unseres
-        berechtigten Interesses am sicheren Betrieb des Dienstes (lit. f).
+        Die Verarbeitung erfolgt zur Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b
+        DSGVO), zur Erfüllung rechtlicher Pflichten (lit.&nbsp;c) sowie auf Grundlage
+        unseres berechtigten Interesses am sicheren Betrieb des Dienstes (lit.&nbsp;f).
       </p>
 
-      <h2>5. Technisch notwendige Cookies, Local Storage und Authentifizierung</h2>
+      <h2>5. Cookies und lokale Speicherung</h2>
       <p>
         Wir setzen <strong>keine Tracking- oder Marketing-Cookies</strong> ein. Verwendet
-        werden ausschließlich technisch notwendige bzw. funktionale Speichertechnologien:
+        werden ausschließlich technisch notwendige Speichertechnologien:
       </p>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Authentifizierungs-Cookies (Supabase)</strong> – speichern Ihre
-          angemeldete Sitzung (Login). Ohne diese ist eine sichere Nutzung des
-          geschützten Bereichs nicht möglich. Erstanbieter-Cookie, technisch notwendig.
+          <strong>Sitzungs-Cookie (<code>__session</code>)</strong>: hält Sie nach der
+          Anmeldung bis zu 14 Tage angemeldet. Erstanbieter-Cookie, nur für den Server
+          lesbar, technisch notwendig.
         </li>
         <li>
-          <strong>Berechnungs-Annahmen (<code>immotrim_wishlist_assumptions</code>, Local
-          Storage)</strong> – speichert Ihre persönlichen Standardannahmen für die
-          Objektanalyse lokal in Ihrem Browser. Erstanbieter, funktional, verbleibt bis zum
-          Löschen durch Sie. Es findet keine Übertragung an Dritte statt.
-        </li>
-        <li>
-          <strong>YouTube-Einwilligung (<code>immotrim_youtube_consent</code>, Local
-          Storage)</strong> – speichert ausschließlich Ihre Entscheidung, ob YouTube-Videos
-          automatisch geladen werden dürfen (siehe Abschnitt&nbsp;6). Erstanbieter, verbleibt
-          bis zum Widerruf in den Datenschutz-Einstellungen.
+          <strong>Anmeldestatus von Firebase (IndexedDB im Browser)</strong>: wird für das
+          direkte Hochladen Ihrer Dokumente in Ihren geschützten Speicherbereich benötigt.
+          Technisch notwendig, wird beim Abmelden gelöscht.
         </li>
       </ul>
 
-      <h2>6. YouTube-Videos (Zwei-Klick-Lösung)</h2>
+      <h2>6. Auswertung von Dokumenten mit KI</h2>
       <p>
-        Auf unserer Website binden wir ein Vorschauvideo von YouTube (Anbieter: Google
-        Ireland Limited bzw. Google LLC) ein. Zum Schutz Ihrer Daten wird das Video
-        <strong> erst nach Ihrer ausdrücklichen Einwilligung</strong> geladen
-        (&bdquo;Zwei-Klick-Lösung&ldquo;). Vor Ihrer Einwilligung wird ausschließlich ein
-        lokal auf unserem Server gespeichertes Vorschaubild angezeigt; es werden
-        <strong> keinerlei Skripte, Bilder, Cookies oder sonstige Ressourcen von YouTube
-        oder Google geladen</strong> und keine Verbindung zu deren Servern aufgebaut.
-      </p>
-      <p>
-        Erst wenn Sie auf &bdquo;YouTube-Video laden&ldquo; klicken, wird das Video über den
-        Dienst <strong>youtube-nocookie.com</strong> (datenschutzerweiterter Modus) geladen.
-        Dabei können Daten – insbesondere Ihre IP-Adresse – an YouTube/Google übertragen und
-        ggf. in den USA verarbeitet werden. Die Einwilligung erfolgt auf Grundlage von
-        Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO. Auf Wunsch speichern wir Ihre Einwilligung
-        lokal in Ihrem Browser, damit Videos künftig automatisch geladen werden; diese
-        Einwilligung können Sie jederzeit widerrufen (siehe Abschnitt&nbsp;9).
+        Wenn Sie in Immotrim auf &bdquo;Werte aus Dokumenten auslesen&ldquo; klicken, werden
+        die zu dieser Immobilie hochgeladenen Dokumente an die Gemini API von Google
+        übermittelt. Google liest daraus Werte wie Kaufpreis, Zins oder Miete aus und gibt
+        sie an uns zurück. Sie prüfen die Werte, bevor sie übernommen werden. Wir nutzen den
+        kostenpflichtigen Zugang der Gemini API; nach den Bedingungen von Google werden die
+        Inhalte dabei nicht zum Training von Modellen verwendet. Eine Verarbeitung in den
+        USA kann nicht ausgeschlossen werden. Rechtsgrundlage ist die Vertragserfüllung
+        (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO). Ohne Ihren Klick werden keine Dokumente
+        an Google übermittelt.
       </p>
 
-      <h2>7. Kontaktaufnahme per E-Mail (Google / Gmail)</h2>
+      <h2>7. Kontaktaufnahme per E-Mail (Google Gmail)</h2>
       <p>
         Wenn Sie uns per E-Mail kontaktieren (z.&nbsp;B. an die oben genannte Adresse),
         verarbeiten wir die von Ihnen übermittelten Daten (Ihre E-Mail-Adresse, Betreff und
         Inhalt) zur Bearbeitung Ihrer Anfrage. Unser E-Mail-Postfach wird über
-        <strong> Google&nbsp;/&nbsp;Gmail (Google Ireland Limited bzw. Google LLC)</strong>
-        betrieben; eingehende und ausgehende Nachrichten werden daher auf Servern von Google
+        <strong> Google Gmail (Google Ireland Limited bzw. Google LLC)</strong> betrieben;
+        eingehende und ausgehende Nachrichten werden daher auf Servern von Google
         gespeichert und verarbeitet, wobei eine Verarbeitung in den USA nicht ausgeschlossen
         werden kann. Rechtsgrundlage ist Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO
-        (vorvertragliche/vertragliche Kommunikation) bzw. lit.&nbsp;f DSGVO (berechtigtes
-        Interesse an effizienter Kommunikation). Wir empfehlen, keine besonders sensiblen
-        Daten unverschlüsselt per E-Mail zu übermitteln.
+        (vorvertragliche oder vertragliche Kommunikation) bzw. lit.&nbsp;f DSGVO
+        (berechtigtes Interesse an effizienter Kommunikation).
       </p>
 
       <h2>8. Reichweitenmessung (Vercel Analytics)</h2>
@@ -145,25 +122,16 @@ export default async function DatenschutzPage() {
         der Verbesserung unseres Angebots (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO).
       </p>
 
-      <h2>9. Widerruf / Änderung Ihrer Datenschutz-Einstellungen</h2>
+      <h2>9. Speicherdauer und Kontolöschung</h2>
       <p>
-        Eine erteilte Einwilligung (z.&nbsp;B. zum Laden von YouTube-Videos) können Sie
-        jederzeit mit Wirkung für die Zukunft widerrufen oder ändern. Nutzen Sie hierfür die
-        Seite{" "}
-        <a href={`/privacy-settings`}>Datenschutz-Einstellungen</a>, die Sie auch
-        über den Link im Footer jeder Seite erreichen. Zusätzlich können Sie die im Browser
-        gespeicherten Daten jederzeit über die Einstellungen Ihres Browsers löschen.
+        Wir speichern Ihre Daten, solange Ihr Konto besteht. Unter &bdquo;Konto&ldquo;
+        können Sie Ihr Konto jederzeit selbst löschen; dabei werden Ihre Immobiliendaten,
+        Dokumente und Zugangsdaten unwiderruflich gelöscht und ein laufendes Abonnement
+        gekündigt. Rechnungsdaten bei Stripe bewahren wir nur so lange auf, wie gesetzliche
+        Aufbewahrungsfristen es verlangen.
       </p>
 
-      <h2>10. Speicherdauer</h2>
-      <p>
-        Wir speichern Ihre Daten, solange Ihr Konto besteht, und löschen sie nach
-        Kontoauflösung, soweit keine gesetzlichen Aufbewahrungsfristen entgegenstehen.
-        Lokal in Ihrem Browser gespeicherte Einstellungen (siehe Abschnitt&nbsp;5) verbleiben
-        dort, bis Sie sie löschen bzw. widerrufen.
-      </p>
-
-      <h2>11. Ihre Rechte</h2>
+      <h2>10. Ihre Rechte</h2>
       <p>
         Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der
         Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht, sich bei
@@ -172,55 +140,6 @@ export default async function DatenschutzPage() {
           caspar.baumeister.privat@gmail.com
         </a>
         .
-      </p>
-
-      <h2>12. Immotrim iPhone-App</h2>
-      <p>
-        Für die Immotrim-App für iPhone gelten die vorstehenden Abschnitte
-        entsprechend; die App nutzt dasselbe Konto und dieselbe Datenbank wie die
-        Website. Ergänzend gilt:
-      </p>
-      <p>
-        <strong>Anmeldung mit Apple oder Google.</strong> Sie können sich in der App
-        wahlweise mit E-Mail und Passwort, mit Apple (&bdquo;Mit Apple anmelden&ldquo;)
-        oder mit Google anmelden. Dabei erhalten wir vom jeweiligen Anbieter Ihre
-        E-Mail-Adresse (bei Apple auf Wunsch eine anonymisierte Weiterleitungsadresse)
-        und ggf. Ihren Namen, um Ihr Konto anzulegen. Rechtsgrundlage ist die
-        Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO).
-      </p>
-      <p>
-        <strong>Käufe und Abonnements (Apple, RevenueCat).</strong> Immotrim Plus wird
-        in der App als Abonnement über den Apple App Store abgeschlossen; die
-        Zahlungsabwicklung übernimmt Apple. Zur Verwaltung des Abonnements setzen wir
-        <strong> RevenueCat, Inc.</strong> (San Francisco, USA) ein. RevenueCat erhält
-        eine pseudonyme Nutzerkennung (Ihre Konto-ID) sowie die Kaufbelege von Apple,
-        um festzustellen, ob Ihr Abonnement aktiv ist, und teilt uns diesen Status mit.
-        Zahlungsdaten wie Kartennummern erhalten weder wir noch RevenueCat. Die
-        Übermittlung in die USA ist über die EU-Standardvertragsklauseln abgesichert.
-        Rechtsgrundlage ist die Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b
-        DSGVO).
-      </p>
-      <p>
-        <strong>Nutzungsstatistik (PostHog).</strong> Um zu verstehen, welche Funktionen
-        der App genutzt werden und wo Nutzer abbrechen, setzen wir
-        <strong> PostHog</strong> ein, gehostet in der EU (Frankfurt). Erfasst werden
-        Ereignisse wie das Öffnen eines Bildschirms, das Beantworten einer Frage oder
-        der Start eines Kaufs, zusammen mit einer zufällig erzeugten Gerätekennung,
-        App-Version, Gerätetyp und Betriebssystem. Ihre IP-Adresse wird anonymisiert
-        gespeichert; Name, E-Mail-Adresse, Immobiliendaten und Chat-Inhalte werden nicht
-        an PostHog übermittelt, und es findet keine Zusammenführung mit Daten Dritter
-        oder Werbetracking statt. Rechtsgrundlage ist unser berechtigtes Interesse an der
-        Verbesserung der App (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO).
-      </p>
-      <p>
-        <strong>Benachrichtigungen.</strong> Erinnerungen an offene Fragen zu Ihren
-        Immobilien werden lokal auf Ihrem Gerät geplant; es werden dafür keine Daten
-        an uns oder Dritte übertragen. Sie können die Benachrichtigungen jederzeit in
-        den App-Einstellungen oder in den iOS-Einstellungen abschalten.
-      </p>
-      <p>
-        <strong>Konto löschen.</strong> In den App-Einstellungen können Sie Ihr Konto
-        samt aller Immobiliendaten und Dokumente unwiderruflich löschen.
       </p>
     </LegalShell>
   );

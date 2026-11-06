@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
 import { TopBar } from "@/components/layout/TopBar";
 import { PropertyForm } from "@/features/property-input/components/PropertyForm";
 import { LivePreview } from "@/features/property-input/components/LivePreview";
@@ -12,17 +12,26 @@ import { DocumentUpload } from "@/features/property-input/components/DocumentUpl
 import type { AppliedPatch } from "@/features/property-input/extraction-types";
 import { Button } from "@/components/ui/button";
 import { usePropertyFormStore } from "@/lib/store";
-import { createProperty } from "@/lib/property-service";
+import { createProperty, getAllProperties } from "@/lib/property-service";
 import { linkDraftDocuments } from "@/lib/document-service";
+import { useAccount } from "@/features/account/account-context";
 
 export default function NewPropertyPage() {
   const t = useTranslations();
   const router = useRouter();
   const { name, address, inputs, setName, setAddress, setAllInputs, reset } =
     usePropertyFormStore();
-  const [draftId] = useState(() => uuidv4());
+  const [draftId] = useState(() => crypto.randomUUID());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { plus, freePropertyLimit } = useAccount();
+  const [atLimit, setAtLimit] = useState(false);
+
+  // Free accounts track one property; offer Plus instead of a form that can't save.
+  useEffect(() => {
+    if (plus) return;
+    getAllProperties().then((ps) => setAtLimit(ps.length >= freePropertyLimit));
+  }, [plus, freePropertyLimit]);
 
   const applyPatch = (patch: AppliedPatch) => {
     if (patch.name !== undefined) setName(patch.name);
@@ -32,21 +41,49 @@ export default function NewPropertyPage() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setError("Please enter a property name.");
+      setError("Bitte gib der Immobilie einen Namen, zum Beispiel die Straße.");
       return;
     }
     setSaving(true);
     setError(null);
     try {
-      const id = await createProperty(name, address, inputs);
-      await linkDraftDocuments(draftId, id);
+      const result = await createProperty(name, address, inputs);
+      if ("error" in result) {
+        setAtLimit(true);
+        setSaving(false);
+        return;
+      }
+      await linkDraftDocuments(draftId, result.id);
       reset();
-      router.push(`/property/${id}`);
-    } catch (e) {
-      setError("Failed to save property. Please check your Supabase configuration.");
+      router.push(`/property/${result.id}`);
+    } catch {
+      setError("Speichern hat nicht geklappt. Bitte versuche es noch einmal.");
       setSaving(false);
     }
   };
+
+  if (atLimit) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <TopBar title={t("property.new")} />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md text-center space-y-4 bg-card border border-border rounded-2xl p-8">
+            <h2 className="font-heading text-xl font-bold">Mehr Immobilien mit Immotrim Plus</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Kostenlos verfolgst du eine Immobilie mit allen Kennzahlen. Mit Plus legst du dein
+              ganzes Portfolio an, lässt Unterlagen auswerten und lädst die Bankenübersicht herunter.
+            </p>
+            <Link
+              href="/pricing?reason=properties"
+              className="inline-block bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+            >
+              Plus ansehen
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

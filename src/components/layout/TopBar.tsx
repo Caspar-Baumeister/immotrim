@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Info, User, LogOut, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -18,7 +17,8 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { endSession } from "@/lib/firebase/client";
+import { useAccount } from "@/features/account/account-context";
 
 type StatChip = {
   label: string;
@@ -40,17 +40,8 @@ type Props = {
 export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null }: Props) {
   const tAccount = useTranslations("account");
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>(userEmailProp);
-
-  // If parent didn't pass userEmail, fetch lazily from the browser session.
-  useEffect(() => {
-    if (userEmailProp !== null) return;
-    let cancelled = false;
-    getSupabaseBrowserClient().auth.getUser().then(({ data }) => {
-      if (!cancelled) setUserEmail(data.user?.email ?? null);
-    });
-    return () => { cancelled = true; };
-  }, [userEmailProp]);
+  const account = useAccount();
+  const userEmail = userEmailProp ?? account.email;
 
   return (
     <header className="h-14 border-b border-border bg-card/80 backdrop-blur flex items-center px-3 sm:px-5 gap-2 sm:gap-4 flex-shrink-0">
@@ -134,9 +125,8 @@ export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={async () => {
-              await getSupabaseBrowserClient().auth.signOut();
-              router.push("/");
-              router.refresh();
+              await endSession();
+              window.location.assign("/");
             }}
             className="cursor-pointer text-sm gap-2 text-destructive"
           >

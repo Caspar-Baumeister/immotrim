@@ -27,8 +27,7 @@ const nextConfig: NextConfig = {
   // entry here — keys are picomatch route globs, and `*` covers the dynamic
   // [bankId] segment.
   outputFileTracingIncludes: {
-    "/api/portfolio/report": ["./node_modules/@sparticuz/chromium/bin/**"],
-    "/api/selbstauskunft/*": ["./node_modules/@sparticuz/chromium/bin/**"],
+    "/api/bank-overview": ["./node_modules/@sparticuz/chromium/bin/**"],
   },
   // The app was previously served under a /[locale] prefix (/de, /en). It is now
   // German-only with flat URLs, so redirect any legacy locale-prefixed URL
@@ -46,18 +45,11 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: false,
       },
-      // The Konzept layer was removed 2026-09 — objects are top-level now. Old
-      // concept ids don't map to object ids, so everything lands on the overview.
-      {
-        source: "/konzepte/:path*",
-        destination: "/objekte",
-        permanent: false,
-      },
-      {
-        source: "/konzepte",
-        destination: "/objekte",
-        permanent: false,
-      },
+      // Features retired in the 2026-11 relaunch (portfolio monitoring only).
+      ...["konzepte", "objekte", "wishlist", "banken", "checklist", "haushalt", "stammdaten", "strategie", "selbstauskunft"].flatMap((p) => [
+        { source: `/${p}`, destination: "/dashboard", permanent: false },
+        { source: `/${p}/:path*`, destination: "/dashboard", permanent: false },
+      ]),
     ];
   },
 };

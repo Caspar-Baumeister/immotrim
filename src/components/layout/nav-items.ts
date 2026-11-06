@@ -1,39 +1,15 @@
-import {
-  LayoutDashboard,
-  Wallet,
-  User,
-  Building2,
-  Compass,
-  House,
-  Landmark,
-  ClipboardCheck,
-  type LucideIcon,
-} from "lucide-react";
-import type { ProfileCompletion } from "@/features/profile/completeness";
+import { LayoutDashboard, Building2, Landmark, type LucideIcon } from "lucide-react";
 
-// Single source of truth for the app's primary navigation. `section` links a nav
-// item to a completion key so the sidebar can render its Fortschrittsleiste.
-// Immobilien has no bar: the property count varies per user, so a percentage is
-// meaningless there. Dashboard, Objekte and Banken summarise / consume, not collect.
-
+// Single source of truth for the app's primary navigation.
 export type NavItemDef = {
   href: string;
   /** Key in the `nav` translation namespace. */
   labelKey: string;
   icon: LucideIcon;
-  /** Which completion percentage backs this item's progress bar, if any. */
-  section?: keyof ProfileCompletion;
-  /** Grouped under the "Unterlagen" heading in the sidebar. */
-  group?: "unterlagen";
 };
 
 export const NAV_ITEMS: NavItemDef[] = [
   { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
   { href: "/portfolio", labelKey: "immobilien", icon: Building2 },
-  { href: "/haushalt", labelKey: "haushalt", icon: Wallet, section: "haushalt", group: "unterlagen" },
-  { href: "/stammdaten", labelKey: "stammdaten", icon: User, section: "stammdaten", group: "unterlagen" },
-  { href: "/strategie", labelKey: "strategie", icon: Compass, section: "strategie", group: "unterlagen" },
-  { href: "/checklist", labelKey: "checklist", icon: ClipboardCheck, section: "checklist", group: "unterlagen" },
-  { href: "/objekte", labelKey: "objekte", icon: House },
-  { href: "/banken", labelKey: "banken", icon: Landmark },
+  { href: "/bankuebersicht", labelKey: "bank", icon: Landmark },
 ];

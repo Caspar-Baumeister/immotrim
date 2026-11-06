@@ -16,8 +16,8 @@ export default async function AgbPage() {
       <h2>1. Geltungsbereich</h2>
       <p>
         Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des
-        Online-Dienstes Immotrim, angeboten von Caspar Baumeister, Fürbringerstr. 27,
-        10961 Berlin, Deutschland („Anbieter“).
+        Online-Dienstes Immotrim, angeboten von Caspar Baumeister, Dernburgstraße 7,
+        14057 Berlin, Deutschland („Anbieter“).
       </p>
 
       <h2>2. Leistungsbeschreibung</h2>
@@ -56,7 +56,7 @@ export default async function AgbPage() {
       </p>
       <p>
         Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Caspar Baumeister,
-        Fürbringerstr. 27, 10961 Berlin, Deutschland,{" "}
+        Dernburgstraße 7, 14057 Berlin, Deutschland,{" "}
         <a href="mailto:caspar.baumeister.privat@gmail.com">
           caspar.baumeister.privat@gmail.com
         </a>

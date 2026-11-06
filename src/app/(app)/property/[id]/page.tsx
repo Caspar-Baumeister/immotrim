@@ -20,7 +20,7 @@ import { calculateAppreciation } from "@/features/appreciation/calculations";
 import { calculateReturns } from "@/features/returns/calculations";
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
 import { getProperty, updateProperty } from "@/lib/property-service";
-import { type Property } from "@/lib/supabase";
+import { type Property } from "@/lib/types";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import Link from "next/link";

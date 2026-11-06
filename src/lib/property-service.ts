@@ -1,36 +1,54 @@
-"use client";
+"use server";
 
-import { getSupabaseBrowserClient } from "./supabase/client";
-import type { Property, PropertyInputs, Json } from "./supabase/types";
+import { randomUUID } from "node:crypto";
+import { verifySession, hasPlus, FREE_PROPERTY_LIMIT } from "@/lib/dal";
+import { userRef } from "@/lib/data/users";
+import { adminBucket } from "@/lib/firebase/admin";
+import type { Property, PropertyInputs } from "@/lib/types";
 
-async function requireUserId(): Promise<string> {
-  const supabase = getSupabaseBrowserClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-  return user.id;
+// Server actions for the user's properties (users/{uid}/properties/{id}).
+// Callable from client components; every call re-checks the session.
+
+const col = (uid: string) => userRef(uid).collection("properties");
+
+function toProperty(uid: string, id: string, d: FirebaseFirestore.DocumentData): Property {
+  return {
+    id,
+    user_id: uid,
+    name: d.name ?? "",
+    address: d.address ?? null,
+    inputs: d.inputs as PropertyInputs,
+    created_at: d.created_at,
+    updated_at: d.updated_at,
+  };
 }
+
+// JSON round trip drops undefined fields (Firestore rejects them nested) and
+// anything that is not plain data.
+const plain = (inputs: PropertyInputs) => JSON.parse(JSON.stringify(inputs)) as PropertyInputs;
+
+export type CreateResult = { id: string } | { error: "plan_limit" };
 
 export async function createProperty(
   name: string,
   address: string,
   inputs: PropertyInputs,
-): Promise<string> {
-  const supabase = getSupabaseBrowserClient();
-  const userId = await requireUserId();
-
-  const { data, error } = await supabase
-    .from("properties")
-    .insert({
-      user_id: userId,
-      name,
-      address: address || null,
-      inputs: inputs as unknown as Json,
-    })
-    .select("id")
-    .single();
-
-  if (error) throw error;
-  return data.id;
+): Promise<CreateResult> {
+  const { uid } = await verifySession();
+  if (!(await hasPlus(uid))) {
+    const count = (await col(uid).count().get()).data().count;
+    if (count >= FREE_PROPERTY_LIMIT) return { error: "plan_limit" };
+  }
+  const id = randomUUID();
+  const now = new Date().toISOString();
+  await col(uid).doc(id).set({
+    name: name.trim(),
+    address: address.trim() || null,
+    inputs: plain(inputs),
+    created_at: now,
+    updated_at: now,
+  });
+  return { id };
 }
 
 export async function updateProperty(
@@ -39,50 +57,44 @@ export async function updateProperty(
   address: string,
   inputs: PropertyInputs,
 ): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
-
-  const { error } = await supabase
-    .from("properties")
-    .update({
-      name,
-      address: address || null,
-      inputs: inputs as unknown as Json,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-
-  if (error) throw error;
+  const { uid } = await verifySession();
+  const ref = col(uid).doc(id);
+  if (!(await ref.get()).exists) throw new Error("not_found");
+  await ref.update({
+    name: name.trim(),
+    address: address.trim() || null,
+    inputs: plain(inputs),
+    updated_at: new Date().toISOString(),
+  });
 }
 
 export async function getProperty(id: string): Promise<Property | null> {
-  const supabase = getSupabaseBrowserClient();
-
-  const { data, error } = await supabase
-    .from("properties")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !data) return null;
-  return data as unknown as Property;
+  const { uid } = await verifySession();
+  const snap = await col(uid).doc(id).get();
+  return snap.exists ? toProperty(uid, snap.id, snap.data()!) : null;
 }
 
 export async function getAllProperties(): Promise<Property[]> {
-  const supabase = getSupabaseBrowserClient();
-
-  const { data, error } = await supabase
-    .from("properties")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error || !data) return [];
-  return data as unknown as Property[];
+  const { uid } = await verifySession();
+  const q = await col(uid).orderBy("created_at", "desc").get();
+  return q.docs.map((d) => toProperty(uid, d.id, d.data()));
 }
 
+// Deletes the property together with its documents and their files.
 export async function deleteProperty(id: string): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
+  const { uid } = await verifySession();
+  const docs = await userRef(uid).collection("documents").where("property_id", "==", id).get();
+  const bucket = adminBucket();
+  await Promise.all(
+    docs.docs.map(async (d) => {
+      await bucket.file(d.get("file_path")).delete({ ignoreNotFound: true }).catch(() => {});
+      await d.ref.delete();
+    }),
+  );
+  await col(uid).doc(id).delete();
+}
 
-  const { error } = await supabase.from("properties").delete().eq("id", id);
-
-  if (error) throw error;
+// Used by the new-property form to group uploads before the property exists.
+export async function newDraftId(): Promise<string> {
+  return randomUUID();
 }

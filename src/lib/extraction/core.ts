@@ -11,15 +11,11 @@ import {
   type GenerateContentResponse,
   type Part,
 } from "@google/genai";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/types";
+import { adminBucket } from "@/lib/firebase/admin";
 
-// Gemini document-extraction core shared by /api/extract (web, cookie session)
-// and /api/mobile/extract (iPhone app, Bearer token). The routes own auth,
+// Gemini document-extraction core used by /api/extract. The route owns auth,
 // entitlement, quota and the HTTP shape; this module owns storage download,
 // Gemini upload/inline handling, prompts, schemas and result sanitising.
-
-const BUCKET = "property-documents";
 // Cheapest Flash tier that supports PDF + structured output. Overridable so the
 // model can be bumped without a code change. Use the PAID Gemini tier (no training on data).
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -37,19 +33,6 @@ function fieldSchema(
     type: Type.OBJECT,
     properties: {
       value: { type: valueType },
-      sourceDoc: { type: Type.STRING },
-      confidence: { type: Type.NUMBER },
-    },
-    required: ["value", "sourceDoc", "confidence"],
-  };
-}
-
-// Like fieldSchema, but constrains value decoding to the form's select options.
-function enumFieldSchema(values: string[]) {
-  return {
-    type: Type.OBJECT,
-    properties: {
-      value: { type: Type.STRING, enum: values },
       sourceDoc: { type: Type.STRING },
       confidence: { type: Type.NUMBER },
     },
@@ -191,392 +174,8 @@ Wert:
 Für jedes Feld: value (Zahl bzw. Text), sourceDoc (der Dokumenttyp oder Dateiname, woraus der Wert stammt), confidence (0 bis 1, ehrlich eingeschätzt).
 Gib ausschließlich JSON gemäß Schema zurück.`;
 
-const WISHLIST_FIELD_ORDER = [
-  "name",
-  "address",
-  "exposeUrl",
-  "kaufpreis",
-  "wohnflaeche",
-  "zimmer",
-  "schlafzimmer",
-  "badezimmer",
-  "etage",
-  "etagenGesamt",
-  "wohnungstyp",
-  "baujahr",
-  "objektzustand",
-  "ausstattung",
-  "istMiete",
-  "sollMiete",
-  "hausgeld",
-  "stellplaetze",
-  "provisionsfrei",
-  "heizungsart",
-  "energietraeger",
-  "energieausweistyp",
-  "energieKennwert",
-  "energieKlasse",
-  "maklerName",
-  "maklerTelefon",
-];
-
-const WISHLIST_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    fields: {
-      type: Type.OBJECT,
-      properties: {
-        name: fieldSchema(Type.STRING),
-        address: fieldSchema(Type.STRING),
-        exposeUrl: fieldSchema(Type.STRING),
-        kaufpreis: fieldSchema(Type.NUMBER),
-        wohnflaeche: fieldSchema(Type.NUMBER),
-        zimmer: fieldSchema(Type.NUMBER),
-        schlafzimmer: fieldSchema(Type.NUMBER),
-        badezimmer: fieldSchema(Type.NUMBER),
-        etage: fieldSchema(Type.NUMBER),
-        etagenGesamt: fieldSchema(Type.NUMBER),
-        wohnungstyp: fieldSchema(Type.STRING),
-        baujahr: fieldSchema(Type.NUMBER),
-        objektzustand: fieldSchema(Type.STRING),
-        ausstattung: fieldSchema(Type.STRING),
-        istMiete: fieldSchema(Type.NUMBER),
-        sollMiete: fieldSchema(Type.NUMBER),
-        hausgeld: fieldSchema(Type.NUMBER),
-        stellplaetze: fieldSchema(Type.NUMBER),
-        provisionsfrei: fieldSchema(Type.BOOLEAN),
-        heizungsart: fieldSchema(Type.STRING),
-        energietraeger: fieldSchema(Type.STRING),
-        energieausweistyp: fieldSchema(Type.STRING),
-        energieKennwert: fieldSchema(Type.NUMBER),
-        energieKlasse: fieldSchema(Type.STRING),
-        maklerName: fieldSchema(Type.STRING),
-        maklerTelefon: fieldSchema(Type.STRING),
-      },
-      propertyOrdering: WISHLIST_FIELD_ORDER,
-    },
-  },
-  required: ["fields"],
-};
-
-const WISHLIST_PROMPT = `Du bist ein Assistent, der deutsche Immobilien-Exposés auswertet, um eine Objektanalyse vorauszufüllen.
-Du erhältst ein oder mehrere Dokumente: typischerweise ein Verkaufs-Exposé (z.B. von ImmoScout24 oder einem Makler), als PDF oder Screenshot.
-
-WICHTIG: Lies das GESAMTE Dokument (alle Seiten) sorgfältig und extrahiere ALLE im Dokument vorhandenen Felder aus dem Schema. Gib für jedes Feld, das du im Dokument findest, einen Wert zurück – auch wenn es nur an einer Stelle steht. Lass ein Feld NUR dann weg, wenn die Information wirklich nicht im Dokument vorkommt. Erfinde keine Werte und schätze nicht.
-Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
-
-Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. Beispiele: "349.900 €" -> 349900, "81,13 m²" -> 81.13, "92,2 kWh/(m²*a)" -> 92.2.
-
-Feld-Hinweise (typische ImmoScout24-Labels in Klammern):
-- name: kurze Bezeichnung/Objekttitel der Immobilie (die Überschrift des Exposés).
-- address: Adresse bzw. Lage – Stadtteil, PLZ, Ort, Straße soweit angegeben (z.B. "Kreuzberg, 10967 Berlin").
-- exposeUrl: die vollständige ImmoScout24-Exposé-URL. Steht meist im Kopf-/Fußbereich, Form "https://www.immobilienscout24.de/expose/<ID>". Übernimm sie OHNE den Zusatz "/print".
-- kaufpreis: ("Kaufpreis") Kaufpreis in Euro.
-- wohnflaeche: ("Wohnfläche ca.") in m².
-- zimmer: ("Zimmer") Anzahl der Zimmer (ggf. mit Nachkommastelle).
-- schlafzimmer: ("Schlafzimmer"). badezimmer: ("Badezimmer").
-- etage / etagenGesamt: ("Etage"). Bei "1 von 4" ist etage=1 und etagenGesamt=4.
-- wohnungstyp: ("Wohnungstyp", z.B. "Etagenwohnung", "Erdgeschosswohnung", "Maisonette").
-- baujahr: ("Baujahr") vierstellige Jahreszahl.
-- objektzustand: ("Objektzustand", z.B. "Gepflegt", "Neuwertig").
-- ausstattung: ("Qualität der Ausstattung", z.B. "Normal", "Gehoben").
-- istMiete: aktuelle monatliche Ist-Kaltmiete in Euro. Meist als "Mieteinnahmen pro Monat" angegeben. Falls nur "Jahresnettokaltmiete" genannt ist, teile sie durch 12.
-- sollMiete: angestrebte/marktübliche monatliche Soll-Kaltmiete in Euro, nur falls explizit als solche genannt.
-- hausgeld: ("Hausgeld") monatlich in Euro.
-- stellplaetze: Anzahl Stellplätze/Garagen, falls genannt.
-- provisionsfrei: true, wenn "Provision für Käufer: Nein" oder "provisionsfrei" steht; false, wenn eine Käuferprovision angegeben ist.
-- heizungsart: ("Heizungsart", z.B. "Etagenheizung", "Zentralheizung", "Fernwärme").
-- energietraeger: ("Wesentliche Energieträger", z.B. "Gas", "Öl").
-- energieausweistyp: ("Energieausweistyp": "Verbrauchsausweis" oder "Bedarfsausweis").
-- energieKennwert: ("Endenergieverbrauch"/"Endenergiebedarf") als Zahl in kWh/(m²·a).
-- energieKlasse: ("Energieeffizienzklasse", A+ bis H).
-- maklerName: Name des Anbieters/Ansprechpartners bzw. der Maklerfirma (Anbieter-Bereich).
-- maklerTelefon: Telefon-/Mobilnummer des Anbieters (z.B. "Mobil: 0163 2189233").
-
-Für jedes Feld: value (Zahl, Text bzw. Wahrheitswert), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
-Gib ausschließlich JSON gemäß Schema zurück.`;
-
-// ── Objekt exposé (mode id "konzeptObjekt" is historical) ────────────────────
-const KONZEPT_OBJEKT_FIELD_ORDER = [
-  "adresse",
-  "ort",
-  "objekttyp",
-  "wohnflaeche",
-  "zimmer",
-  "baujahr",
-  "kaufpreis",
-  "erwarteteMiete",
-  "hausgeld",
-  "etage",
-  "etagenGesamt",
-  "schlafzimmer",
-  "badezimmer",
-  "stellplaetze",
-  "objektzustand",
-  "ausstattung",
-  "provisionsfrei",
-  "heizungsart",
-  "energietraeger",
-  "energieausweistyp",
-  "energieKennwert",
-  "energieKlasse",
-  "maklerName",
-  "maklerTelefon",
-  "exposeUrl",
-];
-
-const KONZEPT_OBJEKT_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    fields: {
-      type: Type.OBJECT,
-      properties: {
-        adresse: fieldSchema(Type.STRING),
-        ort: fieldSchema(Type.STRING),
-        objekttyp: fieldSchema(Type.STRING),
-        wohnflaeche: fieldSchema(Type.NUMBER),
-        zimmer: fieldSchema(Type.NUMBER),
-        baujahr: fieldSchema(Type.NUMBER),
-        kaufpreis: fieldSchema(Type.NUMBER),
-        erwarteteMiete: fieldSchema(Type.NUMBER),
-        hausgeld: fieldSchema(Type.NUMBER),
-        etage: fieldSchema(Type.NUMBER),
-        etagenGesamt: fieldSchema(Type.NUMBER),
-        schlafzimmer: fieldSchema(Type.NUMBER),
-        badezimmer: fieldSchema(Type.NUMBER),
-        stellplaetze: fieldSchema(Type.NUMBER),
-        objektzustand: fieldSchema(Type.STRING),
-        ausstattung: fieldSchema(Type.STRING),
-        provisionsfrei: fieldSchema(Type.BOOLEAN),
-        heizungsart: fieldSchema(Type.STRING),
-        energietraeger: fieldSchema(Type.STRING),
-        energieausweistyp: fieldSchema(Type.STRING),
-        energieKennwert: fieldSchema(Type.NUMBER),
-        energieKlasse: fieldSchema(Type.STRING),
-        maklerName: fieldSchema(Type.STRING),
-        maklerTelefon: fieldSchema(Type.STRING),
-        exposeUrl: fieldSchema(Type.STRING),
-      },
-      propertyOrdering: KONZEPT_OBJEKT_FIELD_ORDER,
-    },
-  },
-  required: ["fields"],
-};
-
-const KONZEPT_OBJEKT_PROMPT = `Du bist ein Assistent, der deutsche Immobilien-Exposés auswertet, um das Objekt eines Finanzierungskonzepts vorauszufüllen — mit den Eckdaten, die eine Bank für eine Finanzierungsanfrage braucht.
-Du erhältst ein oder mehrere Dokumente: typischerweise ein Verkaufs-Exposé (z.B. von ImmoScout24 oder einem Makler), als PDF oder Screenshot.
-
-WICHTIG: Lies das GESAMTE Dokument (alle Seiten) sorgfältig und extrahiere ALLE im Dokument vorhandenen Felder aus dem Schema. Gib für jedes Feld, das du im Dokument findest, einen Wert zurück – auch wenn es nur an einer Stelle steht. Lass ein Feld NUR dann weg, wenn die Information wirklich nicht im Dokument vorkommt. Erfinde keine Werte und schätze nicht.
-Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
-
-Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. Beispiele: "349.900 €" -> 349900, "81,13 m²" -> 81.13, "92,2 kWh/(m²*a)" -> 92.2.
-
-Feld-Hinweise (typische ImmoScout24-Labels in Klammern):
-- adresse: NUR Straße und Hausnummer (z.B. "Musterstraße 12"), soweit angegeben. PLZ/Ort gehören NICHT hierher.
-- ort: PLZ und Ort, ggf. mit Stadtteil (z.B. "10967 Berlin" oder "Kreuzberg, 10967 Berlin"). Straße gehört NICHT hierher.
-- objekttyp: Immobilientyp bzw. ("Wohnungstyp"), z.B. "Eigentumswohnung", "Etagenwohnung", "Erdgeschosswohnung", "Maisonette", "Einfamilienhaus".
-- wohnflaeche: ("Wohnfläche ca.") in m².
-- zimmer: ("Zimmer") Anzahl der Zimmer (ggf. mit Nachkommastelle).
-- baujahr: ("Baujahr") vierstellige Jahreszahl.
-- kaufpreis: ("Kaufpreis") Kaufpreis in Euro.
-- erwarteteMiete: erwartete monatliche Kaltmiete in Euro. Nimm die angestrebte/marktübliche Soll-Kaltmiete, falls genannt; sonst die aktuelle Ist-Kaltmiete ("Mieteinnahmen pro Monat"). Falls nur eine "Jahresnettokaltmiete" genannt ist, teile sie durch 12.
-- hausgeld: ("Hausgeld") monatlich in Euro.
-- etage / etagenGesamt: ("Etage"). Bei "1 von 4" ist etage=1 und etagenGesamt=4.
-- schlafzimmer: ("Schlafzimmer"). badezimmer: ("Badezimmer").
-- stellplaetze: Anzahl Stellplätze/Garagen, falls genannt.
-- objektzustand: ("Objektzustand", z.B. "Gepflegt", "Neuwertig").
-- ausstattung: ("Qualität der Ausstattung", z.B. "Normal", "Gehoben").
-- provisionsfrei: true, wenn "Provision für Käufer: Nein" oder "provisionsfrei" steht; false, wenn eine Käuferprovision angegeben ist.
-- heizungsart: ("Heizungsart", z.B. "Etagenheizung", "Zentralheizung", "Fernwärme").
-- energietraeger: ("Wesentliche Energieträger", z.B. "Gas", "Öl").
-- energieausweistyp: ("Energieausweistyp": "Verbrauchsausweis" oder "Bedarfsausweis").
-- energieKennwert: ("Endenergieverbrauch"/"Endenergiebedarf") als Zahl in kWh/(m²·a).
-- energieKlasse: ("Energieeffizienzklasse", A+ bis H).
-- maklerName: Name des Anbieters/Ansprechpartners bzw. der Maklerfirma (Anbieter-Bereich).
-- maklerTelefon: Telefon-/Mobilnummer des Anbieters (z.B. "Mobil: 0163 2189233").
-- exposeUrl: die vollständige ImmoScout24-Exposé-URL. Steht meist im Kopf-/Fußbereich, Form "https://www.immobilienscout24.de/expose/<ID>". Übernimm sie OHNE den Zusatz "/print".
-
-Für jedes Feld: value (Zahl, Text bzw. Wahrheitswert), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
-Gib ausschließlich JSON gemäß Schema zurück.`;
-
-// ── Stammdaten (personal master data) ────────────────────────────────────────
-const STAMMDATEN_FIELD_ORDER = [
-  "anrede",
-  "vorname",
-  "nachname",
-  "geburtsdatum",
-  "geburtsort",
-  "familienstand",
-  "telefon",
-  "email",
-  "strasse",
-  "plzOrt",
-  "wohnhaftSeit",
-  "anzahlKinder",
-  "staatsangehoerigkeit",
-  "steuerId",
-  "beschaeftigung",
-  "arbeitgeber",
-  "beruf",
-  "beschaeftigtSeit",
-  "kontoinhaber",
-  "kreditinstitut",
-  "iban",
-  "bic",
-];
-
-const STAMMDATEN_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    fields: {
-      type: Type.OBJECT,
-      properties: {
-        anrede: enumFieldSchema(["herr", "frau"]),
-        vorname: fieldSchema(Type.STRING),
-        nachname: fieldSchema(Type.STRING),
-        geburtsdatum: fieldSchema(Type.STRING),
-        geburtsort: fieldSchema(Type.STRING),
-        familienstand: enumFieldSchema(["ledig", "verheiratet", "geschieden", "verwitwet"]),
-        telefon: fieldSchema(Type.STRING),
-        email: fieldSchema(Type.STRING),
-        strasse: fieldSchema(Type.STRING),
-        plzOrt: fieldSchema(Type.STRING),
-        wohnhaftSeit: fieldSchema(Type.STRING),
-        anzahlKinder: fieldSchema(Type.NUMBER),
-        staatsangehoerigkeit: fieldSchema(Type.STRING),
-        steuerId: fieldSchema(Type.STRING),
-        beschaeftigung: enumFieldSchema([
-          "angestellter",
-          "beamter",
-          "selbstaendiger",
-          "rentner",
-        ]),
-        arbeitgeber: fieldSchema(Type.STRING),
-        beruf: fieldSchema(Type.STRING),
-        beschaeftigtSeit: fieldSchema(Type.STRING),
-        kontoinhaber: fieldSchema(Type.STRING),
-        kreditinstitut: fieldSchema(Type.STRING),
-        iban: fieldSchema(Type.STRING),
-        bic: fieldSchema(Type.STRING),
-      },
-      propertyOrdering: STAMMDATEN_FIELD_ORDER,
-    },
-  },
-  required: ["fields"],
-};
-
-const STAMMDATEN_PROMPT = `Du bist ein Assistent, der deutsche Personendokumente auswertet, um die persönlichen Stammdaten eines Kreditantragstellers vorauszufüllen.
-Du erhältst typischerweise: Personalausweis/Reisepass, Meldebescheinigung, Lohn-/Gehaltsabrechnung, Arbeitsvertrag, Steuerbescheid, Kontoauszug, Bankkarte oder ein SEPA-Mandat.
-
-WICHTIG: Lies ALLE Dokumente vollständig. Extrahiere so viele Felder wie möglich. Lass ein Feld NUR weg, wenn es im Dokument keinerlei Anhaltspunkt gibt. Erfinde keine Werte.
-Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
-
-Feld-Hinweise:
-- anrede: "herr" oder "frau" (exakt diese Werte) — aus Anrede/Titel im Dokument ableitbar.
-- vorname / nachname: vollständiger Vor- und Nachname (Personalausweis, Lohnabrechnung, Arbeitsvertrag).
-- geburtsdatum: im Format YYYY-MM-DD.
-- geburtsort: Geburtsort laut Ausweis.
-- familienstand: exakt einer dieser Werte: "ledig", "verheiratet", "geschieden", "verwitwet" (aus Steuerbescheid/Lohnabrechnung, z.B. Steuerklasse, oder Meldebescheinigung).
-- telefon: Telefon-/Mobilnummer, falls angegeben.
-- email: E-Mail-Adresse, falls angegeben.
-- strasse: Straße und Hausnummer der Wohnanschrift.
-- plzOrt: Postleitzahl und Ort der Wohnanschrift (z.B. "14467 Potsdam").
-- wohnhaftSeit: Einzugsdatum an der aktuellen Adresse im Format YYYY-MM (aus Meldebescheinigung "wohnhaft seit"/"Einzugsdatum").
-- anzahlKinder: Anzahl unterhaltspflichtiger Kinder (aus Lohnabrechnung Kinderfreibeträge oder Kindergeld-Unterlagen).
-- staatsangehoerigkeit: Staatsangehörigkeit (z.B. "deutsch").
-- steuerId: 11-stellige steuerliche Identifikationsnummer (aus Lohnabrechnung/Steuerbescheid).
-- beschaeftigung: exakt einer dieser Werte: "angestellter", "beamter", "selbstaendiger", "rentner" (aus Arbeitsvertrag, Lohnabrechnung, BWA/Steuerbescheid oder Rentenbescheid ableitbar).
-- arbeitgeber: Name des Arbeitgebers (Lohnabrechnung/Arbeitsvertrag).
-- beruf: ausgeübter Beruf / Tätigkeit.
-- beschaeftigtSeit: Eintrittsdatum beim Arbeitgeber im Format YYYY-MM.
-
-Kontoverbindung (aus Kontoauszug, Bankkarte, SEPA-Mandat oder Überweisungsträger):
-- kontoinhaber: Name des Kontoinhabers.
-- kreditinstitut: Name der Bank (z.B. "Sparkasse Berlin", "ING").
-- iban: IBAN ohne Leerzeichen (deutsches Format: DE + 20 Zeichen).
-- bic: BIC/SWIFT-Code (8 oder 11 Zeichen).
-
-Für jedes Feld: value (Text bzw. Zahl), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
-Gib ausschließlich JSON gemäß Schema zurück.`;
-
-// ── Haushaltsrechnung (household budget) ──────────────────────────────────────
-const HAUSHALT_FIELD_ORDER = [
-  "nettoeinkommen",
-  "anzahlGehaelter",
-  "kindergeld",
-  "weitereEinkuenfte",
-  "mietausgaben",
-  "lebenshaltung",
-  "krankenversicherung",
-  "versicherungen",
-  "ratenkredite",
-  "sonstigeAusgaben",
-  "bankSparguthaben",
-  "wertpapiere",
-  "sonstigesVermoegen",
-  "sonstigeVerbindlichkeiten",
-];
-
-const HAUSHALT_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    fields: {
-      type: Type.OBJECT,
-      properties: {
-        nettoeinkommen: fieldSchema(Type.NUMBER),
-        anzahlGehaelter: fieldSchema(Type.NUMBER),
-        kindergeld: fieldSchema(Type.NUMBER),
-        weitereEinkuenfte: fieldSchema(Type.NUMBER),
-        mietausgaben: fieldSchema(Type.NUMBER),
-        lebenshaltung: fieldSchema(Type.NUMBER),
-        krankenversicherung: fieldSchema(Type.NUMBER),
-        versicherungen: fieldSchema(Type.NUMBER),
-        ratenkredite: fieldSchema(Type.NUMBER),
-        sonstigeAusgaben: fieldSchema(Type.NUMBER),
-        bankSparguthaben: fieldSchema(Type.NUMBER),
-        wertpapiere: fieldSchema(Type.NUMBER),
-        sonstigesVermoegen: fieldSchema(Type.NUMBER),
-        sonstigeVerbindlichkeiten: fieldSchema(Type.NUMBER),
-      },
-      propertyOrdering: HAUSHALT_FIELD_ORDER,
-    },
-  },
-  required: ["fields"],
-};
-
-const HAUSHALT_PROMPT = `Du bist ein Assistent, der deutsche Finanzunterlagen auswertet, um die Haushaltsrechnung eines Kreditantragstellers vorauszufüllen.
-Du erhältst typischerweise: Lohn-/Gehaltsabrechnung, Kontoauszüge, Depot-/Vermögensübersicht oder Kreditverträge.
-
-WICHTIG: Lies ALLE Dokumente vollständig. Extrahiere so viele Felder wie möglich. Lass ein Feld NUR weg, wenn es keinerlei Anhaltspunkt gibt. Erfinde keine Werte.
-Gib für Felder ohne Fundstelle KEIN Objekt zurück — niemals null, leere Strings oder confidence 0.
-
-Zahlenformat: deutsche Schreibweise in reine Zahlen umwandeln. Tausenderpunkte entfernen, Dezimalkomma zu Punkt. "3.450,00 €" -> 3450.
-
-Feld-Hinweise (alle Beträge in Euro):
-- nettoeinkommen: monatliches Nettoeinkommen / Auszahlungsbetrag laut Gehaltsabrechnung.
-- anzahlGehaelter: Anzahl der Gehälter pro Jahr (12, 13 oder 14), falls erkennbar.
-- kindergeld: monatliches Kindergeld (aus Kontoauszug oder Kindergeldbescheid).
-- weitereEinkuenfte: regelmäßige monatliche Zusatzeinnahmen (Unterhalt, Nebentätigkeit, Renten) — OHNE Mieteinnahmen aus Immobilien.
-- mietausgaben: eigene monatliche Warmmiete / Wohnkosten (aus Kontoauszug als wiederkehrende Mietzahlung).
-- lebenshaltung: monatliche private Lebenshaltungskosten (Essen, Mobilität, Freizeit), falls beziffert.
-- krankenversicherung: monatlicher selbst gezahlter Krankenversicherungsbeitrag (nur bei privater oder freiwillig gesetzlicher Versicherung — bei gesetzlich Versicherten ist er bereits vom Netto abgezogen, dann weglassen).
-- versicherungen: monatliche Summe weiterer Versicherungsbeiträge (Haftpflicht, Hausrat, BU, Leben, Kfz) — ohne Krankenversicherung.
-- ratenkredite: monatliche Rate laufender Ratenkredite (aus Kreditvertrag/Kontoauszug) — ohne Immobiliendarlehen.
-- sonstigeAusgaben: sonstige regelmäßige monatliche Ausgaben (Unterhaltszahlungen, Sparpläne, Abos).
-- bankSparguthaben: Summe der Bank-/Sparguthaben (Kontostände, Tagesgeld, Festgeld).
-- wertpapiere: Wert von Wertpapieren / Aktien / Fonds (Depotübersicht).
-- sonstigesVermoegen: weitere Vermögenswerte (Bausparverträge, Rückkaufswert von Lebensversicherungen, Edelmetalle) — ohne Immobilien.
-- sonstigeVerbindlichkeiten: Gesamthöhe sonstiger Verbindlichkeiten / Restschuld von Konsumkrediten (ohne Immobiliendarlehen, nicht die Monatsrate).
-
-Für jedes Feld: value (Zahl), sourceDoc (Dokumenttyp oder Dateiname), confidence (0 bis 1).
-Gib ausschließlich JSON gemäß Schema zurück.`;
-
 const MODES = {
   property: { schema: PROPERTY_SCHEMA, prompt: PROPERTY_PROMPT },
-  wishlist: { schema: WISHLIST_SCHEMA, prompt: WISHLIST_PROMPT },
-  konzeptObjekt: { schema: KONZEPT_OBJEKT_SCHEMA, prompt: KONZEPT_OBJEKT_PROMPT },
-  stammdaten: { schema: STAMMDATEN_SCHEMA, prompt: STAMMDATEN_PROMPT },
-  haushalt: { schema: HAUSHALT_SCHEMA, prompt: HAUSHALT_PROMPT },
 } as const;
 
 export type ExtractMode = keyof typeof MODES;
@@ -603,34 +202,31 @@ export type ExtractionSuccess = {
 
 export type ExtractionResult = ExtractionSuccess | ExtractionFailure;
 
-// Downloads the caller's documents from storage (RLS-scoped client), hands them
-// to Gemini with the mode's prompt + schema and returns the sanitised fields.
+// Downloads the caller's documents from Storage, hands them to Gemini with the
+// mode's prompt + schema and returns the sanitised fields.
 export async function extractFromDocs(
-  sb: SupabaseClient<Database>,
   ai: GoogleGenAI,
-  user: { id: string },
+  uid: string,
   docs: ReqDoc[],
   mode: ExtractMode,
 ): Promise<ExtractionResult> {
   const parts: Part[] = [];
+  const bucket = adminBucket();
 
   for (const doc of docs) {
-    // Guard: only allow paths inside the caller's own folder; RLS would block
-    // others anyway, but fail fast and clearly.
-    if (!doc.path.startsWith(`${user.id}/`)) {
+    // Only files inside the caller's own folder.
+    if (!doc.path.startsWith(`users/${uid}/`)) {
       return { ok: false, status: 403, code: "forbidden_path", error: "Forbidden path" };
     }
 
-    const { data: blob, error } = await sb.storage.from(BUCKET).download(doc.path);
-    if (error || !blob) {
-      return {
-        ok: false,
-        status: 404,
-        code: "not_found",
-        error: `Could not read ${doc.name}`,
-      };
+    const file = bucket.file(doc.path);
+    const [exists] = await file.exists();
+    if (!exists) {
+      return { ok: false, status: 404, code: "not_found", error: `Could not read ${doc.name}` };
     }
-    if (blob.size > MAX_FILE_BYTES) {
+    const [meta] = await file.getMetadata();
+    const size = Number(meta.size ?? 0);
+    if (size > MAX_FILE_BYTES) {
       return {
         ok: false,
         status: 413,
@@ -639,13 +235,14 @@ export async function extractFromDocs(
       };
     }
 
-    const mimeType = blob.type || "application/pdf";
+    const mimeType = meta.contentType || "application/pdf";
+    const [buffer] = await file.download();
     parts.push(createPartFromText(`Dokument: ${doc.name}`));
 
-    if (blob.size <= INLINE_LIMIT_BYTES) {
-      const base64 = Buffer.from(await blob.arrayBuffer()).toString("base64");
-      parts.push(createPartFromBase64(base64, mimeType));
+    if (size <= INLINE_LIMIT_BYTES) {
+      parts.push(createPartFromBase64(buffer.toString("base64"), mimeType));
     } else {
+      const blob = new Blob([new Uint8Array(buffer)], { type: mimeType });
       const uploaded = await ai.files.upload({ file: blob, config: { mimeType } });
       const ready = await waitForActiveFile(ai, uploaded.name);
       if (!ready?.uri || !ready.mimeType) {

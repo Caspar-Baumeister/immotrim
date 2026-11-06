@@ -1,7 +1,10 @@
 {
   "functions": {
-    "src/app/api/portfolio/report/route.ts": {
+    "src/app/api/bank-overview/route.ts": {
       "memory": 1024,
+      "maxDuration": 60
+    },
+    "src/app/api/extract/route.ts": {
       "maxDuration": 60
     }
   }

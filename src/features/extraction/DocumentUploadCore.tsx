@@ -7,31 +7,24 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   deleteDocument,
-  getDownloadUrl,
+  downloadUrl,
   listDocuments,
   uploadDocument,
 } from "@/lib/document-service";
-import type { PropertyDocument } from "@/lib/supabase";
+import type { PropertyDocument } from "@/lib/types";
 import { ExtractionReviewPanel, type ExtractedLike } from "./ExtractionReviewPanel";
 
 const ACCEPTED = ["application/pdf", "image/png", "image/jpeg", "image/webp"];
-const MAX_BYTES = 50 * 1024 * 1024;
+const MAX_BYTES = 25 * 1024 * 1024; // matches firebase/storage.rules
 
-type Target =
-  | { draftId: string }
-  | { propertyId: string }
-  | { category: string }
-  | { objectId: string };
+type Target = { draftId: string } | { propertyId: string };
 
 // Bag of extracted fields keyed by field name, as returned by /api/extract.
 export type ExtractedBag = Record<string, ExtractedLike | undefined>;
 
-// Feature-specific glue so the same upload+extract+review UI serves the property,
-// Objektanalyse, Objekt and profile-section (Stammdaten/Haushalt) flows.
+// Glue between the upload+extract+review UI and the form it fills.
 export type ExtractionAdapter = {
-  // "konzeptObjekt" is the Objekt exposé mode — the id is a kept API contract
-  // with /api/extract.
-  mode: "property" | "wishlist" | "konzeptObjekt" | "stammdaten" | "haushalt";
+  mode: "property";
   fieldOrder: string[];
   isPresent: (fields: ExtractedBag, key: string) => boolean;
   fieldFor: (fields: ExtractedBag, key: string) => ExtractedLike;
@@ -55,14 +48,7 @@ export function DocumentUploadCore({ target, adapter }: Props) {
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const targetKey =
-    "draftId" in target
-      ? target.draftId
-      : "propertyId" in target
-        ? target.propertyId
-        : "objectId" in target
-          ? target.objectId
-          : target.category;
+  const targetKey = "draftId" in target ? target.draftId : target.propertyId;
 
   useEffect(() => {
     listDocuments(target).then(setDocs);
@@ -97,16 +83,15 @@ export function DocumentUploadCore({ target, adapter }: Props) {
   const handleDelete = async (doc: PropertyDocument) => {
     setDocs((prev) => prev.filter((d) => d.id !== doc.id));
     try {
-      await deleteDocument(doc);
+      await deleteDocument(doc.id);
     } catch {
       setError(t("deleteFailed"));
       listDocuments(target).then(setDocs);
     }
   };
 
-  const handleDownload = async (doc: PropertyDocument) => {
-    const url = await getDownloadUrl(doc.file_path);
-    if (url) window.open(url, "_blank", "noopener");
+  const handleDownload = (doc: PropertyDocument) => {
+    window.open(downloadUrl(doc), "_blank", "noopener");
   };
 
   const handleExtract = async () => {
@@ -123,7 +108,9 @@ export function DocumentUploadCore({ target, adapter }: Props) {
         }),
       });
       if (!res.ok) {
-        if (res.status === 429) {
+        if (res.status === 402) {
+          setError(t("extractPlus"));
+        } else if (res.status === 429) {
           const body = (await res.json().catch(() => null)) as { limit?: number } | null;
           setError(t("extractLimit", { limit: body?.limit ?? 500 }));
         } else {

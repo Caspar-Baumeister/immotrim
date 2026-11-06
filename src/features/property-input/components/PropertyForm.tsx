@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Info, ChevronDown } from "lucide-react";
 import { usePropertyFormStore } from "@/lib/store";
-import { type Nebenkosten, type TaxInputs, type ReportDetails } from "@/lib/supabase";
+import { type Nebenkosten, type TaxInputs, type ReportDetails } from "@/lib/types";
 import { InputSection } from "./InputSection";
 import { SliderInput } from "./SliderInput";
 import { Input } from "@/components/ui/input";
@@ -550,8 +550,8 @@ export function PropertyForm() {
         )}
       </InputSection>
 
-      {/* ── Objektdetails (nur für die Investorenbroschüre) ─────────────────── */}
-      <InputSection title="Objektdetails (nur für die Investorenbroschüre)" defaultOpen={false}>
+      {/* ── Objektdetails (für die Bankenübersicht) ───────────────────────────── */}
+      <InputSection title="Objektdetails und Marktwert" defaultOpen={false}>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 flex flex-col gap-1.5">
             <Label className="text-xs text-muted-foreground">Immobilientyp</Label>
@@ -653,8 +653,8 @@ export function PropertyForm() {
           </div>
         </div>
         <div className="bg-muted/20 rounded-lg px-3 py-2 text-[10px] text-muted-foreground/70 leading-relaxed">
-          Diese Angaben werden ausschließlich für die Investorenbroschüre verwendet und haben
-          keinen Einfluss auf die Berechnungen. Felder können auch automatisch aus
+          Diese Angaben erscheinen in der Bankenübersicht. Der Marktwert fließt in Wert,
+          Beleihungsauslauf und Nachbeleihung ein. Felder können auch automatisch aus
           hochgeladenen Dokumenten übernommen werden.
         </div>
       </InputSection>

@@ -8,7 +8,6 @@ const PUBLIC_PATHS = [
   "/pricing",
   "/impressum",
   "/datenschutz",
-  "/privacy-settings",
   "/agb",
   "/ratgeber/bankenreport-immobilienportfolio-erstellen",
 ];

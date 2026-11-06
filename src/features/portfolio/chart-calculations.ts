@@ -1,4 +1,4 @@
-import type { PropertyInputs } from "@/lib/supabase";
+import type { PropertyInputs } from "@/lib/types";
 import { calculateMortgage, type MortgageMetrics, type AmortizationYear } from "@/features/mortgage/calculations";
 import type { CashFlowYear } from "@/features/cash-flow/calculations";
 import type { AppreciationYear } from "@/features/appreciation/calculations";

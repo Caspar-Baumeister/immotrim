@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Browsers upload property documents straight into their own folder. Reading,
+// replacing and deleting goes through the server.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{uid}/documents/{docId}/{fileName} {
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 25 * 1024 * 1024
+        && (request.resource.contentType.matches('application/pdf')
+            || request.resource.contentType.matches('image/.*'));
+      allow read, update, delete: if false;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import type { PropertyInputs } from "@/lib/supabase";
+import type { PropertyInputs } from "@/lib/types";
 
 export type AmortizationYear = {
   year: number;
@@ -115,4 +115,35 @@ export function calculateMortgage(inputs: PropertyInputs): MortgageMetrics {
     schedule,
     monthlySchedule,
   };
+}
+
+// The loan as it stands today: balance after the payments made so far (month-
+// exact) and the interest and principal of the next twelve payments. Every
+// "today" figure (dashboard, forces, bank overview) uses this, so they agree.
+export type CurrentLoanState = {
+  balance: number;
+  interestNext12: number;
+  principalNext12: number;
+};
+
+export function currentLoanState(
+  inputs: PropertyInputs,
+  mortgage: MortgageMetrics = calculateMortgage(inputs),
+  now: Date = new Date(),
+): CurrentLoanState {
+  let elapsed = 0;
+  if (inputs.loanStartDate) {
+    const [y, m] = inputs.loanStartDate.split("-").map((v) => parseInt(v, 10));
+    if (y && m) elapsed = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
+  }
+  const months = mortgage.monthlySchedule;
+  const done = Math.max(0, Math.min(elapsed, months.length));
+  const balance = done === 0 ? mortgage.loanAmount : months[done - 1].balance;
+  let interestNext12 = 0;
+  let principalNext12 = 0;
+  for (const row of months.slice(done, done + 12)) {
+    interestNext12 += row.interest;
+    principalNext12 += row.principal;
+  }
+  return { balance: Math.max(0, balance), interestNext12, principalNext12 };
 }

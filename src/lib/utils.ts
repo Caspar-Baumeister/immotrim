@@ -25,8 +25,12 @@ export function formatCurrency(
   }).format(value);
 }
 
+// German notation: "4,25 %" (comma, non-breaking space).
 export function formatPercent(value: number, decimals = 2): string {
-  return `${value.toFixed(decimals)}%`;
+  return `${value.toLocaleString("de-DE", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}\u00a0%`;
 }
 
 export function formatNumber(value: number, locale = "de-DE"): string {

@@ -1,4 +1,4 @@
-import type { PropertyInputs } from "@/lib/supabase";
+import type { PropertyInputs } from "@/lib/types";
 import { calculateCashFlow } from "@/features/cash-flow/calculations";
 
 export type MietrenditeYear = {

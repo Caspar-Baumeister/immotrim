@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { requestPasswordResetAction, type AuthFormState } from "../auth/actions";
+import { requestPasswordResetAction, type AuthFormState } from "../auth/client-auth";
 
 export function ForgotPasswordForm() {
   const t = useTranslations("auth");

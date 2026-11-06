@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { getSessionUser } from "@/lib/firebase/session";
 import { syncSubscriptionFromCheckoutSession } from "@/lib/stripe-sync";
 
 export const runtime = "nodejs";
@@ -13,15 +13,14 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const sessionId = searchParams.get("session_id");
-  const portfolio = new URL(`/portfolio`, origin);
+  const portfolio = new URL(`/dashboard`, origin);
 
   if (!sessionId) {
     console.error("[checkout-return] missing session_id");
     return NextResponse.redirect(portfolio);
   }
 
-  const sb = await createServerSupabase();
-  const { data: { user } } = await sb.auth.getUser();
+  const user = await getSessionUser();
   if (!user) {
     return NextResponse.redirect(new URL(`/login`, origin));
   }
@@ -31,12 +30,12 @@ export async function GET(request: NextRequest) {
       expand: ["subscription"],
     });
     // Defense-in-depth: the just-paid session must belong to the logged-in user.
-    if (session.metadata?.user_id === user.id) {
+    if (session.metadata?.user_id === user.uid) {
       await syncSubscriptionFromCheckoutSession(session);
     } else {
       console.warn("[checkout-return] session user_id mismatch", {
         sessionUser: session.metadata?.user_id,
-        authUser: user.id,
+        authUser: user.uid,
       });
     }
   } catch (err) {

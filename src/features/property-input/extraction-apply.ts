@@ -1,4 +1,4 @@
-import type { PropertyInputs, ReportDetails } from "@/lib/supabase";
+import type { PropertyInputs, ReportDetails } from "@/lib/types";
 import type {
   AppliedPatch,
   ExtractedFieldKey,

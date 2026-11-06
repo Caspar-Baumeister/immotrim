@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { type PropertyInputs, DEFAULT_INPUTS } from "./supabase";
+import { type PropertyInputs, DEFAULT_INPUTS } from "./types";
 
 type PropertyFormState = {
   name: string;

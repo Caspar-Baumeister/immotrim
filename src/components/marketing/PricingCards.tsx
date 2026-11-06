@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { startCheckoutAction } from "@/app/billing/actions";
@@ -20,16 +21,32 @@ async function fetchPriceAmount(priceId: string): Promise<string> {
 
 export async function PricingCards() {
   const t = await getTranslations("landing.pricing");
-  const [monthlyAmount, yearlyAmount, lifetimeAmount] = await Promise.all([
+  const [monthlyAmount, yearlyAmount] = await Promise.all([
     fetchPriceAmount(process.env.STRIPE_PRICE_MONTHLY!),
     fetchPriceAmount(process.env.STRIPE_PRICE_YEARLY!),
-    fetchPriceAmount(process.env.STRIPE_PRICE_LIFETIME!),
   ]);
 
-  const features = [t("f1"), t("f2"), t("f3"), t("f4"), t("f5")];
+  const free = [t("free1"), t("free2"), t("free3"), t("free4")];
+  const plus = [t("f1"), t("f2"), t("f3"), t("f4")];
 
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+      <div className="relative rounded-2xl border border-border bg-card p-6 flex flex-col gap-5">
+        <div>
+          <h3 className="text-lg font-semibold">{t("freeTitle")}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{t("freeDesc")}</p>
+        </div>
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-bold tabular-nums">0 €</span>
+        </div>
+        <Link
+          href="/signup"
+          className="w-full rounded-lg text-sm font-semibold px-4 py-2.5 text-center bg-foreground/10 hover:bg-foreground/15 text-foreground transition-colors"
+        >
+          {t("freeCta")}
+        </Link>
+        <FeatureList label={t("freeIncludes")} features={free} />
+      </div>
       <PlanCard
         title={t("monthly")}
         amount={monthlyAmount}
@@ -37,7 +54,7 @@ export async function PricingCards() {
         desc={t("monthlyDesc")}
         ctaLabel={t("cta")}
         plan="monthly"
-        features={features}
+        features={plus}
         includesLabel={t("includes")}
       />
       <PlanCard
@@ -47,21 +64,27 @@ export async function PricingCards() {
         desc={t("yearlyDesc")}
         ctaLabel={t("cta")}
         plan="yearly"
-        features={features}
+        features={plus}
         includesLabel={t("includes")}
-      />
-      <PlanCard
-        title={t("lifetime")}
-        amount={lifetimeAmount}
-        per={t("perOnce")}
-        desc={t("lifetimeDesc")}
-        ctaLabel={t("lifetimeCta")}
-        plan="lifetime"
-        features={features}
-        includesLabel={t("includes")}
-        badge={t("lifetimeBadge")}
+        badge={t("yearlyBadge")}
         highlight
       />
+    </div>
+  );
+}
+
+function FeatureList({ label, features }: { label: string; features: string[] }) {
+  return (
+    <div className="space-y-2 pt-1">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <ul className="space-y-1.5">
+        {features.map((f) => (
+          <li key={f} className="flex items-start gap-2 text-sm">
+            <Check className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+            <span>{f}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -83,7 +106,7 @@ function PlanCard({
   per: string;
   desc: string;
   ctaLabel: string;
-  plan: "monthly" | "yearly" | "lifetime";
+  plan: "monthly" | "yearly";
   features: string[];
   includesLabel: string;
   badge?: string;
@@ -123,17 +146,7 @@ function PlanCard({
         </button>
       </form>
 
-      <div className="space-y-2 pt-1">
-        <p className="text-xs text-muted-foreground">{includesLabel}</p>
-        <ul className="space-y-1.5">
-          {features.map((f) => (
-            <li key={f} className="flex items-start gap-2 text-sm">
-              <Check className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <FeatureList label={includesLabel} features={features} />
     </div>
   );
 }

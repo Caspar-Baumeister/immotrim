@@ -18,8 +18,8 @@ export default async function ImpressumPage() {
       <h2>Angaben gemäß § 5 TMG</h2>
       <p>
         Caspar Baumeister<br />
-        Fürbringerstr. 27<br />
-        10961 Berlin<br />
+        Dernburgstraße 7<br />
+        14057 Berlin<br />
         Deutschland
       </p>
 

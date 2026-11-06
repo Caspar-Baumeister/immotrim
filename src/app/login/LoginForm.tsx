@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { loginAction, type AuthFormState } from "../auth/actions";
+import { loginAction, type AuthFormState } from "../auth/client-auth";
 
 export function LoginForm() {
   const t = useTranslations("auth");

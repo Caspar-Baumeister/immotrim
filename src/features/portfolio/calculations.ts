@@ -1,6 +1,6 @@
-import type { PropertyInputs } from "@/lib/supabase";
+import type { PropertyInputs } from "@/lib/types";
 import { calculateCashFlow } from "@/features/cash-flow/calculations";
-import { calculateMortgage } from "@/features/mortgage/calculations";
+import { calculateMortgage, currentLoanState } from "@/features/mortgage/calculations";
 import { calculateTax } from "@/features/tax/calculations";
 
 export type PortfolioProperty = {
@@ -230,13 +230,11 @@ export function calculatePortfolioKpis(
     const elapsedYears = Math.max(0, currentYear - startYear);
     const currentValue =
       inputs.kaufpreis * Math.pow(1 + (inputs.wertentwicklung ?? 0) / 100, elapsedYears);
-    const scheduleIdx = Math.min(elapsedYears, mortgage.schedule.length - 1);
-    const currentDebt =
-      mortgage.schedule[scheduleIdx]?.balance ?? mortgage.loanAmount;
-    const currentInterest =
-      mortgage.schedule[scheduleIdx]?.interest ?? 0;
-    const currentPrincipal =
-      mortgage.schedule[scheduleIdx]?.principal ?? 0;
+    // Today's balance (month-exact) and the next twelve payments.
+    const loan = currentLoanState(inputs, mortgage);
+    const currentDebt = loan.balance;
+    const currentInterest = loan.interestNext12;
+    const currentPrincipal = loan.principalNext12;
 
     // 1 — Portfolio & equity
     investedEquity += inputs.eigenanteil + nebenkostenEur;
