@@ -58,3 +58,6 @@ firestore-debug.log
 storage-debug.log
 ui-debug.log
 .firebase/
+
+# Supabase export used by scripts/go-live.sh (personal data, never commit)
+.migration/

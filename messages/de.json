@@ -123,7 +123,7 @@
     "showcase": {
       "prev": "Vorherige Grafik",
       "next": "Nächste Grafik",
-      "goto": "Zu Grafik {index}",
+      "goto": "Zu Grafik",
       "whyLabel": "Warum das wichtig ist",
       "wealth": {
         "title": "Vermögensaufbau pro Jahr",

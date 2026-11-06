@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/firebase/session";
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
@@ -9,6 +11,7 @@ import { SiteFooter } from "@/components/marketing/SiteFooter";
 export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 export default async function LoginPage() {
+  if (await getSessionUser()) redirect("/dashboard");
   const t = await getTranslations("auth");
 
   return (

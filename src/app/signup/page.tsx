@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/firebase/session";
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
@@ -13,6 +15,7 @@ type Props = {
 };
 
 export default async function SignupPage({ searchParams }: Props) {
+  if (await getSessionUser()) redirect("/dashboard");
   const { plan } = await searchParams;
   const t = await getTranslations("auth");
   const selectedPlan = plan === "yearly" ? "yearly" : "monthly";

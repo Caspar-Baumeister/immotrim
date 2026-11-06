@@ -33,6 +33,14 @@ const nextConfig: NextConfig = {
   // German-only with flat URLs, so redirect any legacy locale-prefixed URL
   // (bookmarks, shared /de/report/... links, already-issued Stripe return URLs)
   // to its flat equivalent.
+  // Firebase Auth helper pages served from our own domain, so the Google
+  // sign-in popup shows immotrim.com instead of the Firebase project id.
+  async rewrites() {
+    return [
+      { source: "/__/auth/:path*", destination: "https://immo-2d39f.firebaseapp.com/__/auth/:path*" },
+      { source: "/__/firebase/:path*", destination: "https://immo-2d39f.firebaseapp.com/__/firebase/:path*" },
+    ];
+  },
   async redirects() {
     return [
       {
