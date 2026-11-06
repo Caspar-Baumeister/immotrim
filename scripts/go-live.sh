@@ -39,10 +39,9 @@ echo "3/6 Daten nach Firebase umziehen"
 FIREBASE_SERVICE_ACCOUNT="$KEY" node scripts/migrate-from-supabase.mjs "$EXPORT"
 
 echo "4/6 Vercel: Firebase-Schlüssel setzen, Supabase-Variablen entfernen"
-for envname in production preview; do
-  $VERCEL env rm FIREBASE_SERVICE_ACCOUNT "$envname" --yes >/dev/null 2>&1 || true
-  base64 < "$KEY" | tr -d '\n' | $VERCEL env add FIREBASE_SERVICE_ACCOUNT "$envname"
-done
+# Production only: there is no staging any more.
+$VERCEL env rm FIREBASE_SERVICE_ACCOUNT production --yes >/dev/null 2>&1 || true
+base64 < "$KEY" | tr -d '\n' | $VERCEL env add FIREBASE_SERVICE_ACCOUNT production
 for v in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY REVENUECAT_WEBHOOK_SECRET AI_CHAT_MONTHLY_LIMIT; do
   for envname in production preview development; do
     $VERCEL env rm "$v" "$envname" --yes >/dev/null 2>&1 || true
