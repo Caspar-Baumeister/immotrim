@@ -12,7 +12,10 @@ KEY="${1:?Pfad zur Service-Account-JSON angeben}"
 [ -f "$KEY" ] || { echo "Datei nicht gefunden: $KEY"; exit 1; }
 cd "$(dirname "$0")/.."
 EXPORT=".migration"
-VERCEL="npx --yes vercel@latest"
+# A Vercel CLI that is already on the machine (npx installs can fail on a
+# root-owned npm cache), else npx.
+VERCEL="$(command -v vercel || ls "$HOME"/.npm/_npx/*/node_modules/.bin/vercel 2>/dev/null | head -1 || true)"
+[ -n "$VERCEL" ] || VERCEL="npx --yes vercel@latest"
 
 echo "1/6 Firebase-Regeln und Storage-Regeln deployen"
 firebase deploy --only firestore:rules,firestore:indexes,storage --project immo-2d39f
