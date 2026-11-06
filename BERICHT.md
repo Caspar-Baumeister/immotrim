@@ -27,10 +27,17 @@ Nicht getestet: Stripe-Checkout (Klick vom Sicherheitsfilter blockiert, Code unv
 - `Firestore.settings()` darf nur einmal laufen; Flag auf `globalThis`.
 - Eigene Aktions-URL für Passwort-Mails hat Firebase abgelehnt; nach dem Go-live erneut versuchen (`https://www.immotrim.com/__/auth/action`).
 
-### 1.5 Offen
-1. Blaze-Tarif + Storage aktivieren, Service-Account-Schlüssel erzeugen, `npx vercel login`, dann `bash scripts/go-live.sh <schlüssel.json>`.
-2. Nach dem Go-live: mit eigenem Konto (Passwort und Google) einloggen, Bankenübersicht-PDF und Checkout prüfen.
-3. Supabase-Projekte erst löschen, wenn alles läuft; `.migration/` danach löschen.
+### 1.5 Go-live (06.11.2026, abends)
+- Storage-Bucket `immo-2d39f.firebasestorage.app` in europe-west3 angelegt (Produktionsmodus, danach eigene Regeln deployt).
+- `scripts/go-live.sh` lief komplett: Regeln, Export, Umzug (15 Konten, 12 Objekte, 18 von 18 Dokumenten), `FIREBASE_SERVICE_ACCOUNT` in Vercel (Production), Push auf main.
+- Vercel-Projekt ist `immotrim-ypn7` im Team `caspar-baumeister-team`; lokal jetzt per `vercel link` verknüpft.
+- Stolperstein: Nach dem ersten Deploy lieferten alle Seiten mit Auth 500. `firebase-admin` 14 zieht `jwks-rsa` 4, das die reine ESM-Bibliothek `jose` 6 per `require` lädt; die Vercel-Laufzeit kann das nicht (lokal mit Node 24 ging es). Fix: `overrides` auf `jwks-rsa@^3.2.0` (nutzt `jose` 4). Mit `node --no-experimental-require-module` lokal nachgestellt und geprüft.
+- Live geprüft: Startseite, Login, Registrieren, Rechtstexte antworten 200, `/dashboard` leitet ohne Sitzung auf den Login.
+
+### 1.6 Offen
+1. Mit eigenem Konto (Passwort und Google) einloggen, Bankenübersicht-PDF und Checkout prüfen.
+2. Eigene Aktions-URL für Passwort-Mails (`https://www.immotrim.com/__/auth/action`) noch einmal versuchen.
+3. Supabase-Projekte erst löschen, wenn alles läuft; `.migration/` danach löschen. Service-Account-JSON aus Downloads an einen sicheren Ort verschieben.
 4. Stripe: Robins Abo kündigen und erstatten, Kunden-E-Mails (Rechnungen, Verlängerungserinnerung) einschalten.
 5. iPhone-App auf Firebase und den neuen Funktionsumfang umbauen.
 6. Lint-Fehler (`any`) in alten Diagramm-Komponenten aufräumen.
