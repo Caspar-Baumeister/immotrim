@@ -41,3 +41,30 @@ Nicht getestet: Stripe-Checkout (Klick vom Sicherheitsfilter blockiert, Code unv
 4. Stripe: Robins Abo kündigen und erstatten, Kunden-E-Mails (Rechnungen, Verlängerungserinnerung) einschalten.
 5. iPhone-App auf Firebase und den neuen Funktionsumfang umbauen.
 6. Lint-Fehler (`any`) in alten Diagramm-Komponenten aufräumen.
+
+## 2. Update: Landingpage im Pairspace-Stil, Kündigen und Widerrufen (07.11.2026)
+
+### 2.1 Landingpage
+- Dunkel wie joinpairspace.com, Tokens im Scope `.landing` (`globals.css`), damit Diagramme und Preiskarten ohne Änderung mitziehen. Gilt für `/`, `/pricing`, `/kuendigen`, `/widerrufen`. App und Rechtstexte bleiben hell.
+- Aufbau: große linksbündige Headline, Dashboard-Fenster mit Demo-Portfolio (Kennzahlen zählen hoch, Kräfte füllen sich, Diagramm wächst), Erklärvideo, Bierdeckel gegen Kräfte-Balken, sechs Kräfte, Upload-Loop, Grafik-Karussell, Bank-Loop, drei Versprechen plus Karte mit echten Stripe-Preisen.
+- Videos mit Remotion in `~/Code/immotrim-promo` (eigenes Repo, Vorlage pairspace-promo): `immotrim-promo.mp4` (31 s, 4,3 MB), `upload.mp4` und `bank.mp4` (je 9 s, nahtlose Loops). `npm run render` dort schreibt direkt nach `public/video`. Demo-Zahlen stehen in `src/components/landing/demo.ts` und im Video gleich.
+- `HowItWorksSteps` und die alten Landing-Animationen (Selbstauskunft, Schritte) gelöscht.
+
+### 2.2 Kündigen und Widerrufen (§ 312k, § 356a BGB)
+- Fehlte bisher, ist für ein online verkauftes Abo an Verbraucher Pflicht. Portiert von Pairspace: `/kuendigen` und `/widerrufen` ohne Anmeldung, Links in jedem Footer und auf `/account`.
+- `POST /api/vertrag`: prüft die Eingaben, höchstens 5 Versuche pro IP in 10 Minuten, speichert `contractRequests/{id}`, kündigt ein Stripe-Abo zum Periodenende, wenn die Mail zu einem Konto mit Abo gehört. Widerrufe erstattest du von Hand.
+- Eingangsbestätigung per Mail über Resend (`src/lib/mail.ts`), Kopie an dich. **Ohne `RESEND_API_KEY` geht keine Mail raus**, die Erklärung steht dann nur auf der Seite und in Firestore (`mail.person = "not-configured"`). Das Gesetz verlangt die Bestätigung per Mail, siehe Offen.
+- Datenschutz um Abschnitt 8a und Resend ergänzt.
+- Lokal getestet: gültige Kündigung und gültiger Widerruf gespeichert, Name und Datum werden geprüft, Rate-Limit greift. Die automatische Kündigung bei Stripe ist nicht live getestet.
+
+### 2.3 Stripe-Konto wird geteilt
+- Pairspace, inredia und Immotrim hängen am selben Stripe-Konto, jeder Webhook bekommt alle Events. Der Immotrim-Webhook hätte für Käufe in Pairspace über `metadata.user_id` Dokumente in Firestore angelegt. Jetzt zählt nur noch eine uid, die in Immotrims Firebase Auth existiert (`isImmotrimUser`). Geprüft: Live-Firestore hat 15 Nutzer und 15 Dokumente, nichts Fremdes.
+- Die Gegenrichtung (Pairspace bekommt Immotrim-Events) ist als eigene Aufgabe angelegt.
+
+### 2.4 Offen
+1. Vorschau ansehen, dann Merge auf main (geht sofort live).
+2. Resend für immotrim.com einrichten und `RESEND_API_KEY` in Vercel (Production) setzen. DNS liegt bei Vercel, die Einträge kann ich per CLI setzen.
+3. Mit eigenem Konto einloggen (Passwort und Google), PDF und Checkout prüfen.
+4. Robins Abo kündigen und Erstattung entscheiden, Stripe-Kundenmails einschalten.
+5. Danach Supabase-Projekte und `.migration/` löschen, Service-Account-JSON aus Downloads wegräumen.
+6. iPhone-App vor jeder neuen Einreichung auf Firebase umstellen, sie hängt noch an Supabase.
