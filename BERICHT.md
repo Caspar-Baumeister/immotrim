@@ -61,10 +61,14 @@ Nicht getestet: Stripe-Checkout (Klick vom Sicherheitsfilter blockiert, Code unv
 - Pairspace, inredia und Immotrim hängen am selben Stripe-Konto, jeder Webhook bekommt alle Events. Der Immotrim-Webhook hätte für Käufe in Pairspace über `metadata.user_id` Dokumente in Firestore angelegt. Jetzt zählt nur noch eine uid, die in Immotrims Firebase Auth existiert (`isImmotrimUser`). Geprüft: Live-Firestore hat 15 Nutzer und 15 Dokumente, nichts Fremdes.
 - Die Gegenrichtung (Pairspace bekommt Immotrim-Events) ist als eigene Aufgabe angelegt.
 
-### 2.4 Offen
-1. Vorschau ansehen, dann Merge auf main (geht sofort live).
-2. Resend für immotrim.com einrichten und `RESEND_API_KEY` in Vercel (Production) setzen. DNS liegt bei Vercel, die Einträge kann ich per CLI setzen.
-3. Mit eigenem Konto einloggen (Passwort und Google), PDF und Checkout prüfen.
-4. Robins Abo kündigen und Erstattung entscheiden, Stripe-Kundenmails einschalten.
-5. Danach Supabase-Projekte und `.migration/` löschen, Service-Account-JSON aus Downloads wegräumen.
-6. iPhone-App vor jeder neuen Einreichung auf Firebase umstellen, sie hängt noch an Supabase.
+### 2.4 Live (07.11.2026)
+- Auf Caspars OK auf main gebracht, Startseite, Preise, Kündigen, Widerrufen und Videos antworten live mit 200.
+- Mails: Resend-Schlüssel von Pairspace (darf nur senden) als `RESEND_API_KEY`, Absender `MAIL_FROM = Immotrim <immotrim@joinpairspace.com>`, weil immotrim.com in Resend noch keine Domain ist. Live getestet mit einem Widerruf auf Caspars Adresse: beide Mails `sent`, Testeintrag danach gelöscht.
+- Robin: Abo gekündigt und erstattet (von Caspar).
+
+### 2.5 Offen
+1. Mit eigenem Konto einloggen (Passwort und Google), PDF und Checkout prüfen.
+2. Später: immotrim.com in Resend als Domain anlegen (braucht Caspars Resend-Login), dann `MAIL_FROM` auf `Immotrim <hallo@immotrim.com>` umstellen. DNS-Einträge setze ich per Vercel-CLI.
+3. Stripe-Kundenmails (Rechnungen, Verlängerungserinnerung) einschalten.
+4. Danach Supabase-Projekte und `.migration/` löschen, Service-Account-JSON aus Downloads wegräumen.
+5. iPhone-App vor jeder neuen Einreichung auf Firebase umstellen.
