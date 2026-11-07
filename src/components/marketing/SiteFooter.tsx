@@ -16,6 +16,11 @@ export async function SiteFooter() {
           <Link href={`/agb`} className="hover:text-foreground transition-colors">{tl("agb.title")}</Link>
         </nav>
       </div>
+      {/* § 312k and § 356a BGB: always there, readable, no sign in needed. */}
+      <div className="mx-auto max-w-6xl px-6 pb-8 flex flex-wrap justify-center sm:justify-start gap-x-5 gap-y-2 text-xs">
+        <Link href="/kuendigen" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">Verträge hier kündigen</Link>
+        <Link href="/widerrufen" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">Vertrag widerrufen</Link>
+      </div>
     </footer>
   );
 }

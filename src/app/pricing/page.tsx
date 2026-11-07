@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { alternates } from "@/lib/seo";
 import { PricingCards } from "@/components/marketing/PricingCards";
+import { LandingFooter, LandingNav } from "@/components/landing/SiteChrome";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("landing.pricing");
@@ -14,32 +13,18 @@ export default async function PricingPage() {
   const t = await getTranslations("landing.pricing");
 
   return (
-    <main className="min-h-screen">
-      <nav className="border-b border-border bg-card/80 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
-          <Link href={"/"} className="flex items-center gap-2">
-            <Image
-              src="/logo_immotrim.svg"
-              alt="Immotrim"
-              width={28}
-              height={28}
-              className="h-7 w-auto object-contain"
-              priority
-            />
-            <span className="hidden sm:inline text-xl font-bold uppercase tracking-wide text-foreground">
-              IMMOTRIM
-            </span>
-          </Link>
+    <div className="landing min-h-dvh overflow-x-clip">
+      <LandingNav />
+      <main className="mx-auto max-w-[1200px] px-4 pb-28 pt-14 md:px-6 md:pt-24">
+        <h1 className="max-w-[900px] text-[38px] font-bold leading-[1.02] tracking-[-0.035em] text-[var(--ink)] sm:text-[62px]">
+          {t("title")}
+        </h1>
+        <p className="mt-6 max-w-[700px] text-[20px] leading-[1.3] text-muted-foreground sm:text-[26px]">{t("subtitle")}</p>
+        <div className="mt-14">
+          <PricingCards />
         </div>
-      </nav>
-
-      <section className="mx-auto max-w-5xl px-6 py-20 space-y-10">
-        <div className="text-center space-y-3">
-          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("subtitle")}</p>
-        </div>
-        <PricingCards />
-      </section>
-    </main>
+      </main>
+      <LandingFooter />
+    </div>
   );
 }

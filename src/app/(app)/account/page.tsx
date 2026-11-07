@@ -74,6 +74,11 @@ export default async function AccountPage() {
           {sub?.stripe_customer_id && (
             <p className="text-xs text-muted-foreground">{t("portalHint")}</p>
           )}
+          {/* § 312k and § 356a BGB, also reachable without signing in from every footer. */}
+          <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs">
+            <Link href="/kuendigen" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">Verträge hier kündigen</Link>
+            <Link href="/widerrufen" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">Vertrag widerrufen</Link>
+          </div>
         </section>
 
         <DisplayNameForm initial={doc?.displayName ?? ""} />

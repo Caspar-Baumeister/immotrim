@@ -144,54 +144,56 @@ input[type="number"]::-webkit-outer-spin-button {
   opacity: 0.4;
 }
 
-/* ── Selbstauskunft teaser animation (landing) ──────────────────────────────
-   Looping "upload documents → AI processes → finished PDF" illustration. */
-@keyframes immotrim-progress {
-  0% { width: 0%; }
-  8% { width: 6%; }
-  55% { width: 72%; }
-  92%, 100% { width: 100%; }
+/* Marketing pages: dark, after the Pairspace landing. Overrides the tokens so
+   shared components (charts, pricing cards) follow without changes. */
+.landing {
+  color-scheme: dark;
+  --background: #161616;
+  --foreground: #e4e4e4;
+  --card: #1f1f1f;
+  --card-foreground: #e4e4e4;
+  --popover: #1f1f1f;
+  --popover-foreground: #e4e4e4;
+  --secondary: #262626;
+  --secondary-foreground: #cfcfcf;
+  --muted: #262626;
+  --muted-foreground: #9a9a9a;
+  --accent: #262626;
+  --accent-foreground: #e4e4e4;
+  --border: rgba(255, 255, 255, 0.09);
+  --input: rgba(255, 255, 255, 0.12);
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --chart-cursor: rgba(255, 255, 255, 0.04);
+  --chart-reference: rgba(255, 255, 255, 0.25);
+  --tooltip-bg: #1f1f1f;
+  --tooltip-border: rgba(255, 255, 255, 0.1);
+  --ink: #f2f2f2;
+  --faint: #6b6b6b;
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --violet: #8b7df2;
+  background: var(--background);
+  color: var(--foreground);
 }
-@keyframes immotrim-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-@keyframes immotrim-result-pop {
-  0%, 55% { opacity: 0.2; transform: scale(0.94); }
-  72% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 1; transform: scale(1); }
-}
-@keyframes immotrim-flow-dot {
-  0% { transform: translateX(0); opacity: 0; }
-  15% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { transform: translateX(56px); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .immotrim-anim,
-  .immotrim-anim * {
-    animation: none !important;
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
   }
 }
 
-/* ── How-it-works steps animation (landing) ─────────────────────────────────
-   Step 1: files rising into an upload dropzone. Step 2: bars/line/KPIs
-   animating in to represent "numbers and graphs out". */
-@keyframes immotrim-upload-chip {
-  0% { transform: translateY(14px) scale(0.92); opacity: 0; }
-  25% { opacity: 1; transform: translateY(0) scale(1); }
-  70% { opacity: 1; transform: translateY(-6px) scale(1); }
-  100% { transform: translateY(-20px) scale(0.9); opacity: 0; }
+.rise-in {
+  animation: rise-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
-@keyframes immotrim-pulse-ring {
-  0% { transform: scale(0.85); opacity: 0.6; }
-  100% { transform: scale(1.5); opacity: 0; }
-}
-@keyframes immotrim-bar-grow {
-  0%, 100% { transform: scaleY(0.55); }
-  50% { transform: scaleY(1); }
-}
-@keyframes immotrim-draw-line {
-  0% { stroke-dashoffset: 110; }
-  45%, 100% { stroke-dashoffset: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none;
+  }
 }

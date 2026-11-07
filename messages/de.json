@@ -112,13 +112,68 @@
   "livePreview": "Live-Vorschau",
   "deleteConfirm": "Möchten Sie diese Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
   "landing": {
+    "nav": {
+      "video": "Video",
+      "pricing": "Preise",
+      "login": "Anmelden",
+      "cta": "Kostenlos starten"
+    },
     "hero": {
-      "eyebrow": "Portfolio-Monitoring für Immobilieninvestoren",
-      "title": "Mach deine Immobilien so übersichtlich wie <mark>Aktien</mark>.",
-      "subtitle": "Bei Immobilien wirken viele Kräfte gleichzeitig: Tilgung, Wertsteigerung, Mieterhöhungen, Inflation auf deine Schulden und der Hebel deines Eigenkapitals. Immotrim rechnet alles zusammen, damit du siehst, was dein Portfolio wirklich leistet.",
+      "title": "Mach deine Immobilien so übersichtlich wie Aktien.",
+      "subtitle": "Immotrim zeigt dir, was dein Portfolio wirklich leistet. Nicht nur Miete minus Rate.",
       "ctaPrimary": "Kostenlos starten",
-      "ctaSecondary": "Anmelden",
+      "ctaVideo": "Video ansehen",
       "freeNote": "Eine Immobilie kostenlos, ohne Kreditkarte."
+    },
+    "video": {
+      "title": "In 30 Sekunden erklärt.",
+      "play": "Video abspielen",
+      "pause": "Video pausieren",
+      "label": "Immotrim Erklärvideo"
+    },
+    "forces": {
+      "title": "Miete minus Rate ist nicht dein Ergebnis.",
+      "body": "Bei Immobilien wirken viele Kräfte gleichzeitig. Eine Wohnung mit 50 € Cashflow kann dein Vermögen jedes Jahr um tausende Euro wachsen lassen. Immotrim rechnet jede Kraft in Euro aus, für jedes Objekt und für das ganze Portfolio.",
+      "napkin": "Bierdeckel",
+      "napkinValue": "+600 € im Jahr",
+      "immotrim": "Immotrim",
+      "total": "+54.850 € im Jahr",
+      "leverage": "12,8 % auf dein Eigenkapital. Ohne Kredit wären es 4,1 %.",
+      "items": {
+        "principal": {
+          "title": "Schuldenabbau.",
+          "body": "Mit jeder Rate gehört dir mehr von deinem Objekt. Auf keinem Kontoauszug zu sehen."
+        },
+        "appreciation": {
+          "title": "Wertsteigerung.",
+          "body": "Schon ein Prozent Wertzuwachs bewegt bei einem Portfolio mehr als die Miete."
+        },
+        "rent": {
+          "title": "Mieterhöhungen.",
+          "body": "Index oder Mietspiegel: Jede Erhöhung verbessert Cashflow und Wert zugleich."
+        },
+        "inflation": {
+          "title": "Inflation auf die Schulden.",
+          "body": "Deine Restschuld bleibt gleich, verliert aber jedes Jahr an Kaufkraft."
+        },
+        "leverage": {
+          "title": "Eigenkapitalhebel.",
+          "body": "Mit Kredit arbeitet mehr Geld für dich, als du eingesetzt hast."
+        },
+        "refinance": {
+          "title": "Nachbeleihung.",
+          "body": "Steigender Wert und sinkende Schuld schaffen Spielraum für das nächste Objekt."
+        }
+      }
+    },
+    "upload": {
+      "title": "Unterlagen rein, Zahlen raus.",
+      "body": "Lade Kaufvertrag, Darlehensvertrag und Mietvertrag als PDF oder Foto hoch. Immotrim liest Kaufpreis, Zins, Tilgung, Miete und Wohnfläche aus. Du prüfst nur noch und speicherst.",
+      "label": "Video: Dokumente werden hochgeladen und ausgelesen"
+    },
+    "charts": {
+      "title": "Jede Kennzahl als Grafik.",
+      "subtitle": "Dieselben Grafiken wie in deinem Dashboard, hier mit einem Beispielportfolio."
     },
     "showcase": {
       "prev": "Vorherige Grafik",
@@ -156,55 +211,32 @@
         "why": "Hilft dir zu entscheiden, ob du eine Strategie weiterführst oder umsteuerst."
       }
     },
-    "problem": {
-      "eyebrow": "Warum die Bierdeckelrechnung nicht reicht",
-      "title": "Miete minus Rate sagt dir nicht, ob deine Strategie aufgeht.",
-      "body": "Eine Wohnung mit 50 € Cashflow kann dein Vermögen jedes Jahr um zehntausende Euro wachsen lassen. Oder sie kostet dich Geld, das du nicht siehst. Erst wenn alle Kräfte zusammen auf einer Seite stehen, verstehst du dein Portfolio.",
-      "highlight": "Immotrim zeigt dir jede dieser Kräfte in Euro, für jedes Objekt und für das ganze Portfolio."
+    "bank": {
+      "title": "Ein Klick. Ein PDF für die Bank.",
+      "body": "Werte, Restschulden, Mieten, Raten und Beleihungsauslauf je Objekt, so wie es heute steht. Ohne Prognosen, ohne Grafiken, genau das, was die Bank sehen will.",
+      "label": "Video: Die Bankenübersicht entsteht"
     },
-    "forces": {
-      "principal": {
-        "title": "Schuldenabbau",
-        "body": "Mit jeder Rate tilgst du einen Teil deines Kredits. Das ist Vermögen, das auf keinem Kontoauszug auftaucht."
+    "promises": {
+      "overview": {
+        "title": "Alles auf einer Seite.",
+        "body": "Jedes Objekt und das ganze Portfolio, mit allen Kräften in Euro statt in Bauchgefühl."
       },
-      "appreciation": {
-        "title": "Wertsteigerung",
-        "body": "Schon ein Prozent Wertzuwachs pro Jahr bewegt bei einem Portfolio mehr als die Miete."
+      "documents": {
+        "title": "Unterlagen statt Tipparbeit.",
+        "body": "Verträge hochladen reicht. Was Immotrim ausliest, kannst du jederzeit anpassen."
       },
-      "rent": {
-        "title": "Mieterhöhungen",
-        "body": "Indexmiete oder Mietspiegel: Jede Erhöhung verbessert Cashflow und Wert gleichzeitig."
-      },
-      "inflation": {
-        "title": "Inflation auf die Schulden",
-        "body": "Deine Restschuld bleibt nominal gleich, verliert aber jedes Jahr an Kaufkraft. Real ist das ein Gewinn für dich."
-      },
-      "leverage": {
-        "title": "Eigenkapitalhebel",
-        "body": "Mit Kredit arbeitet mehr Geld für dich, als du eingesetzt hast. Immotrim zeigt die Rendite mit und ohne Hebel."
-      },
-      "refinance": {
-        "title": "Nachbeleihung",
-        "body": "Steigender Wert und sinkende Schuld schaffen Spielraum für das nächste Objekt. Immotrim zeigt, wie viel."
+      "privacy": {
+        "title": "Deine Daten bleiben deine.",
+        "body": "Gespeichert in Frankfurt, nicht weitergegeben, mit einem Klick gelöscht."
       }
     },
-    "steps": {
-      "title": "So funktioniert es",
-      "subtitle": "Von deinen Unterlagen zur Übersicht in wenigen Minuten.",
-      "s1Title": "Unterlagen hochladen",
-      "s1Desc": "Kaufvertrag, Darlehensvertrag und Mietvertrag als PDF oder Foto hochladen. Immotrim liest Kaufpreis, Zins, Tilgung, Miete und mehr aus.",
-      "s2Title": "Portfolio verstehen",
-      "s2Desc": "Alle Kennzahlen aller Objekte auf einen Blick: Cashflow, Restschuld, Rendite, Vermögensaufbau und die Kräfte dahinter."
-    },
-    "bankreport": {
-      "doc1": "Kaufvertrag",
-      "doc2": "Mietvertrag",
-      "doc3": "Darlehen"
-    },
-    "bank": {
-      "eyebrow": "Bankenübersicht",
-      "title": "Deine Kennzahlen auf einer Seite für die Bank",
-      "body": "Mit einem Klick lädst du eine saubere Übersicht deines Portfolios als PDF herunter: Werte, Restschulden, Mieten, Raten und Beleihungsauslauf je Objekt, so wie es heute steht."
+    "plan": {
+      "name": "Immotrim",
+      "free": "Eine Immobilie kostenlos.",
+      "plus": "Plus für dein ganzes Portfolio: {monthly} im Monat oder {yearly} im Jahr.",
+      "plusFallback": "Plus für dein ganzes Portfolio.",
+      "cta": "Kostenlos starten",
+      "all": "Alle Preise"
     },
     "pricing": {
       "title": "Einfache Preise",

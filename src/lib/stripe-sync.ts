@@ -1,7 +1,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import { getStripe, planFromPriceId } from "@/lib/stripe";
-import { writeSubscription } from "@/lib/data/users";
+import { isImmotrimUser, writeSubscription } from "@/lib/data/users";
 
 export type SubUpdate = {
   status: string;
@@ -41,6 +41,7 @@ export async function syncSubscriptionFromCheckoutSession(
   const userId = session.metadata?.user_id;
   const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
   if (!userId || !customerId) return;
+  if (!(await isImmotrimUser(userId))) return;
 
   // One-time purchase (lifetime): no subscription object. A null current_period_end
   // makes the entitlement gate in dal.ts grant access permanently.

@@ -53,6 +53,10 @@ export default async function DatenschutzPage() {
           <strong>Google (Gemini API)</strong>: KI-gestützte Auslesung der Dokumente, die
           Sie zur Auswertung freigeben (siehe Abschnitt&nbsp;6).
         </li>
+        <li>
+          <strong>Resend (Plus Five Five, Inc.)</strong>: Versand von Bestätigungen per
+          E-Mail, etwa nach einer Kündigung oder einem Widerruf (siehe Abschnitt&nbsp;8a).
+        </li>
       </ul>
       <p>
         Mit allen genannten Dienstleistern bestehen, soweit erforderlich, Verträge zur
@@ -120,6 +124,20 @@ export default async function DatenschutzPage() {
         Ihrem Endgerät und keine personenbezogenen Identifikatoren; erfasst werden aggregierte,
         anonymisierte Aufrufstatistiken. Rechtsgrundlage ist unser berechtigtes Interesse an
         der Verbesserung unseres Angebots (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO).
+      </p>
+
+      <h2>8a. Kündigung und Widerruf über unsere Website</h2>
+      <p>
+        Wenn Sie über &bdquo;Verträge hier kündigen&ldquo; oder &bdquo;Vertrag
+        widerrufen&ldquo; eine Erklärung abgeben, speichern wir Ihren Namen, Ihre
+        E-Mail-Adresse, den Inhalt der Erklärung, den Zeitpunkt des Eingangs, die Kennung
+        Ihres Browsers und einen verschlüsselten Wert Ihrer IP-Adresse (zum Schutz vor
+        Missbrauch). Gehört die E-Mail-Adresse zu einem Konto mit Abonnement, beenden wir das
+        Abonnement bei Stripe. Die Eingangsbestätigung schicken wir Ihnen über Resend per
+        E-Mail. Rechtsgrundlage ist Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b und c DSGVO
+        (Vertragsabwicklung und gesetzliche Pflichten nach §&nbsp;312k und §&nbsp;356a BGB).
+        Wir bewahren diese Nachweise drei Jahre ab Ende des Jahres auf, in dem die Erklärung
+        eingegangen ist.
       </p>
 
       <h2>9. Speicherdauer und Kontolöschung</h2>

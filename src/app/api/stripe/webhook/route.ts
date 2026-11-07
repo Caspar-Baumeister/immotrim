@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
-import { findUidByStripeCustomer, writeSubscription } from "@/lib/data/users";
+import { findUidByStripeCustomer, isImmotrimUser, writeSubscription } from "@/lib/data/users";
 import { subscriptionToUpdate, syncSubscriptionFromCheckoutSession, type SubUpdate } from "@/lib/stripe-sync";
 
 export const runtime = "nodejs";
 
 // Finds the user by Stripe customer id, falling back to the user_id the
-// subscription carries in its metadata.
+// subscription carries in its metadata. Events of the other apps on the same
+// Stripe account match neither and are skipped.
 async function upsertSubscriptionByCustomer(customerId: string, update: SubUpdate, metaUid?: string) {
-  const uid = (await findUidByStripeCustomer(customerId)) ?? metaUid ?? null;
-  if (!uid) {
-    console.error("[stripe webhook] no user for customer", customerId);
-    return;
-  }
+  const uid = (await findUidByStripeCustomer(customerId)) ?? ((await isImmotrimUser(metaUid)) ? metaUid! : null);
+  if (!uid) return;
   await writeSubscription(uid, { stripe_customer_id: customerId, ...update });
 }
 

@@ -95,7 +95,7 @@ export function ChartShowcase({ slides, labels }: Props) {
                   <p className="text-xs text-muted-foreground">{slide.what}</p>
                 </header>
                 <div>{charts[i]}</div>
-                <p className="mt-auto pt-4 flex items-start gap-2 rounded-lg border border-[#6c5ce7]/20 bg-[#6c5ce7]/5 px-3 py-2 text-xs leading-relaxed text-[#6c5ce7]">
+                <p className="mt-auto pt-4 flex items-start gap-2 rounded-lg border border-[#6c5ce7]/30 bg-[#6c5ce7]/10 px-3 py-2 text-xs leading-relaxed text-[#b4abf8]">
                   <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   <span>
                     <span className="sr-only">{labels.whyLabel}: </span>

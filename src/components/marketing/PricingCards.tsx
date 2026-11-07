@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { startCheckoutAction } from "@/app/billing/actions";
 import { getStripe } from "@/lib/stripe";
 
-async function fetchPriceAmount(priceId: string): Promise<string> {
+export async function fetchPriceAmount(priceId: string): Promise<string> {
   try {
     const price = await getStripe().prices.retrieve(priceId);
     if (price.unit_amount == null) return "";

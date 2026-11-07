@@ -1,6 +1,6 @@
 import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
-import { adminDb } from "@/lib/firebase/admin";
+import { adminAuth, adminDb } from "@/lib/firebase/admin";
 
 // users/{uid}: account-level data. The subscription mirrors the user's Stripe
 // subscription and is written only by the server (webhook, checkout return).
@@ -23,6 +23,19 @@ export type UserDoc = {
 };
 
 export const userRef = (uid: string) => adminDb().collection("users").doc(uid);
+
+/**
+ * Pairspace and inredia share the Stripe account, so their checkouts reach our
+ * webhook too, with their own user ids in the metadata. Only ids that exist in
+ * Immotrim's Firebase Auth belong to us.
+ */
+export async function isImmotrimUser(uid: string | null | undefined): Promise<boolean> {
+  if (!uid) return false;
+  return adminAuth()
+    .getUser(uid)
+    .then(() => true)
+    .catch(() => false);
+}
 
 export async function ensureUserDoc(uid: string, email: string | null): Promise<void> {
   const ref = userRef(uid);
