@@ -85,3 +85,8 @@ Nicht getestet: Stripe-Checkout (Klick vom Sicherheitsfilter blockiert, Code unv
 - Bankenübersicht ist ein Button oben rechts in der Übersicht, die alte Karte unten ist weg. Auf `/bankuebersicht` bleibt „Übersicht“ markiert, auf `/property/*` „Immobilien“.
 - Das Dashboard-Fenster der Landingpage zeigt dieselbe Leiste und denselben Button.
 - Lokal gegen die Emulatoren geprüft: Übersicht, Objekt, Bankenübersicht, Handybreite ohne waagerechtes Scrollen.
+
+### 3.3 Live (08.11.2026)
+- Commit d1f6875 nach Caspars OK auf main, Vercel-Produktion Ready. Geprüft auf www.immotrim.com: Startseite ohne Login liefert den Hero und den Graph-Code aus, Seiten antworten mit 200, `/dashboard` leitet ohne Login um. Eingeloggt: App-Leiste ohne Seitenleiste, Button führt auf `/bankuebersicht`.
+- Das Rendern des Graphen ist in der Vorschau desselben Commits geprüft. Auf der Live-Domain leitet die Startseite eingeloggte Nutzer aufs Dashboard um, deshalb dort nicht im Browser gesehen.
+- Offen: Entscheidung, ob das Dashboard-Fenster unter dem Hero bleibt.
