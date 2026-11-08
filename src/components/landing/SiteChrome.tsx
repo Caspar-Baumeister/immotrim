@@ -15,7 +15,7 @@ export function Logo() {
 export async function LandingNav() {
   const t = await getTranslations("landing.nav");
   return (
-    <header className="sticky top-0 z-30 bg-[#161616]/80 backdrop-blur">
+    <header className="sticky top-0 z-30 bg-[#101012]/70 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-1 px-4 md:px-6">
         <Logo />
         <nav className="ml-6 hidden items-center gap-1 text-sm sm:flex">

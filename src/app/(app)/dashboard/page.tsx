@@ -68,12 +68,21 @@ export default function DashboardPage() {
                   {properties.length} {properties.length === 1 ? "Immobilie" : "Immobilien"}
                 </span>
               </div>
-              <Link
-                href="/portfolio"
-                className="text-sm font-medium text-[#6c5ce7] hover:underline flex items-center gap-1"
-              >
-                Alle Immobilien <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              <div className="flex items-center gap-4 flex-wrap">
+                <Link
+                  href="/portfolio"
+                  className="text-sm font-medium text-[#6c5ce7] hover:underline flex items-center gap-1"
+                >
+                  Alle Immobilien <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+                <Link
+                  href="/bankuebersicht"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#6c5ce7] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5b4bd6]"
+                >
+                  <Landmark className="h-4 w-4" />
+                  Bankenübersicht
+                </Link>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
@@ -122,22 +131,6 @@ export default function DashboardPage() {
                 <WertSchuldenChart data={appreciationSeries} monthly={false} height={160} />
               </ChartCard>
             </div>
-
-            <Link
-              href="/bankuebersicht"
-              className="group bg-card border border-border rounded-xl p-5 flex items-center gap-4 hover:border-[#6c5ce7]/50 transition-colors"
-            >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#6c5ce7]/10">
-                <Landmark className="h-5 w-5 text-[#6c5ce7]" />
-              </span>
-              <span className="flex-1 min-w-0">
-                <span className="block text-sm font-semibold text-foreground">Bankenübersicht</span>
-                <span className="block text-xs text-muted-foreground">
-                  Alle wichtigen Kennzahlen deines Portfolios auf einer Seite als PDF für das nächste Bankgespräch.
-                </span>
-              </span>
-              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[#6c5ce7]" />
-            </Link>
           </>
         )}
       </div>

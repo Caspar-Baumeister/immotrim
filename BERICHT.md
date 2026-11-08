@@ -72,3 +72,16 @@ Nicht getestet: Stripe-Checkout (Klick vom Sicherheitsfilter blockiert, Code unv
 3. Stripe-Kundenmails (Rechnungen, Verlängerungserinnerung) einschalten.
 4. Danach Supabase-Projekte und `.migration/` löschen, Service-Account-JSON aus Downloads wegräumen.
 5. iPhone-App vor jeder neuen Einreichung auf Firebase umstellen.
+
+## 3. Update: Hero mit 3D-Graph, App-Leiste statt Seitenleiste (08.11.2026)
+
+### 3.1 Hero
+- Nach dem Vorbild resend.com: Text links, rechts ein eigenes 3D-Objekt im Spotlight, Hero füllt den Bildschirm. Das Objekt ist ein gestapelter Balkengraph mit einer Linie über der vorderen Reihe (`src/components/landing/hero-graph-scene.ts`, three.js). Wächst einmal hoch, atmet danach wie ein Live-Chart, schwenkt langsam, folgt der Maus, lässt sich ziehen. Das Schild „Vermögenszuwachs +54.850 € im Jahr“ hängt am Ende der Linie.
+- three.js lädt erst nach dem Seitenaufbau (`HeroGraph.tsx`, dynamischer Import), die Schlagzeile wartet nicht darauf. Außerhalb des Bilds und bei verstecktem Tab steht die Animation. Bei reduzierter Bewegung steht sofort das Endbild. Ohne WebGL bleibt die Fläche leer.
+- Das Dashboard-Fenster steht jetzt als eigener Abschnitt direkt unter dem Hero, sonst ist die Seite unverändert.
+
+### 3.2 App
+- Seitenleiste und `MobileNav` gelöscht. `TopBar` ist jetzt die App-Leiste: Logo, Übersicht und Immobilien nebeneinander, dann Seitentitel (unter md eine eigene Zeile), Kennzahlen-Chips ab xl, Plus oder Upgrade, Nutzermenü. Klebt beim Scrollen oben.
+- Bankenübersicht ist ein Button oben rechts in der Übersicht, die alte Karte unten ist weg. Auf `/bankuebersicht` bleibt „Übersicht“ markiert, auf `/property/*` „Immobilien“.
+- Das Dashboard-Fenster der Landingpage zeigt dieselbe Leiste und denselben Button.
+- Lokal gegen die Emulatoren geprüft: Übersicht, Objekt, Bankenübersicht, Handybreite ohne waagerechtes Scrollen.

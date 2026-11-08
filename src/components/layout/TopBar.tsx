@@ -1,7 +1,9 @@
 "use client";
 
-import { Info, User, LogOut, CreditCard } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Info, User, LogOut, CreditCard, Sparkles } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { endSession } from "@/lib/firebase/client";
 import { useAccount } from "@/features/account/account-context";
+import { NAV_ITEMS } from "./nav-items";
 
 type StatChip = {
   label: string;
@@ -34,34 +37,66 @@ type Props = {
   userEmail?: string | null;
 };
 
-// Slim per-page header inside the app shell. The Sidebar owns branding + primary
-// navigation; this bar carries the page title, optional stat chips and the user
-// menu.
+// The app bar: logo and primary navigation side by side, then the page title
+// where the navigation does not already say it, optional stat chips, plan and
+// user menu.
 export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null }: Props) {
   const tAccount = useTranslations("account");
+  const tNav = useTranslations("nav");
   const router = useRouter();
+  const pathname = usePathname();
   const account = useAccount();
   const userEmail = userEmailProp ?? account.email;
 
+  const under = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
+  const navLabels = NAV_ITEMS.map((item) => tNav(item.labelKey));
+  const pageTitle = title && !navLabels.includes(title) ? title : null;
+
   return (
-    <header className="h-14 border-b border-border bg-card/80 backdrop-blur flex items-center px-3 sm:px-5 gap-2 sm:gap-4 flex-shrink-0">
-      {/* Page title */}
-      {title ? (
-        <div className="flex items-baseline gap-2 min-w-0 flex-1">
-          <span className="text-sm font-semibold text-foreground truncate">{title}</span>
-          {subtitle && (
-            <span className="hidden sm:inline text-xs text-muted-foreground truncate">
-              {subtitle}
-            </span>
-          )}
-        </div>
-      ) : (
-        <div className="flex-1" />
-      )}
+    <header className="sticky top-0 z-30 flex-shrink-0 border-b border-border bg-card/90 backdrop-blur">
+      <div className="h-14 flex items-center px-3 sm:px-6 gap-1 sm:gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 mr-1 sm:mr-4">
+          <Image src="/logo_immotrim.svg" alt="Immotrim" width={28} height={28} className="h-7 w-auto object-contain" priority />
+          <span className="hidden lg:inline text-lg font-bold uppercase tracking-wide text-foreground font-heading">IMMOTRIM</span>
+        </Link>
+
+        <nav className="flex items-center gap-1 flex-shrink-0">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active = under(item.href) || (item.also ?? []).some(under);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+                  active
+                    ? "bg-foreground/[0.07] text-foreground font-medium"
+                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {tNav(item.labelKey)}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Page title */}
+        {pageTitle ? (
+          <div className="hidden md:flex items-baseline gap-2 min-w-0 flex-1 ml-3 pl-4 border-l border-border">
+            <span className="text-sm font-semibold text-foreground truncate">{pageTitle}</span>
+            {subtitle && <span className="hidden xl:inline text-xs text-muted-foreground truncate">{subtitle}</span>}
+          </div>
+        ) : (
+          <div className="hidden md:block flex-1" />
+        )}
+        <div className="flex-1 md:hidden" />
 
       {/* Stat chips */}
       {stats && stats.length > 0 && (
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="hidden xl:flex items-center gap-2">
           {stats.map((stat) => (
             <div
               key={stat.label}
@@ -97,6 +132,19 @@ export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null
             </div>
           ))}
         </div>
+      )}
+
+      {account.plus ? (
+        <span className="hidden sm:inline px-2 text-xs text-muted-foreground whitespace-nowrap">Immotrim Plus</span>
+      ) : (
+        <Link
+          href="/pricing"
+          aria-label={tNav("upgrade")}
+          className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-sm font-medium text-[#6c5ce7] hover:bg-[#6c5ce7]/10 transition-colors"
+        >
+          <Sparkles className="h-4 w-4" />
+          <span className="hidden sm:inline">{tNav("upgrade")}</span>
+        </Link>
       )}
 
       {/* User menu */}
@@ -135,6 +183,15 @@ export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
+
+      {/* Below md the title gets its own row, the bar is full with the navigation. */}
+      {pageTitle && (
+        <div className="md:hidden flex items-baseline gap-2 border-t border-border px-3 py-2 sm:px-6">
+          <span className="text-sm font-semibold text-foreground truncate">{pageTitle}</span>
+          {subtitle && <span className="text-xs text-muted-foreground truncate">{subtitle}</span>}
+        </div>
+      )}
     </header>
   );
 }

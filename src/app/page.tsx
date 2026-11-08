@@ -9,6 +9,7 @@ import { alternates } from "@/lib/seo";
 import { ChartShowcase } from "@/components/marketing/ChartShowcase";
 import { fetchPriceAmount } from "@/components/marketing/PricingCards";
 import { ForcesStack } from "@/components/landing/ForcesStack";
+import { HeroGraph } from "@/components/landing/HeroGraph";
 import { HeroWindow } from "@/components/landing/HeroWindow";
 import { LandingVideo } from "@/components/landing/LandingVideo";
 import { LandingFooter, LandingNav } from "@/components/landing/SiteChrome";
@@ -56,35 +57,53 @@ export default async function LandingPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <LandingNav />
       <main>
-        <section className="mx-auto max-w-[1200px] px-4 pt-14 md:px-6 md:pt-24">
-          <h1 className="rise-in max-w-[960px] text-[38px] font-bold leading-[1.02] tracking-[-0.035em] text-[var(--ink)] sm:text-[62px] lg:text-[80px]">
-            {t("hero.title")}
-          </h1>
-          <p
-            className="rise-in mt-6 max-w-[780px] text-[22px] leading-[1.22] tracking-[-0.015em] text-muted-foreground sm:text-[30px] lg:text-[36px]"
-            style={{ animationDelay: "120ms" }}
-          >
-            {t("hero.subtitle")}
-          </p>
-          <div className="rise-in mt-9 flex flex-wrap items-center gap-x-7 gap-y-3" style={{ animationDelay: "220ms" }}>
-            <Link
-              href="/signup"
-              className="inline-flex h-14 items-center rounded-xl bg-[#6c5ce7] px-7 text-[18px] font-semibold text-white transition-colors hover:bg-[#7b6cf0]"
-            >
-              {t("hero.ctaPrimary")}
-            </Link>
-            <a href="#video" className="text-[18px] font-medium text-[var(--violet)] hover:text-[#a99ff7]">
-              {t("hero.ctaVideo")}
-            </a>
+        <section className="relative -mt-16 overflow-hidden bg-[linear-gradient(180deg,#09090b_0%,#0f0f12_70%,#161616_100%)] pt-16">
+          {/* Light falling on the chart, and the faint beams across the floor. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_46%_60%_at_74%_42%,rgba(108,92,231,0.16),transparent_70%),linear-gradient(112deg,transparent_58%,rgba(255,255,255,0.045)_70%,transparent_82%)]"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -left-[10%] bottom-[14%] h-px w-[120%] rotate-[9deg] bg-gradient-to-r from-transparent via-white/15 to-transparent blur-[2px]"
+          />
+          <div className="relative mx-auto grid max-w-[1200px] items-center gap-4 px-4 pt-10 md:min-h-[calc(100dvh-4rem)] md:grid-cols-[1.04fr_1fr] md:px-6 md:pt-0">
+            <div>
+              <h1 className="rise-in text-[38px] font-bold leading-[1.03] tracking-[-0.035em] text-[var(--ink)] sm:text-[52px] lg:text-[66px]">
+                {t("hero.title")}
+              </h1>
+              <p
+                className="rise-in mt-6 max-w-[520px] text-[20px] leading-[1.28] tracking-[-0.012em] text-muted-foreground sm:text-[24px] lg:text-[27px]"
+                style={{ animationDelay: "120ms" }}
+              >
+                {t("hero.subtitle")}
+              </p>
+              <div className="rise-in mt-9 flex flex-wrap items-center gap-x-7 gap-y-3" style={{ animationDelay: "220ms" }}>
+                <Link
+                  href="/signup"
+                  className="inline-flex h-14 items-center rounded-xl bg-[#6c5ce7] px-7 text-[18px] font-semibold text-white transition-colors hover:bg-[#7b6cf0]"
+                >
+                  {t("hero.ctaPrimary")}
+                </Link>
+                <a href="#video" className="text-[18px] font-medium text-[var(--violet)] hover:text-[#a99ff7]">
+                  {t("hero.ctaVideo")}
+                </a>
+              </div>
+              <p className="rise-in mt-4 text-sm text-[var(--faint)]" style={{ animationDelay: "260ms" }}>
+                {t("hero.freeNote")}
+              </p>
+            </div>
+            <div className="h-[340px] sm:h-[440px] md:h-[560px] lg:-mr-10 lg:h-[660px] xl:-mr-20">
+              <HeroGraph label={t("hero.graphLabel")} value={t("forces.total")} />
+            </div>
           </div>
-          <p className="rise-in mt-4 text-sm text-[var(--faint)]" style={{ animationDelay: "260ms" }}>
-            {t("hero.freeNote")}
-          </p>
+        </section>
 
-          <div className="rise-in relative mt-14 md:mt-20" style={{ animationDelay: "380ms" }}>
+        <section className="mx-auto max-w-[1200px] px-4 pt-10 md:px-6 md:pt-16">
+          <div className="relative">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-x-24 -top-28 bottom-1/3 bg-[radial-gradient(ellipse_at_50%_40%,rgba(108,92,231,0.18),transparent_62%)]"
+              className="pointer-events-none absolute -inset-x-24 -top-28 bottom-1/3 bg-[radial-gradient(ellipse_at_50%_40%,rgba(108,92,231,0.14),transparent_62%)]"
             />
             <div className="relative">
               <HeroWindow />

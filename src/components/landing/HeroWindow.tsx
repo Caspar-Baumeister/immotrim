@@ -42,7 +42,6 @@ export function HeroWindow() {
   const nav = [
     { icon: LayoutDashboard, label: "Übersicht", active: true },
     { icon: Building2, label: "Immobilien" },
-    { icon: Landmark, label: "Bankenübersicht" },
   ];
   const kpis = [
     { label: "Marktwert", value: eur(DEMO_KPIS.marketValue * count) },
@@ -66,34 +65,37 @@ export function HeroWindow() {
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[11px] text-muted-foreground">C</span>
       </div>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="hidden w-52 shrink-0 flex-col gap-1 border-r border-border p-3 md:flex">
-          <div className="mb-3 flex items-center gap-2 px-2 pt-1 text-sm font-semibold text-[var(--ink)]">
-            <Image src="/logo_immotrim.svg" alt="" width={18} height={18} />
-            Immotrim
+      {/* App bar, like the real one */}
+      <div className="flex h-11 items-center gap-1 border-b border-border px-3 md:px-5">
+        <Image src="/logo_immotrim.svg" alt="" width={18} height={18} className="mr-2" />
+        {nav.map(({ icon: Icon, label, active }) => (
+          <div
+            key={label}
+            className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[12px] ${active ? "bg-white/[0.07] text-[var(--ink)]" : "text-muted-foreground"}`}
+          >
+            <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+            {label}
           </div>
-          {nav.map(({ icon: Icon, label, active }) => (
-            <div
-              key={label}
-              className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] ${active ? "bg-white/[0.07] text-[var(--ink)]" : "text-muted-foreground"}`}
-            >
-              <Icon className="h-4 w-4" strokeWidth={1.75} />
-              {label}
-            </div>
-          ))}
-          <div className="flex-1" />
-          <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-[var(--violet)]">
-            <Sparkles className="h-4 w-4" strokeWidth={1.75} />
-            Immotrim Plus
-          </div>
-        </aside>
+        ))}
+        <div className="flex-1" />
+        <div className="hidden items-center gap-1.5 text-[12px] text-[var(--violet)] sm:flex">
+          <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
+          Immotrim Plus
+        </div>
+      </div>
 
+      <div>
         {/* Dashboard */}
         <div className="min-w-0 flex-1 space-y-4 p-4 md:p-6">
-          <div>
-            <div className="text-lg font-semibold tracking-[-0.01em] text-[var(--ink)]">Übersicht</div>
-            <div className="text-xs text-[var(--faint)]">3 Immobilien, Stand heute</div>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-lg font-semibold tracking-[-0.01em] text-[var(--ink)]">Übersicht</div>
+              <div className="text-xs text-[var(--faint)]">3 Immobilien, Stand heute</div>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-md bg-[#6c5ce7] px-2.5 py-1.5 text-[12px] font-medium text-white">
+              <Landmark className="h-3.5 w-3.5" strokeWidth={1.75} />
+              Bankenübersicht
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
