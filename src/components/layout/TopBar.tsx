@@ -53,11 +53,11 @@ export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null
   const pageTitle = title && !navLabels.includes(title) ? title : null;
 
   return (
-    <header className="sticky top-0 z-30 flex-shrink-0 border-b border-border bg-card/90 backdrop-blur">
+    <header className="sticky top-0 z-30 flex-shrink-0 border-b border-border bg-[#101012]/70 backdrop-blur">
       <div className="h-14 flex items-center px-3 sm:px-6 gap-1 sm:gap-2">
         <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 mr-1 sm:mr-4">
-          <Image src="/logo_immotrim.svg" alt="Immotrim" width={28} height={28} className="h-7 w-auto object-contain" priority />
-          <span className="hidden lg:inline text-lg font-bold uppercase tracking-wide text-foreground font-heading">IMMOTRIM</span>
+          <Image src="/immotrim-mark.svg" alt="Immotrim" width={22} height={22} className="h-[22px] w-auto object-contain" priority />
+          <span className="hidden lg:inline text-[15px] font-semibold tracking-[-0.01em] text-[var(--ink)]">Immotrim</span>
         </Link>
 
         <nav className="flex items-center gap-1 flex-shrink-0">
@@ -102,7 +102,7 @@ export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null
               key={stat.label}
               className="flex items-center gap-1.5 bg-card border border-border rounded-lg px-2.5 py-1.5"
             >
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+              <span className="text-[11px] text-muted-foreground">
                 {stat.label}
               </span>
               <span
@@ -140,7 +140,7 @@ export function TopBar({ title, subtitle, stats, userEmail: userEmailProp = null
         <Link
           href="/pricing"
           aria-label={tNav("upgrade")}
-          className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-sm font-medium text-[#6c5ce7] hover:bg-[#6c5ce7]/10 transition-colors"
+          className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-sm font-medium text-[var(--violet)] hover:bg-[#6c5ce7]/10 transition-colors"
         >
           <Sparkles className="h-4 w-4" />
           <span className="hidden sm:inline">{tNav("upgrade")}</span>

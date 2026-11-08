@@ -90,3 +90,22 @@ Nicht getestet: Stripe-Checkout (Klick vom Sicherheitsfilter blockiert, Code unv
 - Commit d1f6875 nach Caspars OK auf main, Vercel-Produktion Ready. Geprüft auf www.immotrim.com: Startseite ohne Login liefert den Hero und den Graph-Code aus, Seiten antworten mit 200, `/dashboard` leitet ohne Login um. Eingeloggt: App-Leiste ohne Seitenleiste, Button führt auf `/bankuebersicht`.
 - Das Rendern des Graphen ist in der Vorschau desselben Commits geprüft. Auf der Live-Domain leitet die Startseite eingeloggte Nutzer aufs Dashboard um, deshalb dort nicht im Browser gesehen.
 - Offen: Entscheidung, ob das Dashboard-Fenster unter dem Hero bleibt.
+
+## 4. Update: Dunkle App, heutiger Gewinn, Abo-Seite, neues Logo (08.11.2026)
+
+### 4.1 Design
+- Die Farben der Landingpage sind jetzt das einzige Theme (`:root` in `globals.css`), damit auch Menüs und Dialoge dunkel sind. Das betrifft die ganze Website: App, Login, Registrierung, Rechtstexte, Ratgeber.
+- Textstile wie auf der Landingpage: nur noch Geist (Sora entfernt), Überschriften in `--ink`, keine Großbuchstaben-Labels, helleres Violett `--violet` für Text. Abläufe und Layout unverändert.
+- Bewusst hell geblieben: die Bankenübersicht selbst (Vorschau und PDF), weil sie für Banken gedruckt wird.
+
+### 4.2 Heutiger Gewinn
+- Abschnitt oben im Dashboard (`TodayGain.tsx`, `calculateDailyGain` in `forces.ts`): die vier Kräfte aus „Was dein Vermögen gerade bewegt“, geteilt durch die Tage des Jahres. Die Summe ist die Summe der gerundeten Zeilen, die Zeilen gehen also immer auf.
+- Das ist ein rechnerischer Wert, keine Tagesbuchung. Der Text im Abschnitt sagt das: aufs Konto fließt nur der Cashflow, Wertsteigerung und Inflation beruhen auf Annahmen.
+
+### 4.3 Abo-Seite
+- Wer eingeloggt ist, sieht auf `/pricing` keinen 0-€-Plan mehr, sondern nur Plus monatlich und jährlich, dazu „Zurück zur App“ statt „Kostenlos starten“. Gilt für alle Wege dorthin (PDF, zweite Immobilie, Upgrade-Link). Ausgeloggt bleibt die Seite wie sie war.
+
+### 4.4 Logo
+- Neu: Dach über drei steigenden Balken, der letzte grün (Caspars Wahl, Entwurf D). Datei `public/immotrim-mark.svg`, bewusst neuer Name, weil `next/image` den alten Pfad cacht. Favicon `src/app/icon.png` auf dunkler Kachel.
+- In `~/Code/immotrim-promo` ebenfalls getauscht, `immotrim-promo.mp4`, `bank.mp4` und `poster-bank.jpg` neu gerendert.
+- Offen: Die iPhone-App hat ihr eigenes Icon, das ist nicht angefasst.

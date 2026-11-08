@@ -19,7 +19,7 @@ export async function fetchPriceAmount(priceId: string): Promise<string> {
   }
 }
 
-export async function PricingCards() {
+export async function PricingCards({ upgrade = false }: { upgrade?: boolean }) {
   const t = await getTranslations("landing.pricing");
   const [monthlyAmount, yearlyAmount] = await Promise.all([
     fetchPriceAmount(process.env.STRIPE_PRICE_MONTHLY!),
@@ -30,23 +30,25 @@ export async function PricingCards() {
   const plus = [t("f1"), t("f2"), t("f3"), t("f4")];
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-      <div className="relative rounded-2xl border border-border bg-card p-6 flex flex-col gap-5">
-        <div>
-          <h3 className="text-lg font-semibold">{t("freeTitle")}</h3>
-          <p className="text-xs text-muted-foreground mt-1">{t("freeDesc")}</p>
+    <div className={`grid gap-4 mx-auto sm:grid-cols-2 ${upgrade ? "max-w-3xl" : "lg:grid-cols-3 max-w-5xl"}`}>
+      {!upgrade && (
+        <div className="relative rounded-2xl border border-border bg-card p-6 flex flex-col gap-5">
+          <div>
+            <h3 className="text-lg font-semibold">{t("freeTitle")}</h3>
+            <p className="text-xs text-muted-foreground mt-1">{t("freeDesc")}</p>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="text-3xl font-bold tabular-nums">0 €</span>
+          </div>
+          <Link
+            href="/signup"
+            className="w-full rounded-lg text-sm font-semibold px-4 py-2.5 text-center bg-foreground/10 hover:bg-foreground/15 text-foreground transition-colors"
+          >
+            {t("freeCta")}
+          </Link>
+          <FeatureList label={t("freeIncludes")} features={free} />
         </div>
-        <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-bold tabular-nums">0 €</span>
-        </div>
-        <Link
-          href="/signup"
-          className="w-full rounded-lg text-sm font-semibold px-4 py-2.5 text-center bg-foreground/10 hover:bg-foreground/15 text-foreground transition-colors"
-        >
-          {t("freeCta")}
-        </Link>
-        <FeatureList label={t("freeIncludes")} features={free} />
-      </div>
+      )}
       <PlanCard
         title={t("monthly")}
         amount={monthlyAmount}
@@ -138,7 +140,7 @@ function PlanCard({
           type="submit"
           className={`w-full rounded-lg text-sm font-semibold px-4 py-2.5 transition-colors ${
             highlight
-              ? "bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white"
+              ? "bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white"
               : "bg-foreground/10 hover:bg-foreground/15 text-foreground"
           }`}
         >

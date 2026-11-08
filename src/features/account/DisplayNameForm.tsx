@@ -9,7 +9,7 @@ export function DisplayNameForm({ initial }: { initial: string }) {
 
   return (
     <section className="rounded-xl border border-border bg-card p-4 sm:p-6 space-y-3">
-      <h2 className="font-medium">Name auf der Bankenübersicht</h2>
+      <h2 className="font-semibold">Name auf der Bankenübersicht</h2>
       <form
         className="flex flex-wrap gap-3"
         onSubmit={async (e) => {

@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
   // Keep the headless-Chromium deps out of the bundle; they ship native/binary
   // assets that must be required at runtime from node_modules.
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
-  // The logo is a first-party inline SVG icon (document + pen). next/image blocks
+  // The logo is a first-party SVG icon (roof over rising bars). next/image blocks
   // SVGs by default; allow it, sandboxed via CSP since these are our own assets.
   images: {
     dangerouslyAllowSVG: true,

@@ -117,7 +117,7 @@ export default function EditPropertyPage({ params }: Props) {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold"
+              className="flex-1 bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white font-semibold"
             >
               {saving ? (
                 <>

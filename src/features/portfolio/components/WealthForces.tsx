@@ -52,14 +52,14 @@ export function WealthForces({ forces }: { forces: Forces }) {
     <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-5">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Was dein Vermögen gerade bewegt</h3>
+          <h3 className="text-sm font-semibold text-[var(--ink)]">Was dein Vermögen gerade bewegt</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             Alle Kräfte deines Portfolios für dieses Jahr, nicht nur Miete minus Rate.
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Vermögenszuwachs pro Jahr</p>
-          <p className={`text-xl font-semibold tabular-nums ${forces.total >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
+          <p className="text-[11px] text-muted-foreground">Vermögenszuwachs pro Jahr</p>
+          <p className={`text-xl font-semibold tabular-nums tracking-[-0.01em] ${forces.total >= 0 ? "text-emerald-400" : "text-red-400"}`}>
             {forces.total >= 0 ? "+" : ""}{eur(forces.total)}
           </p>
         </div>
@@ -103,7 +103,7 @@ function ForceRow({ icon: Icon, label, value, hint }: Row) {
   return (
     <div className="flex items-center gap-3">
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#6c5ce7]/10">
-        <Icon className="h-4 w-4 text-[#6c5ce7]" />
+        <Icon className="h-4 w-4 text-[var(--violet)]" />
       </span>
       <span className="flex-1 min-w-0 text-sm text-foreground flex items-center gap-1.5">
         <span className="truncate">{label}</span>
@@ -114,7 +114,7 @@ function ForceRow({ icon: Icon, label, value, hint }: Row) {
           <TooltipContent side="top" className="max-w-[260px] leading-snug">{hint}</TooltipContent>
         </Tooltip>
       </span>
-      <span className={`text-sm font-semibold tabular-nums ${value < 0 ? "text-red-500" : "text-foreground"}`}>
+      <span className={`text-sm font-semibold tabular-nums ${value < 0 ? "text-red-400" : "text-foreground"}`}>
         {value > 0 ? "+" : ""}{eur(value)}
       </span>
     </div>

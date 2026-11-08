@@ -9,10 +9,11 @@ import { ChartCard } from "@/components/shared/ChartCard";
 import { CashFlowChart } from "@/features/cash-flow/components/CashFlowChart";
 import { WertSchuldenChart } from "@/features/appreciation/components/WertSchuldenChart";
 import { VermoegensaufbauChart } from "@/features/wealth/components/VermoegensaufbauChart";
+import { TodayGain } from "@/features/portfolio/components/TodayGain";
 import { WealthForces } from "@/features/portfolio/components/WealthForces";
 import { getAllProperties } from "@/lib/property-service";
 import { calculatePortfolioKpis } from "@/features/portfolio/calculations";
-import { calculateWealthForces } from "@/features/portfolio/forces";
+import { calculateDailyGain, calculateWealthForces } from "@/features/portfolio/forces";
 import {
   calculatePortfolioCashFlowSeries,
   calculatePortfolioAppreciationSeries,
@@ -54,7 +55,7 @@ export default function DashboardPage() {
       <div className="flex-1 p-4 sm:p-6 flex flex-col gap-6 overflow-auto">
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="h-6 w-6 animate-spin text-[#6c5ce7]" />
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--violet)]" />
           </div>
         ) : properties.length === 0 ? (
           <EmptyState />
@@ -62,8 +63,8 @@ export default function DashboardPage() {
           <>
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-[#6c5ce7]" />
-                <h2 className="text-sm font-semibold text-foreground">Dein Portfolio heute</h2>
+                <Building2 className="h-4 w-4 text-[var(--violet)]" />
+                <h2 className="text-lg font-semibold tracking-[-0.01em] text-[var(--ink)]">Dein Portfolio heute</h2>
                 <span className="text-xs text-muted-foreground">
                   {properties.length} {properties.length === 1 ? "Immobilie" : "Immobilien"}
                 </span>
@@ -71,13 +72,13 @@ export default function DashboardPage() {
               <div className="flex items-center gap-4 flex-wrap">
                 <Link
                   href="/portfolio"
-                  className="text-sm font-medium text-[#6c5ce7] hover:underline flex items-center gap-1"
+                  className="text-sm font-medium text-[var(--violet)] hover:underline flex items-center gap-1"
                 >
                   Alle Immobilien <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
                 <Link
                   href="/bankuebersicht"
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#6c5ce7] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5b4bd6]"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#6c5ce7] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#7b6cf0]"
                 >
                   <Landmark className="h-4 w-4" />
                   Bankenübersicht
@@ -85,15 +86,17 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            <TodayGain gain={calculateDailyGain(forces)} />
+
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
               <MetricCard label="Portfolio-Wert" value={eur(kpis.estimatedPortfolioValue)} />
-              <MetricCard label="Eigenkapital im Bestand" value={eur(kpis.netPropertyEquity)} accent="#6c5ce7" />
+              <MetricCard label="Eigenkapital im Bestand" value={eur(kpis.netPropertyEquity)} accent="var(--violet)" />
               <MetricCard label="Restschuld" value={eur(kpis.outstandingLoanBalance)} />
               <MetricCard label="Beleihungsauslauf" value={formatPercent(ltv, 1)} />
               <MetricCard
                 label="Cashflow / Monat"
                 value={eur(kpis.monthlyCashFlowBeforeTax)}
-                accent={kpis.monthlyCashFlowBeforeTax >= 0 ? "#10b981" : "#ef4444"}
+                accent={kpis.monthlyCashFlowBeforeTax >= 0 ? "#34d399" : "#f87171"}
               />
               <MetricCard label="Brutto-Mietrendite" value={formatPercent(kpis.grossRentalYield, 1)} />
               <MetricCard label="Eigenkapitalrendite" value={formatPercent(kpis.returnOnEquityBeforeTax, 1)} />
@@ -158,7 +161,7 @@ function EmptyState() {
       </div>
       <Link
         href="/property/new"
-        className="mx-auto inline-flex items-center gap-2 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+        className="mx-auto inline-flex items-center gap-2 bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
       >
         <Plus className="h-4 w-4" />
         Immobilie anlegen
@@ -170,7 +173,7 @@ function EmptyState() {
 function Hint({ icon: Icon, title, children }: { icon: typeof Upload; title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-4 flex gap-3">
-      <Icon className="h-5 w-5 shrink-0 text-[#6c5ce7]" />
+      <Icon className="h-5 w-5 shrink-0 text-[var(--violet)]" />
       <div>
         <p className="text-sm font-medium text-foreground">{title}</p>
         <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{children}</p>

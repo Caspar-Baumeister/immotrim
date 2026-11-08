@@ -22,19 +22,19 @@ export default async function SignupPage({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <header className="border-b border-border bg-card/80 backdrop-blur">
+      <header className="border-b border-border bg-[#101012]/70 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
           <Link href={"/"} className="flex items-center gap-2">
             <Image
-              src="/logo_immotrim.svg"
+              src="/immotrim-mark.svg"
               alt="Immotrim"
               width={28}
               height={28}
-              className="h-7 w-auto object-contain"
+              className="h-[22px] w-auto object-contain"
               priority
             />
-            <span className="hidden sm:inline text-xl font-bold uppercase tracking-wide text-foreground">
-              IMMOTRIM
+            <span className="hidden sm:inline text-[15px] font-semibold tracking-[-0.01em] text-[var(--ink)]">
+              Immotrim
             </span>
           </Link>
         </div>
@@ -43,7 +43,7 @@ export default async function SignupPage({ searchParams }: Props) {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-semibold">{t("signupTitle")}</h1>
+            <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-[var(--ink)]">{t("signupTitle")}</h1>
             <p className="text-sm text-muted-foreground">{t("signupSubtitle")}</p>
           </div>
 
@@ -56,7 +56,7 @@ export default async function SignupPage({ searchParams }: Props) {
 
           <p className="text-sm text-center text-muted-foreground">
             {t("haveAccount")}{" "}
-            <Link href={`/login`} className="text-[#6c5ce7] hover:text-[#6c5ce7] underline underline-offset-4">
+            <Link href={`/login`} className="text-[var(--violet)] hover:text-[var(--violet)] underline underline-offset-4">
               {t("loginLink")}
             </Link>
           </p>

@@ -39,7 +39,7 @@ export default async function LandingPage() {
     "@type": "Organization",
     name: "Immotrim",
     url: `${base}`,
-    logo: `${base}/logo_immotrim.svg`,
+    logo: `${base}/immotrim-mark.svg`,
     description: tSeo("siteDescription"),
   };
 
@@ -186,7 +186,7 @@ export default async function LandingPage() {
           </div>
           <div className="flex flex-col items-center rounded-2xl border border-border bg-card px-6 py-14 text-center">
             <div className="flex h-36 w-36 items-center justify-center rounded-[32px] border border-[var(--line-strong)] bg-[#161616] shadow-[0_24px_70px_rgba(108,92,231,0.2)]">
-              <Image src="/logo_immotrim.svg" alt="" width={84} height={84} />
+              <Image src="/immotrim-mark.svg" alt="" width={84} height={84} />
             </div>
             <div className="mt-7 text-[38px] font-bold tracking-[-0.03em] text-[var(--ink)]">{t("plan.name")}</div>
             <div className="mt-8 text-[22px] font-semibold text-[var(--ink)]">{t("plan.free")}</div>

@@ -71,8 +71,8 @@ export function ExtractionReviewPanel({
   return (
     <div className="rounded-xl border border-[#6c5ce7]/30 bg-[#6c5ce7]/[0.03] overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#6c5ce7]/20 bg-[#6c5ce7]/[0.06]">
-        <Sparkles className="h-3.5 w-3.5 text-[#6c5ce7]" />
-        <span className="text-xs font-semibold text-[#6c5ce7]">
+        <Sparkles className="h-3.5 w-3.5 text-[var(--violet)]" />
+        <span className="text-xs font-semibold text-[var(--violet)]">
           {t("review.title", { count: keys.length })}
         </span>
         <span className="text-[10px] text-muted-foreground ml-auto">
@@ -132,7 +132,7 @@ export function ExtractionReviewPanel({
                     field.confidence >= 0.75
                       ? "text-emerald-400 bg-emerald-500/10"
                       : field.confidence >= 0.4
-                        ? "text-[#6c5ce7] bg-[#6c5ce7]/10"
+                        ? "text-[var(--violet)] bg-[#6c5ce7]/10"
                         : "text-red-400 bg-red-500/10",
                   )}
                 >
@@ -149,7 +149,7 @@ export function ExtractionReviewPanel({
           size="sm"
           onClick={() => onApply([...selected])}
           disabled={selected.size === 0}
-          className="bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white"
+          className="bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white"
         >
           {t("review.apply", { count: selected.size })}
         </Button>

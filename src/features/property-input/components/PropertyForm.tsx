@@ -241,7 +241,7 @@ export function PropertyForm() {
             <div className="flex items-center justify-between py-1">
               <span className="text-sm text-muted-foreground">Nebenkosten</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-[#6c5ce7] font-semibold tabular-nums">
+                <span className="text-xs text-[var(--violet)] font-semibold tabular-nums">
                   {formatPercent(totalNebenkostenPct, 2)} ={" "}
                   {formatCurrency(totalNebenkostenEur, "de-DE", true)}
                 </span>
@@ -319,7 +319,7 @@ export function PropertyForm() {
 
         {/* Kredit divider */}
         <div className="border-t border-border/60 pt-4 flex flex-col gap-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider -mb-1">
+          <p className="text-xs font-semibold text-muted-foreground -mb-1">
             Finanzierung
           </p>
 
@@ -373,7 +373,7 @@ export function PropertyForm() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Monatliche Rate</span>
-              <span className="font-semibold tabular-nums text-[#6c5ce7]">
+              <span className="font-semibold tabular-nums text-[var(--violet)]">
                 {formatCurrency(monthlyPayment)}
               </span>
             </div>
@@ -388,7 +388,7 @@ export function PropertyForm() {
 
         {/* Rent */}
         <div className="border-t border-border/60 pt-4 flex flex-col gap-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider -mb-1">
+          <p className="text-xs font-semibold text-muted-foreground -mb-1">
             Mieteinnahmen
           </p>
           <SliderInput

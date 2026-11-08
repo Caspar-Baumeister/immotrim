@@ -47,12 +47,12 @@ export function ChartCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             {badge && (
-              <span className="text-[10px] font-bold bg-[#6c5ce7]/15 text-[#6c5ce7] border border-[#6c5ce7]/20 rounded px-1.5 py-0.5 uppercase tracking-wider flex-shrink-0">
+              <span className="text-[11px] font-bold bg-[#6c5ce7]/15 text-[var(--violet)] border border-[#6c5ce7]/20 rounded px-1.5 py-0.5 flex-shrink-0">
                 {badge}
               </span>
             )}
             <div className="min-w-0">
-              <h3 className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-[var(--ink)]">
                 <span className="truncate">{title}</span>
                 {info && (
                   <Tooltip>

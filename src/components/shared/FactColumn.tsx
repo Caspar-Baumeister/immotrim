@@ -27,7 +27,7 @@ export function FactColumn({ title, facts }: { title: string; facts: Fact[] }) {
   return (
     <div className="flex flex-col">
       <div className="px-4 py-2.5 border-b border-border bg-muted/20">
-        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-muted-foreground">
           {title}
         </span>
       </div>
@@ -65,7 +65,7 @@ export function FactColumn({ title, facts }: { title: string; facts: Fact[] }) {
                 "text-xs font-semibold tabular-nums",
                 fact.highlight && fact.positive === true && "text-emerald-400",
                 fact.highlight && fact.positive === false && "text-red-400",
-                fact.highlight && fact.positive === undefined && "text-[#6c5ce7]",
+                fact.highlight && fact.positive === undefined && "text-[var(--violet)]",
                 fact.negative && !fact.highlight && "text-red-400/80",
                 fact.muted && "text-muted-foreground",
                 !fact.highlight && !fact.negative && !fact.muted && "text-foreground"

@@ -75,7 +75,7 @@ export default function NewPropertyPage() {
             </p>
             <Link
               href="/pricing?reason=properties"
-              className="inline-block bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+              className="inline-block bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
             >
               Plus ansehen
             </Link>
@@ -112,7 +112,7 @@ export default function NewPropertyPage() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="w-full bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white font-semibold h-11"
+              className="w-full bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white font-semibold h-11"
             >
               {saving ? (
                 <>

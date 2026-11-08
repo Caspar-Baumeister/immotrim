@@ -93,3 +93,30 @@ export function calculateWealthForces(properties: PortfolioProperty[]): WealthFo
     currentDebt,
   };
 }
+
+export type DailyGain = {
+  principal: number;
+  cashFlow: number;
+  appreciation: number;
+  inflationOnDebt: number;
+  /** Sum of the rounded parts, so the shown rows always add up to it. */
+  total: number;
+};
+
+/** The year's wealth forces as one day's share, in whole cents. */
+export function calculateDailyGain(forces: WealthForces, now = new Date()): DailyGain {
+  const year = now.getFullYear();
+  const days = (Date.UTC(year + 1, 0, 1) - Date.UTC(year, 0, 1)) / 86_400_000;
+  const toCents = (perYear: number) => Math.round((perYear / days) * 100);
+  const principal = toCents(forces.principal);
+  const cashFlow = toCents(forces.cashFlow);
+  const appreciation = toCents(forces.appreciation);
+  const inflationOnDebt = toCents(forces.inflationOnDebt);
+  return {
+    principal: principal / 100,
+    cashFlow: cashFlow / 100,
+    appreciation: appreciation / 100,
+    inflationOnDebt: inflationOnDebt / 100,
+    total: (principal + cashFlow + appreciation + inflationOnDebt) / 100,
+  };
+}

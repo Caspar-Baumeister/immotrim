@@ -148,7 +148,7 @@ export function DocumentUploadCore({ target, adapter }: Props) {
         className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-muted/10 px-4 py-6 text-center cursor-pointer hover:border-[#6c5ce7]/40 hover:bg-[#6c5ce7]/[0.03] transition-colors"
       >
         {uploading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-[#6c5ce7]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--violet)]" />
         ) : (
           <Upload className="h-5 w-5 text-muted-foreground" />
         )}
@@ -204,7 +204,7 @@ export function DocumentUploadCore({ target, adapter }: Props) {
           {extracting ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <Sparkles className="h-3.5 w-3.5 text-[#6c5ce7]" />
+            <Sparkles className="h-3.5 w-3.5 text-[var(--violet)]" />
           )}
           {extracting ? t("extracting") : t("extract")}
         </Button>

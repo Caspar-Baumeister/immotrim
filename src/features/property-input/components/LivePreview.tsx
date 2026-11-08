@@ -24,7 +24,7 @@ function MetricRow({ label, value, highlight, positive }: MetricRowProps) {
           "text-xs font-semibold tabular-nums",
           highlight && positive === true && "text-emerald-400",
           highlight && positive === false && "text-red-400",
-          highlight && positive === null && "text-[#6c5ce7]",
+          highlight && positive === null && "text-[var(--violet)]",
           !highlight && "text-foreground"
         )}
       >
@@ -60,7 +60,7 @@ export function LivePreview() {
 
   return (
     <div className="bg-card border border-border rounded-xl p-4 sticky top-4">
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+      <p className="text-xs font-semibold text-muted-foreground mb-3">
         Live-Vorschau
       </p>
 

@@ -26,11 +26,11 @@ export function MetricCard({
         className
       )}
     >
-      <span className="text-xs text-muted-foreground font-medium tracking-wide uppercase">
+      <span className="text-xs text-muted-foreground font-medium">
         {label}
       </span>
       <span
-        className="text-xl font-semibold tabular-nums truncate"
+        className="text-xl font-semibold tabular-nums tracking-[-0.01em] truncate text-[var(--ink)]"
         style={accent ? { color: accent } : undefined}
       >
         {value}

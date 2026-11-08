@@ -67,7 +67,7 @@ export function HeroWindow() {
 
       {/* App bar, like the real one */}
       <div className="flex h-11 items-center gap-1 border-b border-border px-3 md:px-5">
-        <Image src="/logo_immotrim.svg" alt="" width={18} height={18} className="mr-2" />
+        <Image src="/immotrim-mark.svg" alt="" width={18} height={18} className="mr-2" />
         {nav.map(({ icon: Icon, label, active }) => (
           <div
             key={label}

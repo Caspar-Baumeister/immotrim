@@ -28,7 +28,7 @@ export function DeleteAccount() {
 
   return (
     <section className="rounded-xl border border-destructive/30 bg-card p-4 sm:p-6 space-y-3">
-      <h2 className="font-medium">Konto löschen</h2>
+      <h2 className="font-semibold">Konto löschen</h2>
       <p className="text-sm text-muted-foreground">
         Löscht alle Immobilien, Dokumente und deinen Zugang unwiderruflich. Ein laufendes
         Abo wird sofort gekündigt.

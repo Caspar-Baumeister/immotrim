@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Sora } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
@@ -15,13 +15,6 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-});
-
-// Display font for headings — clean geometric sans (Makeral-style).
-const sora = Sora({
-  variable: "--font-sora",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
 });
 
 type Props = {
@@ -49,7 +42,7 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html
       lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} ${sora.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="text-foreground min-h-screen">
         <NextIntlClientProvider messages={messages}>

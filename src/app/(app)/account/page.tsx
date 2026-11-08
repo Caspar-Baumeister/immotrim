@@ -31,12 +31,12 @@ export default async function AccountPage() {
       <TopBar userEmail={user.email ?? null} />
       <main className="mx-auto max-w-2xl px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         <header>
-          <h1 className="text-2xl font-semibold">{t("title")}</h1>
+          <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-[var(--ink)]">{t("title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
         </header>
 
         <section className="rounded-xl border border-border bg-card p-4 sm:p-6 space-y-4">
-          <h2 className="font-medium">{t("subscription")}</h2>
+          <h2 className="font-semibold">{t("subscription")}</h2>
           <dl className="grid grid-cols-2 gap-y-2 text-sm">
             <dt className="text-muted-foreground">{t("plan")}</dt>
             <dd>{plan}</dd>
@@ -52,7 +52,7 @@ export default async function AccountPage() {
             {!plus && (
               <Link
                 href={`/pricing`}
-                className="inline-block rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white text-sm font-medium px-4 py-2 transition-colors"
+                className="inline-block rounded-lg bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white text-sm font-medium px-4 py-2 transition-colors"
               >
                 {t("upgrade")}
               </Link>
@@ -63,7 +63,7 @@ export default async function AccountPage() {
                 <button
                   type="submit"
                   className={plus
-                    ? "rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white text-sm font-medium px-4 py-2 transition-colors"
+                    ? "rounded-lg bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white text-sm font-medium px-4 py-2 transition-colors"
                     : "rounded-lg border border-border text-sm font-medium px-4 py-2 hover:bg-accent transition-colors"}
                 >
                   {t("managePortal")}

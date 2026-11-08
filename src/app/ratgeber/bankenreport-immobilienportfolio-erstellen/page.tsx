@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
         "So bereitest du Immobilien, Darlehen, Mieten, Cashflow und Vermögen übersichtlich für das nächste Bankgespräch auf.",
       url: PATH,
       locale: "de_DE",
-      images: ["/logo_immotrim.svg"],
+      images: ["/immotrim-mark.svg"],
     },
   };
 }
@@ -50,11 +50,11 @@ const prose = [
   "[&_h2]:font-heading [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-foreground [&_h2]:mt-14 [&_h2]:mb-5 [&_h2]:scroll-mt-24",
   "[&_h3]:font-heading [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:mt-8 [&_h3]:mb-3 [&_h3]:scroll-mt-24",
   "[&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:my-4",
-  "[&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:text-muted-foreground [&_ul]:marker:text-[#6c5ce7]",
-  "[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ol]:text-muted-foreground [&_ol]:marker:text-[#6c5ce7]",
+  "[&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:text-muted-foreground [&_ul]:marker:text-[var(--violet)]",
+  "[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ol]:text-muted-foreground [&_ol]:marker:text-[var(--violet)]",
   "[&_li]:leading-relaxed [&_li]:pl-1",
   "[&_strong]:text-foreground [&_strong]:font-semibold",
-  "[&_a]:text-[#6c5ce7] [&_a]:font-medium [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#6c5ce7]/40",
+  "[&_a]:text-[var(--violet)] [&_a]:font-medium [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#6c5ce7]/40",
 ].join(" ");
 
 export default async function BankenreportRatgeberPage() {
@@ -79,9 +79,9 @@ export default async function BankenreportRatgeberPage() {
     publisher: {
       "@type": "Organization",
       name: "Immotrim",
-      logo: { "@type": "ImageObject", url: `${base}/logo_immotrim.svg` },
+      logo: { "@type": "ImageObject", url: `${base}/immotrim-mark.svg` },
     },
-    image: `${base}/logo_immotrim.svg`,
+    image: `${base}/immotrim-mark.svg`,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
   };
 
@@ -113,19 +113,19 @@ export default async function BankenreportRatgeberPage() {
       />
 
       {/* Top nav — matches the other public pages (logo + theme toggle). */}
-      <nav className="border-b border-border bg-card/80 backdrop-blur">
+      <nav className="border-b border-border bg-[#101012]/70 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
           <Link href={"/"} className="flex items-center gap-2">
             <Image
-              src="/logo_immotrim.svg"
+              src="/immotrim-mark.svg"
               alt="Immotrim"
               width={28}
               height={28}
-              className="h-7 w-auto object-contain"
+              className="h-[22px] w-auto object-contain"
               priority
             />
-            <span className="hidden sm:inline text-xl font-bold uppercase tracking-wide text-foreground">
-              IMMOTRIM
+            <span className="hidden sm:inline text-[15px] font-semibold tracking-[-0.01em] text-[var(--ink)]">
+              Immotrim
             </span>
           </Link>
         </div>
@@ -195,7 +195,7 @@ export default async function BankenreportRatgeberPage() {
             aria-label="Inhaltsverzeichnis"
             className="not-prose my-8 rounded-2xl border border-border bg-card p-5 sm:p-6"
           >
-            <h2 className="!mt-0 !mb-3 font-heading text-sm font-semibold uppercase tracking-wide text-foreground">
+            <h2 className="!mt-0 !mb-3 font-heading text-sm font-semibold text-[var(--ink)]">
               Inhaltsverzeichnis
             </h2>
             <ol className="!my-0 !pl-0 list-none space-y-2 text-sm">
@@ -205,7 +205,7 @@ export default async function BankenreportRatgeberPage() {
                     href={`#${item.id}`}
                     className="group flex gap-2.5 text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <span className="tabular-nums font-medium text-[#6c5ce7]">
+                    <span className="tabular-nums font-medium text-[var(--violet)]">
                       {i + 1}.
                     </span>
                     <span className="underline-offset-4 group-hover:underline">
@@ -228,7 +228,7 @@ export default async function BankenreportRatgeberPage() {
             >
               Das Wichtigste in Kürze
             </h2>
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-muted-foreground marker:text-[#6c5ce7] [&_strong]:font-semibold [&_strong]:text-foreground">
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-muted-foreground marker:text-[var(--violet)] [&_strong]:font-semibold [&_strong]:text-foreground">
               <li>
                 Ein Bankenreport zeigt Immobilien, Darlehen, Mieteinnahmen, Ausgaben,
                 Vermögenswerte und wichtige Portfolio-Kennzahlen.
@@ -743,7 +743,7 @@ export default async function BankenreportRatgeberPage() {
             </p>
             <Link
               href={`/signup`}
-              className="mt-5 inline-flex items-center justify-center rounded-lg bg-[#6c5ce7] px-5 py-2.5 font-semibold text-white transition-colors hover:bg-[#5b4bd6]"
+              className="mt-5 inline-flex items-center justify-center rounded-lg bg-[#6c5ce7] px-5 py-2.5 font-semibold text-white transition-colors hover:bg-[#7b6cf0]"
             >
               Portfolio in Immotrim aufbereiten
             </Link>

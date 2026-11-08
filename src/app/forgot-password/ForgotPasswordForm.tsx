@@ -42,7 +42,7 @@ export function ForgotPasswordForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-[#6c5ce7] hover:bg-[#5b4bd6] disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 transition-colors"
+        className="w-full rounded-lg bg-[#6c5ce7] hover:bg-[#7b6cf0] disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 transition-colors"
       >
         {pending ? t("submitting") : t("submitForgot")}
       </button>

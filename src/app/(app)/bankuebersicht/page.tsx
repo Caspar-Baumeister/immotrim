@@ -38,7 +38,7 @@ export default function BankOverviewPage() {
       <div className="flex-1 p-4 sm:p-6 flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-2xl">
-            <h2 className="text-sm font-semibold text-foreground">Dein Portfolio auf einer Seite</h2>
+            <h2 className="text-sm font-semibold text-[var(--ink)]">Dein Portfolio auf einer Seite</h2>
             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
               Werte, Restschulden, Mieten, Raten und Beleihungsauslauf je Objekt, so wie es heute steht.
               Ohne Prognosen, damit die Bank jede Zahl mit deinen Unterlagen abgleichen kann.
@@ -50,7 +50,7 @@ export default function BankOverviewPage() {
               type="button"
               onClick={download}
               disabled={downloading}
-              className="inline-flex items-center gap-2 bg-[#6c5ce7] hover:bg-[#5b4bd6] disabled:opacity-60 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 bg-[#6c5ce7] hover:bg-[#7b6cf0] disabled:opacity-60 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
             >
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               Als PDF herunterladen
@@ -58,7 +58,7 @@ export default function BankOverviewPage() {
           ) : (
             <Link
               href="/pricing?reason=bank"
-              className="inline-flex items-center gap-2 bg-[#6c5ce7] hover:bg-[#5b4bd6] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 bg-[#6c5ce7] hover:bg-[#7b6cf0] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
             >
               <Sparkles className="h-4 w-4" />
               PDF mit Plus herunterladen

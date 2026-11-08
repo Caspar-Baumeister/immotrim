@@ -5,14 +5,14 @@ import { getTranslations } from "next-intl/server";
 export function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.01em] text-[var(--ink)]">
-      <Image src="/logo_immotrim.svg" alt="" width={22} height={22} className="h-[22px] w-auto" priority />
+      <Image src="/immotrim-mark.svg" alt="" width={22} height={22} className="h-[22px] w-auto" priority />
       Immotrim
     </Link>
   );
 }
 
 // Sticky top bar of the dark marketing pages.
-export async function LandingNav() {
+export async function LandingNav({ signedIn = false }: { signedIn?: boolean } = {}) {
   const t = await getTranslations("landing.nav");
   return (
     <header className="sticky top-0 z-30 bg-[#101012]/70 backdrop-blur">
@@ -27,12 +27,20 @@ export async function LandingNav() {
           </Link>
         </nav>
         <div className="flex-1" />
-        <Link href="/login" className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-[var(--ink)] max-[400px]:hidden">
-          {t("login")}
-        </Link>
-        <Link href="/signup" className="rounded-md bg-[#6c5ce7] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#7b6cf0]">
-          {t("cta")}
-        </Link>
+        {signedIn ? (
+          <Link href="/dashboard" className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-[var(--ink)]">
+            {t("app")}
+          </Link>
+        ) : (
+          <>
+            <Link href="/login" className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-[var(--ink)] max-[400px]:hidden">
+              {t("login")}
+            </Link>
+            <Link href="/signup" className="rounded-md bg-[#6c5ce7] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#7b6cf0]">
+              {t("cta")}
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );

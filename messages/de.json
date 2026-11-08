@@ -116,7 +116,8 @@
       "video": "Video",
       "pricing": "Preise",
       "login": "Anmelden",
-      "cta": "Kostenlos starten"
+      "cta": "Kostenlos starten",
+      "app": "Zurück zur App"
     },
     "hero": {
       "title": "Mach deine Immobilien so übersichtlich wie Aktien.",
@@ -242,6 +243,7 @@
     "pricing": {
       "title": "Einfache Preise",
       "subtitle": "Starte kostenlos mit einer Immobilie. Für dein ganzes Portfolio gibt es Plus.",
+      "upgradeSubtitle": "Mit Plus verwaltest du dein ganzes Portfolio und lädst die Bankenübersicht als PDF herunter.",
       "freeTitle": "Kostenlos",
       "freeDesc": "Für deine erste Immobilie.",
       "freeCta": "Kostenlos starten",
